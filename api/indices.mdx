@@ -1,0 +1,232 @@
+---
+title: "Vegetation Indices API: Calculate NDVI, NDRE and EVI"
+sidebarTitle: "Indices"
+description: "Calculate NDVI, NDRE, NDWI, EVI, and custom band-math indices for your fields, retrieve zonal statistics, and pull historical time-series data."
+---
+
+The Vegetation Indices API lets you calculate a wide range of remote sensing indices for your registered fields using available satellite or drone imagery. Indices quantify plant health, water stress, and canopy density by comparing reflectance across spectral bands. You can compute a single index for a specific date, retrieve a historical time series to track seasonal progression, or define your own custom band-math formula for specialised analysis.
+
+## Supported Indices
+
+| Index | Full Name | Primary Use |
+| --- | --- | --- |
+| `NDVI` | Normalized Difference Vegetation Index | General crop health and canopy greenness |
+| `NDRE` | Normalized Difference Red Edge | Chlorophyll content and early stress detection |
+| `NDWI` | Normalized Difference Water Index | Crop water stress and irrigation management |
+| `EVI` | Enhanced Vegetation Index | Dense canopy areas with reduced atmospheric noise |
+| `SAVI` | Soil-Adjusted Vegetation Index | Early-season analysis with exposed soil |
+| `MSAVI2` | Modified SAVI (version 2) | Dynamic soil correction for variable canopy cover |
+| `custom` | Custom Band Math | User-defined formula using available spectral bands |
+
+---
+
+## Calculate an Index
+
+Calculate a vegetation index for a field on a specific date. The API selects the best available imagery for that date (lowest cloud cover) or uses the exact imagery ID you specify.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique field ID (e.g., `fld_01j8xyz`).
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="index" type="string" required>
+  The vegetation index to calculate. Accepted values: `NDVI`, `NDRE`, `NDWI`, `EVI`, `SAVI`, `MSAVI2`, `custom`.
+</ParamField>
+
+<ParamField query="date" type="string" required>
+  The target date for the calculation in `YYYY-MM-DD` format. The API uses the best available image on or nearest to this date.
+</ParamField>
+
+<ParamField query="zonal_stats" default="false" type="boolean">
+  When `true`, the response includes per-zone summary statistics: `min`, `max`, `mean`, and `std` (standard deviation) calculated across all valid pixels within the field boundary.
+</ParamField>
+
+<ParamField query="imagery_id" type="string">
+  Pin the calculation to a specific imagery record by ID. If omitted, the API automatically selects the image with the lowest cloud cover for the requested date.
+</ParamField>
+
+### Example Request
+
+```bash
+curl "https://api.example.com/v1/fields/fld_01j8xyz/indices?index=NDVI&date=2024-06-15&zonal_stats=true" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Example Response
+
+```json
+{
+  "field_id": "fld_01j8xyz",
+  "index": "NDVI",
+  "date": "2024-06-15",
+  "imagery_id": "img_01k2abc",
+  "zonal_stats": {
+    "min": 0.21,
+    "max": 0.84,
+    "mean": 0.63,
+    "std": 0.09
+  },
+  "geojson": { "...raster as GeoJSON..." }
+}
+```
+
+### Response Fields
+
+<ResponseField name="field_id" type="string">
+  The ID of the field the index was calculated for.
+</ResponseField>
+
+<ResponseField name="index" type="string">
+  The index that was calculated.
+</ResponseField>
+
+<ResponseField name="date" type="string">
+  The date of the imagery used for the calculation.
+</ResponseField>
+
+<ResponseField name="imagery_id" type="string">
+  The ID of the imagery record used as the source for the calculation.
+</ResponseField>
+
+<ResponseField name="zonal_stats" type="object">
+  Summary statistics for the index across all valid pixels within the field boundary. Only present when `zonal_stats=true`.
+
+  <Expandable title="zonal_stats properties">
+    <ResponseField name="min" type="number">
+      The minimum pixel value within the field.
+    </ResponseField>
+
+    <ResponseField name="max" type="number">
+      The maximum pixel value within the field.
+    </ResponseField>
+
+    <ResponseField name="mean" type="number">
+      The mean pixel value across the field.
+    </ResponseField>
+
+    <ResponseField name="std" type="number">
+      The standard deviation of pixel values, indicating spatial variability within the field.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="geojson" type="object">
+  A GeoJSON `FeatureCollection` containing the per-pixel index values rasterised as vector features, clipped to the field boundary.
+</ResponseField>
+
+<Note>
+  Index values generally range from `-1.0` to `1.0` for normalised difference indices. Pixels with `cloud_cover` or masked areas are excluded from the calculation and appear as `null` in the GeoJSON output.
+</Note>
+
+---
+
+## Get an Index Time Series
+
+Retrieve a historical time series of aggregated index values for a field over a date range. Use this endpoint to track seasonal crop development, compare growing seasons, or detect anomalies over time.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique field ID.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="index" type="string" required>
+  The vegetation index to compute for each period. Same accepted values as the single-date endpoint.
+</ParamField>
+
+<ParamField query="start_date" type="string" required>
+  The start of the time range in `YYYY-MM-DD` format.
+</ParamField>
+
+<ParamField query="end_date" type="string" required>
+  The end of the time range in `YYYY-MM-DD` format.
+</ParamField>
+
+<ParamField query="interval" default="weekly" type="string">
+  The aggregation interval. Accepted values: `daily`, `weekly`, `biweekly`. The best available image within each interval is used.
+</ParamField>
+
+### Example Request
+
+```bash
+curl "https://api.example.com/v1/fields/fld_01j8xyz/indices/timeseries?index=NDVI&start_date=2024-05-01&end_date=2024-09-30&interval=weekly" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+Returns a JSON array where each element represents one interval.
+
+<ResponseField name="date" type="string">
+  The representative date for the interval (the date of the imagery used).
+</ResponseField>
+
+<ResponseField name="mean" type="number">
+  The mean index value across all valid pixels in the field for this interval.
+</ResponseField>
+
+<ResponseField name="min" type="number">
+  The minimum pixel value in the field for this interval.
+</ResponseField>
+
+<ResponseField name="max" type="number">
+  The maximum pixel value in the field for this interval.
+</ResponseField>
+
+<ResponseField name="std" type="number">
+  The standard deviation of pixel values for this interval.
+</ResponseField>
+
+<Tip>
+  Gaps in the time series indicate intervals where no cloud-free imagery was available. Filter your chart rendering to skip `null` values rather than interpolating, to avoid misleading trend lines.
+</Tip>
+
+---
+
+## Calculate a Custom Index
+
+Define and calculate a custom vegetation index using a band-math formula. This is useful when you need an index that is not in the standard set, or when you want to test experimental formulas on your own data.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique field ID.
+</ParamField>
+
+### Request Body
+
+<ParamField body="name" type="string" required>
+  A descriptive name for your custom index (e.g., `"My Red-Edge Ratio"`). This name is stored with the result for reference.
+</ParamField>
+
+<ParamField body="formula" type="string" required>
+  The band-math formula expressed as a string using standard arithmetic operators and Sentinel-2 band identifiers. For example: `"(B08 - B04) / (B08 + B04)"` reproduces the standard NDVI formula.
+
+  Available band identifiers: `B02` (Blue), `B03` (Green), `B04` (Red), `B05` (Red Edge 1), `B06` (Red Edge 2), `B07` (Red Edge 3), `B08` (NIR), `B11` (SWIR 1), `B12` (SWIR 2).
+</ParamField>
+
+<ParamField body="date" type="string" required>
+  The target date in `YYYY-MM-DD` format.
+</ParamField>
+
+### Example Request
+
+```bash
+curl -X POST https://api.example.com/v1/fields/fld_01j8xyz/indices/custom \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Red Edge Chlorophyll Index",
+    "formula": "(B07 / B05) - 1",
+    "date": "2024-06-15"
+  }'
+```
+
+<Warning>
+  Custom index calculations consume additional compute resources. Division by zero in your formula (e.g., when denominator bands have zero reflectance) produces `null` values in the output rather than errors — validate your formula against a small test area first.
+</Warning>

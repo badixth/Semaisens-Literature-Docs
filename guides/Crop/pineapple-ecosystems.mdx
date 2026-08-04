@@ -1,0 +1,154 @@
+---
+title: "Healthy NDVI Ranges for Pineapple Across Planting Environments"
+sidebarTitle: "Pineapple Ecosystems"
+description: "Indicative healthy NDVI bands for pineapple across mineral upland, sandy coastal, peat, and highland environments, by growth phase and ratoon cycle."
+---
+
+Pineapple is a slow-growing, low-stature crop with a distinctive rosette architecture. It sits closer to the ground than most row crops, uses CAM photosynthesis, and is often grown on plastic mulch, all of which affect how it appears on satellite imagery. Healthy NDVI is driven by **growth phase**, **ratoon cycle** (plant crop vs first/second ratoon), and **planting environment**.
+
+This page lists indicative healthy NDVI bands for pineapple by environment and phase so you can interpret the Health tab correctly for the block in front of you.
+
+For the generic Health tab workflow, see [Crop Health](/guides/crop-health-monitoring).
+
+## Pineapple planting environments at a glance
+
+| Environment | Soil / terrain | Typical peak NDVI | Interpretation risk |
+| --- | --- | --- | --- |
+| Mineral upland | Well-drained inland mineral soils, gentle slopes | 0.55 – 0.75 | Baseline. Most stable NDVI signal. |
+| Sandy coastal / BRIS | Coastal sand or BRIS soils, low water retention | 0.45 – 0.68 | Bright soil background inflates apparent NDVI in young stands. |
+| Peat / organic | Drained peat, common for MD2 and Josapine | 0.50 – 0.72 | Dark soil background depresses NDVI early; also subsidence risk. |
+| Highland | Cooler climate, \> 700 m elevation | 0.55 – 0.75 | Slower growth cycle (18 – 24 months); phase windows extend. |
+
+<Info>
+  Ranges on this page are indicative bands drawn from published Sentinel-2 pineapple studies and MPIB / Del Monte agronomy references. The platform refines them automatically once it has one or more cycles of block history.
+</Info>
+
+## Why pineapple NDVI reads lower than other crops
+
+Even a healthy, fully-grown pineapple block rarely exceeds NDVI ~0.75. Three reasons:
+
+- **Low canopy height and inter-row spacing.** Bare soil, plastic mulch, or drip lines remain visible between rows through most of the cycle.
+- **CAM leaf reflectance.** Waxy, upright leaves reflect less near-infrared per unit ground area than broadleaf crops.
+- **Plastic mulch.** Silver or black mulch alters the red and NIR signal, especially at 10 m Sentinel-2 resolution. Bands below assume plastic-mulch culture typical of commercial blocks; open-field culture reads slightly higher.
+
+Do not compare pineapple NDVI directly against paddy or oil palm. Interpret only against the pineapple-specific bands on this page.
+
+## Growth phase drives the NDVI curve
+
+Pineapple runs on a 14 – 24 month cycle depending on variety and environment. Use the phase bands below as the primary lens, then adjust for planting environment.
+
+| Phase | Months after planting | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| Establishment | 0 – 3 | 0.10 – 0.25 | Mostly bare soil / mulch; small suckers or crowns. |
+| Early vegetative | 3 – 8 | 0.20 – 0.40 | Leaf rosette expanding; inter-row still dominates the pixel. |
+| Late vegetative | 8 – 12 | 0.40 – 0.60 | Rosette closing over the row; peak leaf mass building. |
+| Forcing / floral induction | 12 – 14 | 0.50 – 0.70 | Ethylene / calcium carbide application; NDVI plateau begins. |
+| Fruit development | 14 – 18 | 0.55 – 0.75 | Peak NDVI. Fruit sits atop the plant; canopy stays green. |
+| Ripening / harvest | 18 – 22 | 0.45 – 0.65 | Gradual decline as older leaves senesce. |
+| First ratoon (if kept) | \+ 8 – 14 months | 0.40 – 0.65 | Lower peak than plant crop; more block-to-block variance. |
+
+<Info>
+  Cycles depend heavily on variety. **MD2** and **Josapine** typically run 14 – 18 months to harvest; **Sarawak / Moris** run 18 – 24 months. Set the variety in block settings so phase windows scale correctly.
+</Info>
+
+## Mineral upland
+
+Well-drained inland mineral soils on gentle slopes. This is the baseline used by the default pineapple preset in [Crop Health](/guides/crop-health-monitoring). Uniform soil and stable moisture give the cleanest NDVI signal.
+
+| Phase | Months after planting | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| Establishment | 0 – 3 | 0.12 – 0.25 | Bare soil dominates; mulch type has the largest effect here. |
+| Early vegetative | 3 – 8 | 0.22 – 0.42 | Uniform rise expected block-wide. |
+| Late vegetative | 8 – 12 | 0.42 – 0.62 | Rosette closes over the row; inter-row still contributes to the pixel. |
+| Forcing | 12 – 14 | 0.52 – 0.70 | Plateau begins; NDVI rise slows post-forcing. |
+| Fruit development | 14 – 18 | 0.58 – 0.75 | Peak plateau. Cleanest NDVI signal of any environment. |
+| Ripening | 18 – 22 | 0.48 – 0.65 | Gradual decline as older leaves senesce. |
+
+## Sandy coastal / BRIS
+
+Coastal sand or BRIS (Beach Ridges Interspersed with Swales) soils with low water and nutrient retention. Bright quartz sand inflates apparent NDVI in young stands because red reflectance is very high, but healthy peak NDVI is actually lower because the crop struggles with drought and low fertility.
+
+| Phase | Months after planting | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| Establishment | 0 – 3 | 0.08 – 0.22 | Bright sand background; do not misread as bare-soil stress. |
+| Early vegetative | 3 – 8 | 0.18 – 0.38 | Watch for patchy establishment where sand is deepest. |
+| Late vegetative | 8 – 12 | 0.35 – 0.55 | Slower canopy build than mineral upland. |
+| Forcing | 12 – 14 | 0.45 – 0.62 | Drought-driven dips common if irrigation is not applied. |
+| Fruit development | 14 – 18 | 0.50 – 0.68 | Peak plateau ~0.05 – 0.07 lower than mineral upland. |
+| Ripening | 18 – 22 | 0.40 – 0.58 | Earlier decline if terminal drought hits. |
+
+<Tip>
+  On BRIS soils, prioritize the **NDWI** layer during dry spells. Water stress shows on NDWI 2 – 3 weeks before NDVI reacts, and pineapple's CAM physiology masks early drought stress in NDVI.
+</Tip>
+
+## Peat / organic
+
+Drained peat blocks, common for MD2 and Josapine in Peninsular Malaysia and Sarawak. Dark, wet peat depresses NDVI in young stands, but well-managed peat blocks reach competitive peak NDVI thanks to strong nutrient supply.
+
+| Phase | Months after planting | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| Establishment | 0 – 3 | 0.08 – 0.20 | Dark peat background depresses NDVI. |
+| Early vegetative | 3 – 8 | 0.20 – 0.40 | Uneven emergence flags subsidence or drainage issues. |
+| Late vegetative | 8 – 12 | 0.40 – 0.60 | Fast canopy build once N is available. |
+| Forcing | 12 – 14 | 0.50 – 0.68 | Watch water-table records for false stress signals. |
+| Fruit development | 14 – 18 | 0.55 – 0.72 | Peak plateau; competitive with mineral upland when well managed. |
+| Ripening | 18 – 22 | 0.45 – 0.62 | Decline may be sharper if canals are drawn down for harvest access. |
+
+<Warning>
+  Water-table drops on peat cause rapid, block-wide NDVI declines that are not disease. Confirm against canal water-level records and rainfall before flagging a stress event.
+</Warning>
+
+## Highland
+
+Cooler climates above ~700 m elevation, typically for premium MD2 and Josapine destined for export. Growth is slower, cycles run 18 – 24 months, and NDVI curves stretch accordingly. Peak NDVI is similar to mineral upland but reached later.
+
+| Phase | Months after planting | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| Establishment | 0 – 4 | 0.10 – 0.25 | Slower emergence in cool soil. |
+| Early vegetative | 4 – 10 | 0.20 – 0.40 | Cycle stretches; expect flat NDVI for longer than lowland. |
+| Late vegetative | 10 – 15 | 0.40 – 0.60 | Canopy closes later than at lowland elevation. |
+| Forcing | 15 – 17 | 0.50 – 0.68 | Cool nights delay response to forcing chemicals. |
+| Fruit development | 17 – 22 | 0.55 – 0.75 | Peak plateau; higher sugar content but similar NDVI. |
+| Ripening | 22 – 26 | 0.45 – 0.65 | Longer, slower decline than lowland environments. |
+
+## Ratoon crops
+
+First and second ratoons are commonly kept in low-cost operations. Expect a lower and noisier NDVI curve because plant density becomes uneven, sucker vigour varies, and weed pressure rises.
+
+| Ratoon cycle | Peak NDVI (all environments) | Notes |
+| --- | --- | --- |
+| Plant crop | Reference bands above | Baseline. |
+| First ratoon | 0.05 – 0.10 below plant crop | Uneven stand from sucker selection. |
+| Second ratoon | 0.10 – 0.15 below plant crop | Only kept when replanting cost is prohibitive. |
+
+<Tip>
+  On ratoon blocks, prefer the **Anomaly** view over absolute NDVI. Absolute bands become unreliable across cycles; anomaly view adapts to the block's own recent history.
+</Tip>
+
+## Choosing the right environment on a block
+
+<Steps>
+  <Step title="Open block settings">
+    From the block overview, open **Settings** in the top-right.
+  </Step>
+  <Step title="Set the crop to Pineapple">
+    Under **Crop**, choose **Pineapple**. Additional pineapple options appear.
+  </Step>
+  <Step title="Set the variety">
+    Choose the variety (**MD2**, **Josapine**, **Sarawak / Moris**, **N36**, or **Other**). This scales the phase windows to the correct cycle length.
+  </Step>
+  <Step title="Set the planting environment">
+    Under **Environment**, choose **Mineral upland**, **Sandy coastal / BRIS**, **Peat / organic**, or **Highland**. The Health tab legend switches to the corresponding band table above.
+  </Step>
+  <Step title="Set the planting date and cycle">
+    Enter the **planting date** and choose **Plant crop**, **First ratoon**, or **Second ratoon**. The platform derives current phase from months-after-planting and applies the matching band automatically.
+  </Step>
+</Steps>
+
+## Cross-environment tips
+
+- Pineapple NDVI rarely exceeds 0.75. Do not read the Health tab against generic "dark green \> 0.7" thresholds; use the pineapple bands above.
+- Plastic mulch alters early-season NDVI. If the block uses **silver mulch**, expect apparent NDVI 0.03 – 0.06 higher in the first 3 months than the bands suggest; **black mulch** reads lower. Set the mulch type in block settings to correct for this automatically.
+- CAM physiology delays visible NDVI response to drought. Use **NDWI** and **CWSI** for early water-stress detection, not NDVI.
+- **Heart rot** and **Phytophthora** show as sharp, localized NDVI drops in wet spots. Cross-check with drainage maps.
+- **Nematode damage** shows as slow, diffuse NDVI decline over months and mirrors nutrient deficiency. Confirm with soil sampling before treating.

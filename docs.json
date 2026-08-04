@@ -1,38 +1,13 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "theme": "almond",
+  "name": "Google",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#ef7025",
+    "light": "#eec9bc",
+    "dark": "#4fa1ab"
   },
   "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
   "logo": {
     "light": "/logo/light.svg",
     "dark": "/logo/dark.svg"
@@ -41,32 +16,217 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@example.com"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Sign In",
+      "href": "https://app.example.com"
     }
   },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "getting-started/account-setup",
+              "getting-started/connecting-fields"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/remote-sensing",
+              "concepts/indices",
+              "concepts/field-data-model",
+              "concepts/imagery-sources"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/crop-health-monitoring",
+              {
+                "group": "Rice",
+                "icon": "wheat-awn",
+                "pages": [
+                  "guides/Crop/Rice/rice-ecosystems",
+                  {
+                    "group": "Abiotic Stress",
+                    "pages": [
+                      "guides/Crop/Rice/rice-abiotic-stress/rice-drought",
+                      "guides/Crop/Rice/rice-abiotic-stress/rice-salinity",
+                      "guides/Crop/Rice/rice-abiotic-stress/rice-poor-soil",
+                      "guides/Crop/Rice/rice-abiotic-stress/rice-submergence"
+                    ]
+                  },
+                  "guides/Crop/Rice/rice-abiotic-stress",
+                  {
+                    "group": "Nutrient Deficiency",
+                    "pages": [
+                      "guides/Crop/Rice/nutrient/nitrogen",
+                      "guides/Crop/Rice/nutrient/phosphorus",
+                      "guides/Crop/Rice/nutrient/potassium",
+                      "guides/Crop/Rice/nutrient/zinc",
+                      "guides/Crop/Rice/nutrient/sulfur",
+                      "guides/Crop/Rice/nutrient/iron-toxicity"
+                    ]
+                  },
+                  {
+                    "group": "Biotic Stress",
+                    "pages": [
+                      {
+                        "group": "Diseases",
+                        "pages": [
+                          "guides/Crop/Rice/biotic/diseases/blast",
+                          "guides/Crop/Rice/biotic/diseases/bacterial-leaf-blight",
+                          "guides/Crop/Rice/biotic/diseases/sheath-blight",
+                          "guides/Crop/Rice/biotic/diseases/tungro",
+                          "guides/Crop/Rice/biotic/diseases/sheath-rot",
+                          "guides/Crop/Rice/biotic/diseases/false-smut",
+                          "guides/Crop/Rice/biotic/diseases/bakanae"
+                        ]
+                      },
+                      {
+                        "group": "Insect Pests",
+                        "pages": [
+                          "guides/Crop/Rice/biotic/insects/brown-planthopper",
+                          "guides/Crop/Rice/biotic/insects/stem-borers",
+                          "guides/Crop/Rice/biotic/insects/leaffolder",
+                          "guides/Crop/Rice/biotic/insects/rice-bug",
+                          "guides/Crop/Rice/biotic/insects/gall-midge",
+                          "guides/Crop/Rice/biotic/insects/armyworms"
+                        ]
+                      },
+                      {
+                        "group": "Weeds",
+                        "pages": [
+                          "guides/Crop/Rice/biotic/weeds/grasses",
+                          "guides/Crop/Rice/biotic/weeds/sedges",
+                          "guides/Crop/Rice/biotic/weeds/broadleaf"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Oil Palm",
+                "icon": "tree",
+                "pages": [
+                  "guides/Crop/oil-palm-ecosystems",
+                  "guides/Crop/Oil-Palm/oil-palm-diagnosis",
+                  "guides/Crop/Oil-Palm/field-walk-protocol",
+                  {
+                    "group": "Biotic Stress",
+                    "pages": [
+                      {
+                        "group": "Diseases",
+                        "pages": [
+                          "guides/Crop/Oil-Palm/biotic/diseases/ganoderma",
+                          "guides/Crop/Oil-Palm/biotic/diseases/upper-stem-rot",
+                          "guides/Crop/Oil-Palm/biotic/diseases/bud-rot",
+                          "guides/Crop/Oil-Palm/biotic/diseases/fusarium-wilt",
+                          "guides/Crop/Oil-Palm/biotic/diseases/red-ring"
+                        ]
+                      },
+                      {
+                        "group": "Insect Pests",
+                        "pages": [
+                          "guides/Crop/Oil-Palm/biotic/insects/rhinoceros-beetle",
+                          "guides/Crop/Oil-Palm/biotic/insects/bagworms",
+                          "guides/Crop/Oil-Palm/biotic/insects/nettle-caterpillars",
+                          "guides/Crop/Oil-Palm/biotic/insects/palm-weevil"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "group": "Abiotic Stress",
+                    "pages": [
+                      "guides/Crop/Oil-Palm/abiotic/drought",
+                      "guides/Crop/Oil-Palm/abiotic/waterlogging",
+                      "guides/Crop/Oil-Palm/abiotic/peat-subsidence",
+                      "guides/Crop/Oil-Palm/abiotic/acid-sulfate",
+                      "guides/Crop/Oil-Palm/abiotic/salinity",
+                      "guides/Crop/Oil-Palm/abiotic/wind-lightning",
+                      "guides/Crop/Oil-Palm/abiotic/fire-damage"
+                    ]
+                  },
+                  {
+                    "group": "Nutrient Disorders",
+                    "pages": [
+                      "guides/Crop/Oil-Palm/nutrient/potassium",
+                      "guides/Crop/Oil-Palm/nutrient/magnesium",
+                      "guides/Crop/Oil-Palm/nutrient/boron",
+                      "guides/Crop/Oil-Palm/nutrient/nitrogen",
+                      "guides/Crop/Oil-Palm/nutrient/copper",
+                      "guides/Crop/Oil-Palm/nutrient/phosphorus",
+                      "guides/Crop/Oil-Palm/nutrient/iron",
+                      "guides/Crop/Oil-Palm/nutrient/al-mn-toxicity"
+                    ]
+                  }
+                ]
+              },
+              "guides/Crop/pineapple-ecosystems",
+              "guides/Crop/rubber-ecosystems",
+              "guides/field-scouting",
+              "guides/prescription-maps",
+              "guides/seasonal-analysis",
+              "guides/alerts-notifications"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/overview",
+              "integrations/farm-management",
+              "integrations/data-export"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "help/faq",
+              "help/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api/overview",
+              "api/authentication",
+              "api/rate-limits"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api/fields",
+              "api/imagery",
+              "api/indices",
+              "api/reports",
+              "api/webhooks"
+            ]
+          }
+        ]
+      }
     ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/example"
     }
   }
 }

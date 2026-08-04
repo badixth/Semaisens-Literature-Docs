@@ -1,0 +1,57 @@
+---
+title: "Diagnose and Respond to Grass Weeds in Rice"
+sidebarTitle: "Grasses"
+description: "Identify grass weeds like barnyardgrass (Echinochloa) that mimic rice at early stages, and control them with clean seed, water management, and timely herbicide application."
+---
+
+Grass weeds - especially barnyardgrass (_Echinochloa crus-galli_ and _E. colona_) - are the most damaging weed group in rice. They mimic rice at early stages, compete for the same nutrients and light, and can cut yields by 50% or more when uncontrolled. Direct-seeded rice is particularly vulnerable.
+
+## When rice is most vulnerable
+
+The first 30 to 45 days after emergence or transplanting - the critical weed-free period. Weeds emerging after that window cause less yield loss.
+
+## How grass weeds show in satellite data
+
+- **Uniformly high NDVI** on weedy fields at establishment that masks the underlying poor rice stand - a false-positive risk.
+- **Uneven, tall canopy roughness** later in the season as weeds emerge above the rice canopy.
+- **Weed panicles emerging above rice** create visible pale flecks in high-resolution imagery at heading.
+- Compare the field's NDVI trajectory to the [ecosystem baseline](/guides/Crop/Rice/rice-ecosystems) - a field that reaches high NDVI too early likely has weed competition.
+
+<Warning>
+  Weed detection is the weakest area for satellite imagery in rice. NDVI does not distinguish weed biomass from rice biomass. Ground scouting in the first 30 days is essential.
+</Warning>
+
+## Field symptoms
+
+- Grass seedlings that look nearly identical to young rice - hardest to spot early
+- Barnyardgrass: rounded, hairless leaf collar; no ligule (rice has a ligule)
+- Weeds emerging in gaps between rice hills
+- Later: weed heads taller than the rice, distinctive seed heads
+
+## Reduce the damage by
+
+- **Use clean, weed-free seed** - contaminated seed is a major source of weed infestation.
+- **Land preparation** - thorough puddling reduces weed emergence in transplanted rice.
+- **Maintain 3 to 5 cm standing water** for the first 30 days in irrigated systems to suppress grass weed germination.
+- **Timely transplanting** to give rice a head start on weeds.
+- **Hand or mechanical weeding** at 15 and 30 days after transplanting on small holdings.
+- **Pre-emergence herbicide** (pretilachlor, butachlor, or oxadiargyl) within 3 to 5 days of transplanting.
+- **Post-emergence herbicide** (bispyribac-sodium, penoxsulam, or cyhalofop) at 2 to 4 leaf stage of weeds if pre-emergence was skipped or has broken.
+- **Rotate herbicide modes of action** to slow resistance development in Echinochloa.
+
+## Set an alert for early warning
+
+<Tip>
+  Turn the diagnosis into a trigger. Focus alerts on the first 30 days when weed control still recovers yield.
+</Tip>
+
+Recommended settings for grass weeds on rice:
+
+- **NDVI trajectory alert** at 15 to 30 days after transplanting - trigger if NDVI is well above the expected baseline for that stage (weeds contributing to greenness).
+- **New Imagery alert** during the critical weed-free period to prompt weekly scouting.
+
+## Related
+
+- [Rice Diagnosis](/guides/Crop/Rice/rice-abiotic-stress)
+- [Healthy NDVI ranges for paddy](/guides/Crop/Rice/rice-ecosystems) - a field ahead of the baseline may be weedy, not vigorous.
+- [Set up automated crop alerts](/guides/alerts-notifications)

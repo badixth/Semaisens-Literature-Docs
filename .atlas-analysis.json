@@ -1,0 +1,106 @@
+{
+  "projectType": "saas",
+  "projectName": "Google",
+  "projectDescription": "An agriculture remote sensing platform that provides satellite and aerial imagery analysis, crop health monitoring, and field intelligence for farmers and agronomists.",
+  "theme": "almond",
+  "primaryColor": "#ef7025",
+  "lightColor": "#eec9bc",
+  "darkColor": "#4fa1ab",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "getting-started/account-setup",
+              "getting-started/connecting-fields"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/remote-sensing",
+              "concepts/indices",
+              "concepts/field-data-model",
+              "concepts/imagery-sources"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/crop-health-monitoring",
+              "guides/field-scouting",
+              "guides/prescription-maps",
+              "guides/seasonal-analysis",
+              "guides/alerts-notifications"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/overview",
+              "integrations/farm-management",
+              "integrations/data-export"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "help/faq",
+              "help/troubleshooting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api/overview",
+              "api/authentication",
+              "api/rate-limits"
+            ]
+          },
+          {
+            "group": "Endpoints",
+            "pages": [
+              "api/fields",
+              "api/imagery",
+              "api/indices",
+              "api/reports",
+              "api/webhooks"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Satellite and drone imagery ingestion and analysis",
+    "Vegetation index calculation (NDVI, NDRE, NDWI, etc.)",
+    "Crop health and stress detection",
+    "Field boundary management",
+    "Prescription and variable-rate application maps",
+    "Seasonal and historical trend analysis",
+    "Customizable alerts and notifications",
+    "Integration with farm management systems",
+    "REST API for programmatic access",
+    "Data export in industry-standard formats"
+  ],
+  "publicApiSurface": [
+    "GET /fields — list and filter registered fields",
+    "POST /fields — create a new field with boundary geometry",
+    "GET /fields/{id}/imagery — retrieve imagery for a field",
+    "GET /fields/{id}/indices — calculate vegetation indices",
+    "POST /fields/{id}/reports — generate analysis reports",
+    "POST /webhooks — register webhook endpoints for event notifications",
+    "GET /imagery/sources — list available satellite/aerial data sources",
+    "GET /reports/{id} — retrieve a generated report"
+  ]
+}

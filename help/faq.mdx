@@ -1,0 +1,123 @@
+---
+title: "Frequently Asked Questions About the Google Platform"
+sidebarTitle: "FAQ"
+description: "Answers to the most common questions about imagery frequency, cloud cover, supported crops, data privacy, integrations, and account management in Google."
+---
+
+Find quick answers to the most common questions about how Google works, what it supports, and how your data is managed. If you cannot find what you are looking for here, reach out to the team at [support@example.com](mailto:support@example.com) or use the in-app chat widget.
+
+<Accordion title="How often is satellite imagery updated for my fields?">
+  Google ingests Sentinel-2 imagery on a **5-day revisit cycle** under
+  cloud-free conditions, which is the standard revisit frequency for the
+  Sentinel-2 constellation at mid-latitudes. Planet and other commercial
+  imagery providers available on Pro and Enterprise plans can deliver daily or
+  near-daily revisits for your fields. Your imagery history and the date of the
+  most recent acquisition are always visible in the field timeline view.
+</Accordion>
+
+<Accordion title="What happens when there is heavy cloud cover over my field?">
+  When cloud cover obscures a field during a satellite pass, Google
+  automatically skips that acquisition and flags the gap in your field
+  timeline. The platform uses a configurable cloud cover filter
+  (default: 20%) — any scene with cloud cover above that threshold over your
+  field is excluded from analysis. You can adjust the threshold in
+  **Settings → Preferences → Cloud Cover Filter**. Synthetic Aperture Radar
+  (SAR) imagery, which penetrates cloud cover, is available as a supplementary
+  source on Enterprise plans.
+</Accordion>
+
+<Accordion title="Which crops does the platform support?">
+  Google supports all major row crops (corn, soybeans, wheat, cotton, canola),
+  specialty crops (vegetables, tree fruits, nuts, vines), and pasture and
+  forage grasses. Vegetation indices such as NDVI and NDRE are crop-agnostic
+  and work across all plant types. Crop-specific stress models and growth stage
+  tracking are available for corn, soybeans, wheat, and cotton. If you grow a
+  crop not yet covered by a dedicated model, the core index analysis still
+  applies — contact support to request a new crop model.
+</Accordion>
+
+<Accordion title="What is the minimum field size for analysis?">
+  The minimum supported field size is **1 hectare (approximately 2.5 acres)**.
+  Fields smaller than 1 hectare can be created and stored in Google, but they
+  will not be processed for imagery analysis or vegetation index calculation.
+  This limit exists because the spatial resolution of Sentinel-2 imagery
+  (10 m per pixel) does not provide statistically reliable zonal statistics for
+  very small areas.
+</Accordion>
+
+<Accordion title="Can I upload my own drone imagery?">
+  Yes. Google accepts drone-captured orthomosaic imagery in GeoTIFF format.
+  Navigate to **Fields → [Field Name] → Upload Imagery**, select your GeoTIFF
+  file, and choose the bands present in your capture (RGB, multispectral, or
+  thermal). Google processes the upload and calculates supported vegetation
+  indices from the available bands. Drone imagery uploads count against your
+  monthly storage quota — check your current usage in **Settings → Billing**.
+</Accordion>
+
+<Accordion title="How do I cancel my subscription?">
+  You can cancel your subscription at any time from **Settings → Billing →
+  Manage Subscription → Cancel Plan**. Your access continues until the end of
+  the current billing period, after which your account reverts to the Free
+  tier. Your field data and historical analysis are retained on the Free tier;
+  features exclusive to paid plans become unavailable. If you want to delete
+  your account and all associated data entirely, contact
+  [support@example.com](mailto:support@example.com).
+</Accordion>
+
+<Accordion title="Does the platform work outside the US?">
+  Yes. Google supports fields in any country where Sentinel-2 imagery is
+  available, which covers the entire globe. Platform language is currently
+  English only, but coordinates, units (metric or imperial), and date formats
+  can be configured per account in **Settings → Preferences**. Some
+  third-party integrations — such as John Deere Operations Center organization
+  sync — may be subject to regional restrictions imposed by the integration
+  partner.
+</Accordion>
+
+<Accordion title="What coordinate reference system are coordinates in?">
+  All coordinates in Google are expressed in **WGS84 (EPSG:4326)** — the
+  same reference system used by GPS devices and most web mapping platforms.
+  Exported GeoTIFF rasters use UTM projection (the appropriate zone for each
+  field) by default, but you can select WGS84 geographic coordinates or a
+  custom EPSG code in the export settings. Field boundary GeoJSON files always
+  use WGS84 longitude/latitude.
+</Accordion>
+
+<Accordion title="Can I share field access with my agronomist?">
+  Yes. Google supports role-based team access at the farm operation level.
+  Navigate to **Settings → Team** and invite your agronomist, advisor, or
+  consultant by email address. You can assign one of three roles: **Viewer**
+  (read-only access to fields and analysis), **Scout** (can create and edit
+  scouting observations), or **Manager** (full access except billing). Invited
+  users receive an email with a link to join your organization — they do not
+  need an existing Google account.
+</Accordion>
+
+<Accordion title="How long is my historical data retained?">
+  Google retains all field data, imagery, and analysis results for the **life
+  of your account** on Pro and Enterprise plans. On the Free tier, data older
+  than 24 months may be archived and requires a plan upgrade to access. You
+  can export all of your historical data at any time using the bulk export
+  feature — see the [Data Export guide](/integrations/data-export) for
+  instructions.
+</Accordion>
+
+<Accordion title="Is my farm data kept private?">
+  Yes. Your farm data — including field boundaries, imagery, crop plans, and
+  analysis results — is private to your account and any team members you
+  explicitly invite. Google does not sell, share, or license your data to
+  third parties, including input suppliers, grain traders, or other farmers.
+  Data is encrypted in transit (TLS 1.3) and at rest (AES-256). You can review
+  the full privacy policy at [example.com/privacy](https://example.com/privacy).
+</Accordion>
+
+<Accordion title="What imagery sources are used, and are they free?">
+  Google ingests **Sentinel-2** imagery from the European Space Agency (ESA)
+  at no additional cost on all plan tiers — Sentinel-2 is a publicly funded,
+  freely available dataset. Pro and Enterprise plans also include access to
+  **Planet PlanetScope** (3–5 m resolution, daily revisit) and **Airbus SPOT**
+  imagery, which are commercial sources licensed by Google and included in your
+  subscription cost. You are not billed separately for individual satellite
+  scenes. Drone imagery uploaded by you uses your own licensed data and your
+  plan's storage quota.
+</Accordion>

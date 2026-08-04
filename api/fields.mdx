@@ -1,0 +1,266 @@
+---
+title: "Fields API: Register and Manage Agricultural Fields"
+sidebarTitle: "Fields"
+description: "Register agricultural field boundaries as GeoJSON polygons, attach crop metadata, and manage the full lifecycle of fields in the Google platform."
+---
+
+The Fields API is the foundation of the Google platform. Every other resource — imagery, indices, reports — is scoped to a field. Use this API to register field boundaries as GeoJSON polygons, attach crop metadata such as planting and harvest dates, and manage the status of fields throughout the season. All area calculations are performed automatically from the boundary you provide.
+
+## The Field Object
+
+A field object is returned by every endpoint in this resource.
+
+<ResponseField name="id" type="string">
+  The unique identifier for the field. Prefixed with `fld_`.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  The human-readable name of the field, as provided at creation.
+</ResponseField>
+
+<ResponseField name="crop_type" type="string">
+  The crop currently planted in the field (e.g., `corn`, `wheat`, `soybeans`). Optional.
+</ResponseField>
+
+<ResponseField name="planting_date" type="string">
+  The date the crop was planted, in `YYYY-MM-DD` format. Optional.
+</ResponseField>
+
+<ResponseField name="harvest_date" type="string">
+  The expected or actual harvest date, in `YYYY-MM-DD` format. Optional.
+</ResponseField>
+
+<ResponseField name="area_hectares" type="number">
+  The area of the field in hectares, automatically calculated from the boundary polygon.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The current status of the field. One of `active` or `archived`.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the field was created.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  ISO 8601 timestamp of the most recent update to the field.
+</ResponseField>
+
+<ResponseField name="boundary" type="object">
+  The field boundary as a GeoJSON `Polygon` object. Coordinates are in `[longitude, latitude]` order (WGS 84).
+
+  <Expandable title="boundary properties">
+    <ResponseField name="type" type="string">
+      Always `"Polygon"`.
+    </ResponseField>
+
+    <ResponseField name="coordinates" type="array">
+      An array of linear ring coordinate arrays. The first ring is the exterior boundary. Each position is `[longitude, latitude]`. The first and last position must be identical to close the ring.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## List Fields
+
+Retrieve a paginated list of all fields in your account. Use query parameters to filter by status or control pagination.
+
+### Query Parameters
+
+<ParamField query="page" default="1" type="integer">
+  The page number to retrieve.
+</ParamField>
+
+<ParamField query="per_page" default="20" type="integer">
+  The number of fields to return per page. Maximum `100`.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter fields by status. Accepted values: `active`, `archived`. Omit to return all fields regardless of status.
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.example.com/v1/fields \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response
+
+Returns a JSON object with a `data` array of field objects and pagination metadata.
+
+<ResponseField name="data" type="array">
+  An array of field objects matching the query.
+</ResponseField>
+
+<ResponseField name="total" type="integer">
+  The total number of fields matching the query across all pages.
+</ResponseField>
+
+<ResponseField name="page" type="integer">
+  The current page number.
+</ResponseField>
+
+<ResponseField name="per_page" type="integer">
+  The number of results per page.
+</ResponseField>
+
+---
+
+## Create a Field
+
+Register a new field by providing its name, optional crop metadata, and a GeoJSON boundary polygon. Returns `201 Created` with the newly created field object.
+
+### Request Body
+
+<ParamField body="name" type="string" required>
+  A descriptive name for the field (e.g., `"North Corn Field"`). Must be unique within your account.
+</ParamField>
+
+<ParamField body="crop_type" type="string">
+  The crop type planted in the field. Use lowercase common names (e.g., `corn`, `wheat`, `canola`, `soybeans`).
+</ParamField>
+
+<ParamField body="planting_date" type="string">
+  The planting date in `YYYY-MM-DD` format.
+</ParamField>
+
+<ParamField body="harvest_date" type="string">
+  The expected or actual harvest date in `YYYY-MM-DD` format.
+</ParamField>
+
+<ParamField body="boundary" type="object" required>
+  The field boundary as a GeoJSON `Polygon`. Coordinates must be in `[longitude, latitude]` order (WGS 84). The polygon must be closed (first and last coordinate identical) and must not self-intersect.
+</ParamField>
+
+### Example Request
+
+```bash
+curl -X POST https://api.example.com/v1/fields \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "North Corn Field",
+    "crop_type": "corn",
+    "planting_date": "2024-05-01",
+    "boundary": {
+      "type": "Polygon",
+      "coordinates": [[
+        [-93.123, 41.456],
+        [-93.118, 41.456],
+        [-93.118, 41.461],
+        [-93.123, 41.461],
+        [-93.123, 41.456]
+      ]]
+    }
+  }'
+```
+
+<Note>
+  The `area_hectares` value is calculated automatically from the boundary you provide. You do not need to supply it in the request.
+</Note>
+
+---
+
+## Get a Field
+
+Retrieve a single field by its ID.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique field ID (e.g., `fld_01j8xyz`).
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.example.com/v1/fields/fld_01j8xyz \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Returns the full field object for the specified ID. Responds with `404 Not Found` if no field with that ID exists in your account.
+
+---
+
+## Update a Field
+
+Update one or more properties of an existing field. You only need to include the fields you want to change — unspecified fields are left unchanged.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique field ID.
+</ParamField>
+
+### Request Body
+
+<ParamField body="name" type="string">
+  A new name for the field.
+</ParamField>
+
+<ParamField body="crop_type" type="string">
+  The updated crop type.
+</ParamField>
+
+<ParamField body="planting_date" type="string">
+  The updated planting date in `YYYY-MM-DD` format.
+</ParamField>
+
+<ParamField body="harvest_date" type="string">
+  The updated harvest date in `YYYY-MM-DD` format.
+</ParamField>
+
+<Warning>
+  Field boundaries cannot be updated after a field is created. If you need to correct a boundary, delete the field and create a new one. Updating the boundary would invalidate all historical imagery and index calculations tied to the original polygon.
+</Warning>
+
+### Example Request
+
+```bash
+curl -X PATCH https://api.example.com/v1/fields/fld_01j8xyz \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "crop_type": "soybeans",
+    "harvest_date": "2024-10-15"
+  }'
+```
+
+---
+
+## Delete a Field
+
+Archive or permanently delete a field.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique field ID.
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="permanent" default="false" type="boolean">
+  Set to `true` to permanently delete the field and all associated imagery, index, and report data. By default, a `DELETE` request archives the field (sets `status` to `archived`) and preserves all data.
+</ParamField>
+
+### Example Request
+
+```bash
+# Archive the field (default, reversible)
+curl -X DELETE https://api.example.com/v1/fields/fld_01j8xyz \
+  -H "Authorization: Bearer YOUR_API_KEY"
+
+# Permanently delete the field and all associated data
+curl -X DELETE "https://api.example.com/v1/fields/fld_01j8xyz?permanent=true" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Warning>
+  Permanent deletion is irreversible. All imagery, index calculations, and reports associated with the field will be permanently removed. Archive the field first if you are unsure.
+</Warning>
+
+Returns `204 No Content` on success.

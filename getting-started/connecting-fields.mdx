@@ -1,0 +1,183 @@
+---
+title: "Add and Manage Your Fields in Google Agriculture Platform"
+sidebarTitle: "Connecting Fields"
+description: "Define field boundaries by drawing on the map, uploading GeoJSON or Shapefiles, or using the API — then manage and organize your fields over time."
+---
+
+Fields are the core unit of the Google Agriculture Platform — every piece of satellite imagery, vegetation index calculation, and crop health analysis is scoped to a field boundary you define. Accurate field boundaries ensure that analysis results reflect only your land and not neighboring parcels, roads, or non-crop areas. This guide covers how to add fields using three different methods and how to manage them once they're registered.
+
+<Tip>
+  Use the most precise boundary data you have available. Even small inaccuracies — such as including a road or fence line — can skew index averages and make stress zones harder to identify. If you have boundaries from a prior farm management system, export them as GeoJSON or Shapefile and upload them directly.
+</Tip>
+
+## Adding a Field
+
+Choose the method that best fits your workflow. All three methods create the same field record — the difference is only in how you define the boundary.
+
+<Tabs>
+  <Tab title="Draw on Map">
+    Use the interactive map editor in the dashboard to draw a field boundary by clicking around its perimeter. This method works well for fields you're adding for the first time and don't have existing boundary data for.
+
+    <Steps>
+      <Step title="Open the Fields page">
+        Log in to [app.example.com](https://app.example.com) and click **Fields** in the left sidebar. Then click **Add Field** in the top right.
+      </Step>
+      <Step title="Select Draw Boundary">
+        In the Add Field dialog, choose **Draw on Map**. The map zooms to your approximate region based on your profile settings.
+      </Step>
+      <Step title="Navigate to your field">
+        Use the search bar to find your farm's address or coordinates, or pan and zoom the map manually. Switch to satellite view using the layer toggle in the top right corner of the map for the clearest boundary reference.
+      </Step>
+      <Step title="Draw the boundary">
+        Click once on the map to place your first boundary point, then continue clicking around the field perimeter. Click the first point again (or double-click the last point) to close the polygon. The enclosed area is displayed in acres or hectares based on your profile settings.
+      </Step>
+      <Step title="Enter field details">
+        Fill in the field name and any optional properties (see the [Field Properties](#field-properties) table below), then click **Save Field**.
+      </Step>
+    </Steps>
+
+    <Info>
+      You can edit a drawn boundary at any time by selecting the field and clicking **Edit Boundary**. Drag individual vertices to adjust the shape, or add new vertices by clicking any edge segment.
+    </Info>
+  </Tab>
+
+  <Tab title="Upload GeoJSON">
+    If you already have field boundary data from a GIS tool, another farm management platform, or a previous crop year, upload it directly. The platform accepts **GeoJSON** (`.geojson` or `.json`) and **Shapefile** archives (`.zip` containing `.shp`, `.dbf`, and `.prj` files).
+
+    <Steps>
+      <Step title="Prepare your file">
+        Ensure your boundary file uses the **WGS 84 (EPSG:4326)** coordinate reference system. If your file uses a different projection, reproject it using QGIS, ArcGIS, or an online converter before uploading.
+
+        For GeoJSON, your boundary should be a `Feature` or `FeatureCollection` containing `Polygon` or `MultiPolygon` geometries. For Shapefiles, compress all component files (`.shp`, `.dbf`, `.shx`, `.prj`) into a single `.zip` archive.
+      </Step>
+      <Step title="Open the upload dialog">
+        Click **Fields → Add Field → Upload File** in the dashboard.
+      </Step>
+      <Step title="Select and upload your file">
+        Click **Choose File**, select your `.geojson` or `.zip`, and click **Upload**. The platform parses the geometry and renders a preview of the boundary on the map.
+      </Step>
+      <Step title="Review and confirm">
+        Verify the boundary preview matches your intended field. If the file contains multiple features, select which features to import. Enter a name for each field and click **Save Fields**.
+      </Step>
+    </Steps>
+
+    <Warning>
+      Uploading a Shapefile without a `.prj` projection file may result in an incorrectly positioned boundary. Always include the `.prj` file in your zip archive.
+    </Warning>
+  </Tab>
+
+  <Tab title="API">
+    Register fields programmatically using the `POST /fields` endpoint. This is the fastest method when you have many fields to add or are building an automated integration with an existing data source.
+
+    Send a `POST` request with a JSON body containing the field name and a GeoJSON `Polygon` as the boundary:
+
+    <CodeGroup>
+      ```bash cURL
+      curl -X POST https://api.example.com/v1/fields \
+        -H "Authorization: Bearer YOUR_API_KEY" \
+        -H "Content-Type: application/json" \
+        -d '{
+          "name": "North Corn Field",
+          "crop_type": "corn",
+          "planting_date": "2024-05-01",
+          "boundary": {
+            "type": "Polygon",
+            "coordinates": [[
+              [-93.123, 41.456],
+              [-93.118, 41.456],
+              [-93.118, 41.461],
+              [-93.123, 41.461],
+              [-93.123, 41.456]
+            ]]
+          }
+        }'
+      ```
+
+      ```python Python
+      import requests
+
+      response = requests.post(
+          "https://api.example.com/v1/fields",
+          headers={
+              "Authorization": "Bearer YOUR_API_KEY",
+              "Content-Type": "application/json",
+          },
+          json={
+              "name": "North Corn Field",
+              "crop_type": "corn",
+              "planting_date": "2024-05-01",
+              "boundary": {
+                  "type": "Polygon",
+                  "coordinates": [[
+                      [-93.123, 41.456],
+                      [-93.118, 41.456],
+                      [-93.118, 41.461],
+                      [-93.123, 41.461],
+                      [-93.123, 41.456],
+                  ]],
+              },
+          },
+      )
+
+      field = response.json()
+      print(f"Created field with ID: {field['id']}")
+      ```
+
+      ```javascript JavaScript
+      const response = await fetch("https://api.example.com/v1/fields", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer YOUR_API_KEY",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "North Corn Field",
+          crop_type: "corn",
+          planting_date: "2024-05-01",
+          boundary: {
+            type: "Polygon",
+            coordinates: [[
+              [-93.123, 41.456],
+              [-93.118, 41.456],
+              [-93.118, 41.461],
+              [-93.123, 41.461],
+              [-93.123, 41.456],
+            ]],
+          },
+        }),
+      });
+
+      const field = await response.json();
+      console.log(`Created field with ID: ${field.id}`);
+      ```
+    </CodeGroup>
+
+    The response returns the full field object including the assigned `id`, which you'll use in subsequent imagery and analysis requests.
+  </Tab>
+</Tabs>
+
+## Field Properties
+
+When adding or updating a field, you can provide the following properties. Only `name` is required — all others are optional but improve analysis accuracy and reporting.
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `name` | string | **Yes** | A human-readable label for the field (for example, "North Corn Field" or "Block 4 – Soybeans"). |
+| `crop_type` | string | No | The primary crop planted in the field (for example, `corn`, `soybeans`, `wheat`). Used to apply crop-specific growth-stage benchmarks. |
+| `planting_date` | string (ISO 8601) | No | The date the crop was planted (for example, `2024-05-01`). Enables growing-degree-day calculations and growth-stage tracking. |
+| `harvest_date` | string (ISO 8601) | No | The expected or actual harvest date. Used to mark the field as inactive after harvest and to anchor seasonal trend reports. |
+| `notes` | string | No | Free-text notes visible in the dashboard — useful for recording soil type, irrigation method, or field history. |
+
+## Managing Your Fields
+
+Once your fields are registered, you can edit, archive, or delete them from the **Fields** page in the dashboard.
+
+**Edit a field** — Click the field name to open the field detail page, then click **Edit**. You can update the name, crop type, planting date, harvest date, and notes. To redraw or replace the boundary, click **Edit Boundary**.
+
+**Archive a field** — Archiving removes a field from your active field list without deleting its historical imagery or analysis data. This is the recommended approach for fields you no longer actively farm but want to retain records for. Open the field, click the **⋯** menu, and select **Archive Field**.
+
+**Delete a field** — Deleting a field permanently removes the boundary and all associated imagery and analysis results. This action cannot be undone. Open the field, click the **⋯** menu, select **Delete Field**, and confirm the prompt.
+
+<Note>
+  Free plan accounts are limited to **5 active fields** at a time. Archived fields do not count toward this limit. Upgrade to a Pro or Enterprise plan to register unlimited active fields. See [Account Setup](/getting-started/account-setup) for plan details.
+</Note>

@@ -1,0 +1,44 @@
+---
+title: "Diagnose and Respond to Poor Soils and Low Fertility in Rice"
+sidebarTitle: "Poor Soil"
+description: "Identify poor soil and low fertility stress in paddy from persistently low NDVI and NDRE, and improve productivity with flooding, tolerant cultivars, fertilizer, and soil amendments."
+---
+
+Plant growth and crop productivity on highly weathered soils is simultaneously limited by insufficient nutrient supplies, low nutrient availability, and toxic concentrations of especially iron and aluminum. Theoretically, such soils can be improved by soil amendments and adequate nutrient application, but such solutions are often too expensive.
+
+## When rice is most vulnerable
+
+From emergence through tillering. Weak establishment on poor soils is difficult to recover from later in the season.
+
+## How poor soil shows in satellite data
+
+- **Persistently low NDVI and NDRE** across the whole field or in the same weak zones season after season, independent of weather.
+- The problem is **structural**, not event-driven, so it looks flat and chronic rather than a sudden drop.
+- Often paired with **slow canopy development** early in the season - the field never reaches the NDVI band expected for its [rice ecosystem](/guides/Crop/Rice/rice-ecosystems).
+- Overlaps visually with prolonged drought or salinity; separate them using field history and location (upland weathered soils vs coastal saline vs recent dry spell).
+
+## Options to reduce the damage
+
+- **If irrigation is available**, such soils can still be productive because flooding reduces the toxicities and increases nutrient availability.
+- **Use the right cultivars** - sometimes traditional varieties have a wider tolerance to the combination of abiotic stresses occurring on such soils.
+- **In upland environments**, fallow periods and crop rotations help to restore or maintain a limited soil fertility.
+- **Add small rates of inorganic fertilizer** - apart from N, P and K, sulfur and magnesium limitations can occur on such soils.
+- **Recycle crop residues and apply organic fertilizers** - very important to maintain the limited soil fertility. Use of charcoal (or char from crop residues) as a soil amendment is a promising indigenous technology to increase soil fertility on such soils.
+
+## Set an alert for early warning
+
+<Tip>
+  Turn the diagnosis into a trigger. Go to the [Alerts](/guides/alerts-notifications) page and configure a rule so chronically weak zones are surfaced at the start of each tillering window instead of at harvest.
+</Tip>
+
+Recommended settings for poor soil on rice:
+
+- **NDRE threshold alert** - trigger when NDRE remains below your fertile-field baseline for three consecutive passes during tillering.
+- **Seasonal-analysis review** - not an alert, but revisit chronic weak zones each season using [Seasonal Analysis](/guides/seasonal-analysis) and target them with variable-rate applications via [Prescription Maps](/guides/prescription-maps).
+
+## Related
+
+- [Rice abiotic stress overview](/guides/Crop/Rice/rice-abiotic-stress)
+- [Healthy NDVI ranges for paddy](/guides/Crop/Rice/rice-ecosystems)
+- [Create variable-rate prescription maps](/guides/prescription-maps)
+- [Set up automated crop alerts](/guides/alerts-notifications)

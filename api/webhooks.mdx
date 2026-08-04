@@ -1,0 +1,189 @@
+---
+title: "Webhooks API: Real-Time Platform Event Notifications"
+sidebarTitle: "Webhooks"
+description: "Register HTTPS endpoints to receive real-time POST notifications for imagery availability, triggered alerts, completed reports, and field change events."
+---
+
+Webhooks let you receive real-time HTTP POST notifications when events occur in the Google platform. Instead of repeatedly polling the API to check whether new imagery has been ingested or a report has finished generating, you register an HTTPS endpoint and the platform delivers a JSON payload to that URL the moment the event occurs. Use webhooks to build reactive, event-driven integrations — triggering downstream analysis, sending farm notifications, or syncing data to external systems with minimal latency.
+
+## Supported Events
+
+| Event | Trigger | Payload Summary |
+| --- | --- | --- |
+| `imagery.available` | A new satellite or drone image has been ingested and is ready for a field. | `field_id`, `imagery_id`, `source`, `capture_date`, `cloud_cover` |
+| `alert.triggered` | A configured crop health or water stress alert threshold has been crossed. | `field_id`, `alert_id`, `alert_type`, `index`, `value`, `threshold`, `triggered_at` |
+| `report.ready` | A requested report has finished generating and is available for download. | `field_id`, `report_id`, `type`, `format`, `download_url`, `expires_at` |
+| `field.updated` | Field metadata (name, crop type, dates) or boundary has been changed. | `field_id`, `changed_fields[]`, `updated_at` |
+| `season.started` | The `planting_date` set on a field has been reached. | `field_id`, `crop_type`, `planting_date` |
+| `season.ended` | The `harvest_date` set on a field has been reached. | `field_id`, `crop_type`, `harvest_date` |
+
+---
+
+## Registering a Webhook
+
+<Steps>
+  <Step title="Send a POST request to /webhooks">
+    Provide the HTTPS URL of your endpoint, the array of event types you want to subscribe to, and an optional secret for signature verification. See the endpoint reference below.
+  </Step>
+  <Step title="Confirm your endpoint is reachable">
+    Immediately after registration, the platform sends a `webhook.test` event to your URL with a `challenge` string in the payload. Your endpoint must respond with `200 OK` within 5 seconds. If the test delivery fails, the webhook is not activated.
+  </Step>
+  <Step title="Store the webhook ID">
+    The `POST /webhooks` response returns a webhook object containing an `id` (prefixed with `wh_`). Store this ID — you will need it to update or delete the webhook later.
+  </Step>
+</Steps>
+
+---
+
+## Create a Webhook
+
+Register a new webhook endpoint.
+
+### Request Body
+
+<ParamField body="url" type="string" required>
+  The fully-qualified HTTPS URL that the platform will POST event payloads to. HTTP (non-TLS) URLs are not accepted.
+</ParamField>
+
+<ParamField body="events" type="array" required>
+  An array of event type strings to subscribe to. Use `["*"]` to subscribe to all current and future event types.
+</ParamField>
+
+<ParamField body="secret" type="string">
+  A secret string used to generate an HMAC-SHA256 signature for each delivery. The signature is sent in the `X-Google-Signature` header so you can verify the payload originated from the platform. Strongly recommended — see [Signature Verification](#verifying-webhook-signatures) below.
+</ParamField>
+
+### Example Request
+
+```bash
+curl -X POST https://api.example.com/v1/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-server.com/webhook",
+    "events": ["alert.triggered", "imagery.available"],
+    "secret": "whsec_yourSecretKey"
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "id": "wh_01jabcd",
+  "url": "https://your-server.com/webhook",
+  "events": ["alert.triggered", "imagery.available"],
+  "status": "active",
+  "created_at": "2024-10-01T09:00:00Z"
+}
+```
+
+---
+
+## List Webhooks
+
+Retrieve all registered webhooks for your account.
+
+### Example Request
+
+```bash
+curl https://api.example.com/v1/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+---
+
+## Delete a Webhook
+
+Remove a registered webhook. The platform will immediately stop delivering events to the associated URL.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique webhook ID (e.g., `wh_01jabcd`).
+</ParamField>
+
+### Example Request
+
+```bash
+curl -X DELETE https://api.example.com/v1/webhooks/wh_01jabcd \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+Returns `204 No Content` on success.
+
+---
+
+## Webhook Payload Structure
+
+Every event delivery is an HTTP POST to your registered URL with the following headers and a JSON body.
+
+### Request Headers
+
+| Header | Description |
+| --- | --- |
+| `X-Google-Event` | The event type string (e.g., `imagery.available`). |
+| `X-Google-Signature` | An HMAC-SHA256 hex digest of the raw request body, signed using your webhook secret. Use this to verify the payload is authentic. |
+| `X-Google-Timestamp` | The Unix timestamp (seconds) at which the event was dispatched. |
+| `Content-Type` | Always `application/json`. |
+
+### Example Payload
+
+```json
+{
+  "event": "imagery.available",
+  "timestamp": "2024-06-15T08:32:00Z",
+  "data": {
+    "field_id": "fld_01j8xyz",
+    "imagery_id": "img_01k2abc",
+    "source": "sentinel2",
+    "capture_date": "2024-06-15",
+    "cloud_cover": 3.2
+  }
+}
+```
+
+---
+
+## Verifying Webhook Signatures
+
+Verify the `X-Google-Signature` header on every inbound delivery to confirm that the payload was sent by the Google platform and has not been tampered with. Use the secret you provided when registering the webhook.
+
+```python
+import hmac
+import hashlib
+
+def verify_signature(payload_bytes, signature_header, secret):
+    expected = hmac.new(
+        secret.encode(),
+        payload_bytes,
+        hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature_header)
+```
+
+Call this function with the raw request body bytes, the value of the `X-Google-Signature` header, and your webhook secret. Return `403 Forbidden` to the sender if verification fails.
+
+<Note>
+  Always use `hmac.compare_digest` (or your language's equivalent constant-time comparison) rather than `==` to prevent timing attacks when comparing the expected and actual signatures.
+</Note>
+
+---
+
+## Retry Policy
+
+If your endpoint returns a non-`2xx` HTTP status code, or does not respond within 5 seconds, the platform automatically retries delivery with exponential backoff:
+
+| Attempt | Delay After Previous Failure |
+| --- | --- |
+| 1st retry | 1 minute |
+| 2nd retry | 5 minutes |
+| 3rd retry | 30 minutes |
+| 4th retry | 2 hours |
+| 5th retry | 24 hours |
+
+After **5 consecutive failed delivery attempts**, the webhook is automatically disabled and its `status` is set to `disabled`. Re-enable it from the dashboard or by sending a `PATCH /webhooks/{id}` request with `"status": "active"`.
+
+<Warning>
+  Your webhook endpoint must respond with a `2xx` status code within **5 seconds**. If your processing logic takes longer than this — for example, triggering a database write or calling a downstream API — respond immediately with `200 OK` and perform the work asynchronously in a background job. Slow responses are treated as failures and trigger the retry policy.
+</Warning>

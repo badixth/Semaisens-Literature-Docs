@@ -1,0 +1,92 @@
+---
+title: "Exporting Field Data and Imagery in Multiple Formats"
+sidebarTitle: "Data Export"
+description: "Download field boundaries, vegetation index rasters, prescription maps, and reports from Google in GeoJSON, Shapefile, GeoTIFF, CSV, ISO-XML, or PDF."
+---
+
+Every piece of data Google generates — from raw NDVI rasters to zonal statistics and scouting reports — belongs to you and is available for download at any time. Export individual fields and reports from the dashboard with a single click, or automate bulk exports for entire seasons using the REST API. All exports are delivered as standard, widely supported file formats compatible with GIS software, farm equipment, spreadsheet tools, and business intelligence platforms.
+
+## Available Export Formats
+
+| Format          | Contents                                              | Compatible With                          |
+|-----------------|-------------------------------------------------------|------------------------------------------|
+| GeoJSON         | Field boundaries, zone layers, analysis results       | Universal GIS, web mapping, any platform |
+| Shapefile (.zip)| Field and zone layers                                 | ArcGIS, QGIS, John Deere Operations Center |
+| GeoTIFF         | Raw index rasters (NDVI, NDRE, NDWI, and others)     | QGIS, ERDAS Imagine, ArcGIS              |
+| CSV             | Time-series index values, zonal statistics            | Microsoft Excel, R, Python, Power BI     |
+| ISO-XML         | Prescription and variable-rate application maps       | John Deere Operations Center, ISO 11783-compatible terminals |
+| PDF             | Scouting reports, seasonal summaries                  | Print, email, or share with stakeholders |
+
+## Exporting from the Dashboard
+
+<Steps>
+  <Step title="Open the field or report">
+    Navigate to the field, analysis layer, or report you want to export using
+    the **Fields** or **Reports** menu in the left sidebar.
+  </Step>
+  <Step title="Click the Export button">
+    Select the **Export** button — the downward arrow icon (↓) — in the
+    top-right corner of the field or report view. A format selection panel
+    slides open.
+  </Step>
+  <Step title="Select your format">
+    Choose the export format that matches your intended use. If you are
+    exporting an index raster for use in a GIS tool, select **GeoTIFF**. For
+    prescription maps destined for John Deere equipment, select **ISO-XML**.
+  </Step>
+  <Step title="Download the file">
+    Click **Download**. Google prepares the export and your browser downloads
+    the file automatically. Large GeoTIFF exports may take up to 60 seconds to
+    generate before the download begins.
+  </Step>
+</Steps>
+
+<Tip>
+  When exporting a GeoTIFF, you can choose the index type (NDVI, NDRE, NDWI,
+  etc.) and a specific date or date range from the export panel before clicking
+  Download. Selecting a date range returns a multi-band raster with one band
+  per available imagery date.
+</Tip>
+
+## Bulk Export via API
+
+For automated workflows — such as exporting end-of-season analysis for an entire farm operation — use the Google REST API. The example below requests a GeoTIFF export of NDVI imagery for a specific field over a growing season:
+
+```bash
+curl -X POST https://api.example.com/v1/fields/fld_01j8xyz/exports \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "format": "geotiff",
+    "index": "NDVI",
+    "date_range": {
+      "start": "2024-05-01",
+      "end": "2024-09-30"
+    }
+  }'
+```
+
+The API responds with an export job object. Poll the returned `job_url` until the `status` field equals `"complete"`, then download the file from the `download_url` in the response. See the [API reference](/api/overview) for the full exports endpoint documentation, including available format and index options.
+
+## Export Limits by Plan
+
+<Note>
+  Export limits reset on the first day of each calendar month. If you reach
+  your monthly limit before the reset date, additional exports are blocked until
+  the following month — or you can upgrade your plan at any time from
+  **Settings → Billing**.
+
+  | Plan       | Exports per Month |
+  |------------|:-----------------:|
+  | Free       | 10                |
+  | Pro        | 200               |
+  | Enterprise | Unlimited         |
+
+  Bulk API exports count toward the same monthly limit as dashboard exports.
+  Contact [support@example.com](mailto:support@example.com) to request a
+  temporary limit increase for harvest season or other high-volume periods.
+</Note>
+
+## Data Ownership
+
+Your farm data is yours — always. Google does not sell, license, or share your field data with third parties. When you export data or delete your account, all associated data is permanently removed from Google's servers within 30 days. You can request immediate deletion at any time by contacting [support@example.com](mailto:support@example.com).

@@ -1,0 +1,66 @@
+---
+title: "Diagnose and Respond to Waterlogging and Flooding in Oil Palm"
+sidebarTitle: "Waterlogging & Flooding"
+description: "Identify waterlogging and flooding stress in oil palm from prolonged saturated root zones, yellowing older fronds, and reduced bunch production, and reduce damage with drainage design, water-table control, and raised planting on flood-prone soils."
+---
+
+Oil palm tolerates short-term flooding much better than most tropical crops but suffers when the root zone remains saturated for weeks. Oxygen deprivation kills fine feeder roots, reduces nutrient uptake, and creates entry points for basal-stem-rot and phytophthora infections. Waterlogging is the twin problem to drought - both extremes hurt yield.
+
+**Regional priority:** High on flat coastal and inland-valley plantations, on peat with poor water-table control, and on any block downstream of poorly designed drainage.
+
+## When oil palm is most vulnerable
+
+All ages. Nursery and immature palms die fastest from prolonged flooding. Mature palms tolerate short flooding events but suffer cumulative decline from chronic waterlogging.
+
+## How waterlogging shows in satellite data
+
+- **NDWI stays elevated** across affected zones for weeks after a flood event, indicating water not draining.
+- **Sentinel-1 SAR imagery** is unusually useful for waterlogging because it detects surface water through cloud cover.
+- **NDVI decline** follows over weeks to months as fronds yellow and die.
+- **True-color imagery** shows standing water in low-lying zones after heavy rain.
+- **Same low-lying zones repeat** flood after flood - useful to identify with historical imagery and flag for drainage investment.
+
+<Warning>
+  Chronic waterlogging is often invisible until yield drops. A block that never has visible standing water can still have a saturated root zone 30 cm down. Soil pit inspection is the diagnostic gold standard.
+</Warning>
+
+## Field symptoms
+
+- **Yellowing older fronds** and premature senescence, spreading upward.
+- **Reduced frond production** and shorter fronds in chronic waterlogging.
+- **Root system limited to the top 15 to 30 cm** of soil - visible when a pit is dug.
+- **Blackened, foul-smelling feeder roots** in prolonged waterlogging.
+- **Increased Ganoderma and phytophthora infection** as damaged roots provide entry points.
+- **Reduced bunch weight and number** over multiple seasons.
+- **Palm leaning** on soft, waterlogged soils - especially on peat.
+
+## Reduce the damage by
+
+- **Design and maintain field drainage** - primary, secondary, and tertiary drains sized for peak rainfall. Regular cleaning is often more valuable than adding new drains.
+- **Water-table management on peat** - target 50 to 70 cm below surface using controlled weirs. Too shallow causes waterlogging; too deep causes subsidence and fire risk.
+- **Raised bed or mound planting** on flood-prone blocks - especially on peat and coastal alluvial.
+- **Cover crops with deep roots** (Mucuna, Pueraria) improve subsoil drainage over time.
+- **Do not over-drain during dry periods** - a rapidly falling water table causes root death by desiccation.
+- **Emergency drainage** during flood events - clear blocked drains before waterlogging becomes chronic.
+- **Post-flood recovery** - after floodwater recedes, apply a foliar fertilizer to compensate for damaged feeder roots; avoid heavy soil-applied fertilizer that the palm cannot yet take up.
+
+## Set an alert for early warning
+
+<Tip>
+  Turn the diagnosis into a trigger. Waterlogging alerts should combine SAR imagery, NDWI trends, and rainfall data - each alone misses something the others catch.
+</Tip>
+
+Recommended settings for waterlogging on oil palm:
+
+- **NDWI threshold alert** - trigger when block-average NDWI stays elevated for two consecutive passes after significant rainfall.
+- **SAR imagery review** during monsoon and flood seasons - Sentinel-1 sees through cloud.
+- **Weather alert** - excessive rainfall events on flood-prone blocks.
+- **Historical flood-zone map overlay** - flag chronic low-lying zones for drainage priority.
+
+## Related
+
+- [Oil Palm Diagnosis](/guides/Crop/Oil-Palm/oil-palm-diagnosis)
+- [Drought](/guides/Crop/Oil-Palm/abiotic/drought) - the opposite extreme, same water-management program.
+- [Peat Subsidence & Leaning](/guides/Crop/Oil-Palm/abiotic/peat-subsidence) - peat-specific water-table concerns.
+- [Ganoderma (BSR)](/guides/Crop/Oil-Palm/biotic/diseases/ganoderma) - waterlogged roots are Ganoderma entry points.
+- [Set up automated crop alerts](/guides/alerts-notifications)

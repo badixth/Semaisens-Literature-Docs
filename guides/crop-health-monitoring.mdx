@@ -1,0 +1,170 @@
+---
+title: "Monitor Crop Health Across Fields with Satellite Imagery"
+sidebarTitle: "Crop Health"
+description: "Track NDVI, NDRE, and NDWI across your fields to detect crop stress early, prioritize problem zones, and act before yield losses occur."
+---
+
+Google continuously monitors your fields using satellite-derived vegetation indices, giving you a precise, up-to-date picture of crop health across every acre. By analyzing spectral reflectance from each imagery pass, the platform detects stress patterns — from nutrient deficiencies to waterlogging — often days before any symptoms become visible on the ground.
+
+## Dashboard Walkthrough
+
+<Steps>
+  <Step title="Open your field">
+    Navigate to **Fields** in the left sidebar and select the field you want to inspect. The field overview map loads with the most recent imagery automatically applied.
+  </Step>
+  <Step title="Open the Health tab">
+    Click the **Health** tab at the top of the field detail panel. The latest NDVI map renders as a color-coded overlay on your field boundary.
+  </Step>
+  <Step title="Compare dates with the slider">
+    Use the **date slider** beneath the map to scrub backward through all available imagery acquisitions. Drag left to view older images and right to return to the most recent pass, watching the color overlay update in real time.
+  </Step>
+  <Step title="Switch between indices">
+    Use the **index selector** in the top-right corner of the map to toggle between available indices:
+
+    - **NDVI** — Normalized Difference Vegetation Index, general crop vigour
+    - **NDRE** — Normalized Difference Red Edge, chlorophyll and nitrogen status (usable from tillering onward, not only at heading/flowering)
+    - **NDWI** — Normalized Difference Water Index, canopy water content and irrigation stress
+    - **LST / CWSI** — Land Surface Temperature and Crop Water Stress Index, heat and cold stress
+    - **Salinity Index** — surface salt-crust and canopy salinity response, for salt-affected soils
+  </Step>
+</Steps>
+
+## Reading Health Maps
+
+The color scale on every health map runs from red through to dark green. Understanding what each color means lets you prioritize attention quickly.
+
+### Generic default scale
+
+Use this scale when no crop or growth stage is selected for the field. It is a broad, crop-agnostic baseline and should be treated as a first-pass indicator, not a diagnosis.
+
+| Color | NDVI Range | Interpretation |
+| --- | --- | --- |
+| Red / Orange | \< 0.3 | Bare soil or severe crop stress |
+| Yellow | 0.3 – 0.5 | Sparse or significantly stressed vegetation |
+| Light green | 0.5 – 0.7 | Moderate crop growth, watch closely |
+| Dark green | \> 0.7 | Dense, healthy crop canopy |
+
+<Info>
+  NDVI values are unitless and range from -1 to \+1. For most broadacre crops, values above 0.6 during peak vegetative growth indicate a healthy, well-developed canopy.
+</Info>
+
+### Why one scale is not enough
+
+A single fixed NDVI table will misread most fields at some point in the season. Healthy NDVI shifts with two things:
+
+- **Crop type.** Canopy architecture and leaf density differ between crops. A mature paddy canopy easily reaches 0.85, while a healthy chili or cotton canopy peaks lower.
+- **Growth phase.** The same healthy field moves through the NDVI scale as it grows. An early-vegetative paddy field at 0.35 is normal, not stressed. A ripening field at 0.85 may be delayed maturity, not "excellent health".
+
+For accurate interpretation, select the correct crop and growth stage on the field so the platform applies a phase-aware NDVI band instead of the generic scale.
+
+### Crop-specific NDVI ranges
+
+#### Paddy (rice)
+
+Indicative healthy NDVI bands by phenological phase. Values outside the healthy column at the corresponding phase warrant a closer look.
+
+| Phase | Days after transplanting | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| Transplanting / early vegetative | 0 – 20 | 0.20 – 0.40 | Sparse canopy, water visible between hills. Low NDVI is expected. |
+| Tillering | 20 – 45 | 0.40 – 0.65 | Canopy closing. Uneven patches here often indicate nutrient or water issues. |
+| Panicle initiation / booting | 45 – 70 | 0.65 – 0.80 | Peak green biomass building. NDVI should be rising steadily. |
+| Heading / flowering | 70 – 95 | 0.75 – 0.90 | Peak NDVI. NDVI saturates here, so switch to NDRE for finer detail. |
+| Ripening / maturity | 95 – 120 | 0.40 – 0.65 | A _decline_ is desired as grain fills and the canopy senesces. High NDVI at this stage can mean delayed maturity. |
+
+<Info>
+  Ranges above are indicative for lowland transplanted paddy and will vary with variety, region, and season. The platform refines these bands automatically once it has one or more seasons of field history.
+</Info>
+
+Healthy NDVI shifts noticeably across rice ecosystems. For dedicated bands covering irrigated lowland, rainfed lowland, flood-prone, and rainfed upland paddy, see [Rice Ecosystems](/guides/Crop/rice-ecosystems).
+
+Additional crop presets (maize, oil palm, chili, and others) follow the same phase-based structure and are applied automatically when the crop is set on the field.
+
+### Preselecting crop and growth stage
+
+To move from the generic scale to a phase-aware scale:
+
+<Steps>
+  <Step title="Open the field settings">
+    From the field overview, open the **Settings** panel in the top-right.
+  </Step>
+  <Step title="Set the crop">
+    Under **Crop**, choose the crop grown in the current season (for example, **Paddy**). This loads the crop-specific NDVI presets.
+  </Step>
+  <Step title="Set the sowing or transplanting date">
+    Enter the **sowing / transplanting date**. The platform derives the current growth phase from days-after-sowing and applies the matching NDVI band automatically. You do not need to update the phase manually as the season progresses.
+  </Step>
+  <Step title="Confirm the active band">
+    Return to the **Health** tab. The legend below the map now shows the phase-aware NDVI band for the current date, and the map re-colors accordingly.
+  </Step>
+</Steps>
+
+<Tip>
+  If you manage many fields with the same crop and planting window, set the crop and date at the **farm** level under **Farm Settings → Defaults**. New fields inherit these defaults automatically.
+</Tip>
+
+### Anomaly view (relative health)
+
+For crops or regions where absolute NDVI bands are unreliable, switch the map legend from **Absolute NDVI** to **Anomaly** in the top-right of the Health tab. Anomaly view compares each pixel to the expected value for the same crop, phase, and region, and colors the map by deviation:
+
+- **Red** — significantly below expected (investigate)
+- **Neutral** — at or near expected
+- **Green** — significantly above expected
+
+Anomaly view is crop-agnostic once a baseline exists, and is the recommended lens once you have one full season of field history.
+
+### Switching indices for deeper insight
+
+- Switch to **NDRE** when you suspect nitrogen deficiency. NDRE is more sensitive to chlorophyll content at moderate-to-high biomass levels where NDVI can saturate. NDRE is valid from **tillering onward**, not only at heading and flowering.
+- Switch to **NDWI** during dry spells or when center-pivot coverage is uneven. Low NDWI values highlight under-irrigated zones before wilting begins.
+- Switch to **LST / CWSI** during heatwaves or cold snaps. High CWSI values flag heat stress and closed stomata; pre-dawn LST below 0 °C flags frost risk.
+- Switch to **Salinity Index** on coastal, delta, or historically salt-affected fields. Bright surface soils combined with persistently low NDWI and NDVI suggest salt buildup.
+
+### What satellites can and cannot detect
+
+Satellites measure **plant and soil response**, not soil chemistry. Understanding this boundary avoids over-interpreting the maps.
+
+| Condition | Detectable from satellite? | Best index / source | Notes |
+| --- | --- | --- | --- |
+| Heat stress | Yes | LST, CWSI | Thermal bands from Landsat, MODIS, ECOSTRESS, Sentinel-3. |
+| Cold stress / frost | Yes | LST (pre-dawn) | Confirm with post-event NDVI drop. |
+| Water stress | Yes | NDWI, CWSI | Combined use gives earliest signal. |
+| Nitrogen (N) | Yes | NDRE, CIred-edge | Reliable from tillering onward. |
+| Chlorophyll (proxy for N, Mg, Fe) | Yes | MCARI, MTCI, CIgreen | General "greenness" signal. |
+| Phosphorus (P) | Indirect only | NDVI decline, PRI | No reliable direct index. Requires soil test. |
+| Potassium (K) | Indirect only | NDVI decline | No reliable direct index. Requires soil test. |
+| Salinity (general) | Yes | Salinity Index, CRSI, NDSI | Detects "salt-affected" as a class. |
+| Specific ions (Na, Ca, Mg, Cl, SO₄) | No | Hyperspectral (research) | Multispectral cannot separate ion species. Requires lab EC and ion analysis. |
+| Disease / pest damage | Yes (indirect) | NDVI \+ NDRE anomaly | Signals stress; species-level diagnosis needs ground scouting. |
+
+<Warning>
+  The **Salinity Index** flags salt-affected areas but cannot tell you _which_ salts are present. Confirm with a soil electrical conductivity (EC) test and lab ion analysis before applying gypsum, leaching, or amendments.
+</Warning>
+
+<Tip>
+  Upload lab soil test results (EC, pH, N-P-K, Na, Cl, SO₄) under **Field → Soil Samples** to overlay them on the same map as the satellite layers. This closes the gap between what satellites see and what only the lab can measure.
+</Tip>
+
+## Identifying Problem Areas
+
+### Zone analysis
+
+Click **Analyze Zones** in the Health tab toolbar to automatically cluster your field's pixels into management zones using k-means segmentation. The platform groups similar NDVI values into 2–5 zones, highlights boundaries on the map, and calculates the area and average index value for each zone.
+
+### Exporting scouting reports
+
+Once zones are generated, click **Export Scouting Report** to produce a GPS-referenced list of the lowest-performing zone centroids. Each point includes:
+
+- Latitude and longitude
+- Zone severity ranking
+- NDVI value at the point
+- Date of the source imagery
+
+Take this report into the field using the mobile app. For a full walkthrough of how to turn these GPS points into an optimized scouting route, see the [Field Scouting guide](/guides/field-scouting).
+
+## Comparing Multiple Fields
+
+To review health across your entire operation at a glance, click **Compare Fields** in the top-right of the Fields page. Select up to six fields to display side-by-side NDVI thumbnails for the same date. Use the shared date picker to synchronize the imagery date across all panels. This view is particularly useful when managing geographically spread fields that may have received different rainfall or experienced different pest pressure.
+
+<Tip>
+  Analyze your fields within 24 hours of a new imagery acquisition for the most actionable insights. Fresh imagery appears in your dashboard as soon as it clears cloud-cover validation — check the **Imagery** badge on each field card for the latest acquisition timestamp.
+</Tip>

@@ -1,0 +1,65 @@
+---
+title: "Remote Sensing for Agriculture: How the Platform Works"
+sidebarTitle: "Remote Sensing"
+description: "Learn how satellite and aerial sensors capture crop reflectance data and how the platform turns raw imagery into actionable field insights."
+---
+
+Remote sensing is the science of collecting information about objects or areas from a distance — in agriculture, this means using satellite and aerial sensors to measure how crops reflect light across multiple wavelengths, all without ever touching the field. By analyzing these reflectance signatures, you gain an objective, scalable view of crop health, water stress, and growth patterns across every hectare you manage.
+
+## How It Works
+
+When a satellite passes over your registered fields, its multispectral sensor captures reflected energy across several spectral bands — visible light (red, green, blue), near-infrared (NIR), red-edge, and shortwave infrared (SWIR). Each band reveals different characteristics of plant physiology and soil conditions.
+
+The platform handles the full workflow for you:
+
+1. **Ingestion** — Imagery is automatically pulled for all registered field boundaries as new scenes become available from connected satellite providers.
+2. **Processing** — Raw digital numbers are converted to surface reflectance through atmospheric correction algorithms, removing distortions caused by haze, aerosols, and solar angle.
+3. **Analysis** — Corrected bands are fed into vegetation index calculations and anomaly detection models, producing the maps and alerts you see in your dashboard.
+
+## Key Remote Sensing Inputs
+
+<CardGroup cols={2}>
+  <Card title="Multispectral Imagery" icon="satellite">
+    Captures reflected light in discrete bands (red, green, NIR, red-edge, SWIR). The primary data source for vegetation index calculations such as NDVI, NDRE, and NDWI.
+  </Card>
+  <Card title="Thermal Imagery" icon="temperature-high">
+    Measures surface temperature in the thermal infrared range. Used to detect crop water stress, irrigation uniformity issues, and early signs of disease or frost damage.
+  </Card>
+  <Card title="SAR (Synthetic Aperture Radar)" icon="radar">
+    Uses microwave pulses that penetrate cloud cover. Provides crop structure and soil moisture data even when optical imagery is unavailable due to persistent cloud or smoke.
+  </Card>
+  <Card title="Drone Imagery" icon="drone">
+    Sub-meter resolution imagery captured on demand. Upload processed orthomosaics directly to the platform to supplement satellite coverage with high-detail field scouting data.
+  </Card>
+</CardGroup>
+
+## Resolution & Revisit Rates
+
+Different imagery sources offer different trade-offs between spatial detail and how frequently they revisit your fields. Use the table below to understand what to expect from each source.
+
+| Source | Spatial Resolution | Revisit Rate |
+|---|---|---|
+| Sentinel-2 / Landsat | 10–30 m | Every 3–5 days |
+| Planet PlanetScope | 3–5 m | Daily |
+| Drone (upload) | Sub-meter | On demand |
+
+<Note>
+  Cloud cover can prevent satellites from capturing usable optical imagery. When a scene over your field is obscured, the platform automatically falls back to the most recent clear-sky image and marks it with a timestamp so you always know when the data was acquired. SAR-derived layers remain available regardless of cloud conditions.
+</Note>
+
+## Image Processing Pipeline
+
+Before imagery reaches your dashboard, it moves through a three-stage processing pipeline designed to ensure every analysis layer is built on accurate, comparable data.
+
+**Stage 1 — Raw Digital Numbers**
+The satellite sensor records raw pixel values representing the intensity of reflected energy. These values depend on atmospheric conditions and sensor calibration, making them unsuitable for direct comparison across dates or satellites.
+
+**Stage 2 — Atmospherically Corrected Reflectance**
+Atmospheric correction algorithms remove the effects of scattering and absorption caused by gas molecules, aerosols, and water vapor. The result is a surface reflectance value that represents what the sensor would have measured without an atmosphere in the way.
+
+**Stage 3 — Analysis-Ready Data**
+Corrected reflectance values are projected, tiled, and clipped to your field boundaries, then stored as analysis-ready datasets. At this stage, vegetation indices are calculated, time-series stacks are updated, and any configured alerts are evaluated against the new data.
+
+<Tip>
+  You can inspect the processing status and source metadata for any imagery layer — including acquisition date, sensor name, cloud cover percentage, and correction algorithm — by clicking the layer info icon on any map in the platform.
+</Tip>

@@ -1,0 +1,212 @@
+---
+title: "Reports API: Generate and Download Agronomic Analyses"
+sidebarTitle: "Reports"
+description: "Generate scouting summaries, seasonal analyses, and variable-rate prescription maps for your fields and download them as PDF, JSON, or CSV files."
+---
+
+The Reports API lets you generate structured agronomic analyses for your fields and download the results in PDF, JSON, or CSV format. Reports are generated asynchronously — you submit a request, poll for status (or use a webhook), and download the file once it is ready. Report types range from field scouting summaries and seasonal health overviews to variable-rate prescription maps for precision application equipment.
+
+## The Report Object
+
+<ResponseField name="id" type="string">
+  The unique identifier for the report. Prefixed with `rpt_`.
+</ResponseField>
+
+<ResponseField name="field_id" type="string">
+  The ID of the field this report was generated for.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  The report type. One of `scouting`, `seasonal`, `health_summary`, or `prescription`.
+</ResponseField>
+
+<ResponseField name="format" type="string">
+  The output format. One of `pdf`, `json`, or `csv`.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The current processing status. One of:
+
+  - `pending` — The report has been queued and has not started processing.
+  - `processing` — The report is actively being generated.
+  - `ready` — The report is complete and available for download.
+  - `failed` — Report generation failed. Retry the request or contact support if the issue persists.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp of when the report was requested.
+</ResponseField>
+
+<ResponseField name="download_url" type="string">
+  A pre-signed URL to download the completed report. Populated only when `status` is `ready`. This URL expires after **7 days** — see the note below.
+</ResponseField>
+
+<ResponseField name="expires_at" type="string">
+  The ISO 8601 timestamp at which the `download_url` expires. After this time, re-fetch the report object to obtain a refreshed URL, or regenerate the report.
+</ResponseField>
+
+---
+
+## Generate a Report
+
+Request a new report for a field. Report generation runs asynchronously. The API returns `202 Accepted` immediately with a report object in `pending` status. Poll `GET /reports/{id}` or subscribe to the `report.ready` [webhook event](/api/webhooks) to know when the report is available for download.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique field ID.
+</ParamField>
+
+### Request Body
+
+<ParamField body="type" type="string" required>
+  The type of report to generate. Accepted values:
+
+  - `scouting` — A point-in-time field health snapshot with anomaly highlights and scouting zone recommendations.
+  - `seasonal` — A full-season analysis covering crop development, NDVI progression, and yield potential estimates.
+  - `health_summary` — A concise weekly or monthly health summary with index trends and alert history.
+  - `prescription` — A variable-rate application map for inputs such as fertiliser or seed, derived from index variability zones.
+</ParamField>
+
+<ParamField body="format" type="string" required>
+  The output file format. Accepted values: `pdf`, `json`, `csv`.
+
+  - `pdf` — A formatted report suitable for sharing with agronomists or farmers.
+  - `json` — Machine-readable structured data for integration with other systems.
+  - `csv` — Tabular data export suitable for spreadsheet analysis.
+</ParamField>
+
+<ParamField body="options" type="object">
+  Additional configuration for the report type. Available options vary by `type`.
+
+  <Expandable title="options properties">
+    <ParamField body="start_date" type="string">
+      The start of the analysis period (ISO 8601 date). Applicable to `seasonal` and `health_summary` types.
+    </ParamField>
+
+    <ParamField body="end_date" type="string">
+      The end of the analysis period (ISO 8601 date). Applicable to `seasonal` and `health_summary` types.
+    </ParamField>
+
+    <ParamField body="index" type="string">
+      The vegetation index to use as the basis for the report (e.g., `NDVI`, `NDRE`). Defaults to `NDVI`.
+    </ParamField>
+
+    <ParamField body="prescription_input" type="string">
+      For `prescription` reports only — the input to vary (e.g., `nitrogen`, `seed_rate`).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Example Request
+
+```bash
+curl -X POST https://api.example.com/v1/fields/fld_01j8xyz/reports \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "seasonal",
+    "format": "pdf",
+    "options": {
+      "start_date": "2024-05-01",
+      "end_date": "2024-09-30",
+      "index": "NDVI"
+    }
+  }'
+```
+
+---
+
+## Get a Report
+
+Retrieve the current status and details of a report. Poll this endpoint after submitting a report request, or use the `report.ready` webhook event to avoid polling altogether.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique report ID (e.g., `rpt_01j9def`).
+</ParamField>
+
+### Example Request
+
+```bash
+curl https://api.example.com/v1/reports/rpt_01j9def \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Example Response
+
+```json
+{
+  "id": "rpt_01j9def",
+  "field_id": "fld_01j8xyz",
+  "type": "seasonal",
+  "format": "pdf",
+  "status": "ready",
+  "created_at": "2024-10-01T10:00:00Z",
+  "download_url": "https://reports.example.com/rpt_01j9def.pdf",
+  "expires_at": "2024-10-08T10:00:00Z"
+}
+```
+
+<Note>
+  The `download_url` expires **7 days** after the report is generated. If the URL has expired, call `GET /reports/{id}` again — the response will contain a freshly signed URL valid for another 7 days.
+</Note>
+
+---
+
+## List Reports
+
+Retrieve a paginated list of all reports in your account, optionally filtered by field, type, or status.
+
+### Query Parameters
+
+<ParamField query="field_id" type="string">
+  Filter reports to a specific field.
+</ParamField>
+
+<ParamField query="type" type="string">
+  Filter by report type. Accepted values: `scouting`, `seasonal`, `health_summary`, `prescription`.
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by processing status. Accepted values: `pending`, `processing`, `ready`, `failed`.
+</ParamField>
+
+<ParamField query="page" default="1" type="integer">
+  The page number to retrieve.
+</ParamField>
+
+<ParamField query="per_page" default="20" type="integer">
+  The number of reports per page. Maximum `100`.
+</ParamField>
+
+### Example Request
+
+```bash
+curl "https://api.example.com/v1/reports?field_id=fld_01j8xyz&status=ready" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+---
+
+## Delete a Report
+
+Permanently delete a report and its associated download file. Returns `204 No Content` on success.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique report ID.
+</ParamField>
+
+### Example Request
+
+```bash
+curl -X DELETE https://api.example.com/v1/reports/rpt_01j9def \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Warning>
+  Deleting a report is irreversible. If you need the same analysis again, submit a new `POST /fields/{id}/reports` request to regenerate it.
+</Warning>

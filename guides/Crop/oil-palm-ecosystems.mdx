@@ -1,0 +1,126 @@
+---
+title: "Healthy NDVI Ranges for Oil Palm Across Planting Environments"
+sidebarTitle: "Ecosystems"
+description: "Indicative healthy NDVI bands for oil palm across mineral upland, coastal alluvial, and peat soils, by stand age and canopy closure."
+---
+
+Oil palm is a perennial crop, so healthy NDVI is driven less by phenological phase and more by **stand age**, **planting environment**, and **canopy closure**. The same block on mineral upland reads differently on satellite imagery than an equivalent block on peat, and a 3-year-old immature stand reads very differently from a closed 10-year-old canopy.
+
+This page lists indicative healthy NDVI bands for oil palm by planting environment and stand age so you can interpret the Health tab correctly for the block in front of you.
+
+For the generic Health tab workflow, see [Crop Health](/guides/crop-health-monitoring).
+
+## Oil palm planting environments at a glance
+
+| Environment | Soil / terrain | Typical peak NDVI (mature) | Interpretation risk |
+| --- | --- | --- | --- |
+| Mineral upland | Well-drained inland mineral soils, rolling terrain | 0.75 – 0.88 | Baseline. Most stable NDVI signal. |
+| Coastal alluvial | Flat, high water table, marine or riverine clay | 0.70 – 0.85 | Waterlogging events cause temporary dips. |
+| Inland peat | Deep organic soils, drained via canals | 0.65 – 0.82 | Dark, wet soil background lowers apparent NDVI, especially in young stands. |
+| Reclaimed / marginal | Shallow soils, ex-mining, sandy | 0.60 – 0.78 | Peaks lower and later; more variable. |
+
+<Info>
+  Ranges on this page are indicative bands drawn from published Sentinel-2 and Landsat oil palm studies and MPOB agronomy references. The platform refines them automatically once it has one or more years of block history.
+</Info>
+
+## Stand age drives the NDVI curve
+
+Unlike annual crops, oil palm NDVI climbs slowly for the first ~6 years then plateaus for the productive life of the stand. Use the age bands below as the primary lens, then adjust for planting environment.
+
+| Stand age | Canopy state | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| 0 – 1 year (newly planted) | Bare inter-row, small fronds | 0.20 – 0.40 | Ground cover crops (Mucuna, Pueraria) contribute most of the signal. |
+| 1 – 3 years (immature) | Fronds expanding, ground still visible | 0.35 – 0.60 | NDVI rises quickly. Uneven blocks flag replanting failures. |
+| 3 – 6 years (young mature) | Canopy closing | 0.55 – 0.78 | Steady climb toward closure. First harvests begin. |
+| 6 – 15 years (prime mature) | Closed canopy | 0.75 – 0.88 | Peak NDVI plateau. Small dips flag stress. |
+| 15 – 25 years (late mature) | Closed, taller palms | 0.70 – 0.85 | Slight decline is normal; sharp drops flag Ganoderma or nutrient issues. |
+| \> 25 years (senescent / pre-replant) | Thinning canopy, taller palms | 0.60 – 0.80 | Plan replanting; NDVI alone cannot tell age-decline from disease. |
+
+<Info>
+  NDVI saturates on closed oil palm canopies. From year 6 onward, switch to **NDRE** or **EVI** for finer differentiation between healthy and mildly stressed blocks.
+</Info>
+
+## Mineral upland
+
+Well-drained inland mineral soils on rolling terrain. This is the baseline used by the default oil palm preset in [Crop Health](/guides/crop-health-monitoring). Stable water status and uniform soil give the cleanest NDVI signal across the block.
+
+| Stand age | Healthy NDVI | Notes |
+| --- | --- | --- |
+| 0 – 1 year | 0.25 – 0.45 | Cover crop establishment visible within 3 – 6 months. |
+| 1 – 3 years | 0.40 – 0.65 | Uniform rise expected block-wide. |
+| 3 – 6 years | 0.60 – 0.80 | Canopy closure typically at year 5 – 6. |
+| 6 – 15 years | 0.75 – 0.88 | Peak plateau. |
+| 15 – 25 years | 0.72 – 0.85 | Gentle decline. |
+
+## Coastal alluvial
+
+Flat coastal or riverine blocks on marine/alluvial clay with a high water table. Yields are strong when drainage is maintained, but heavy rain events cause temporary waterlogging and short-lived NDVI dips.
+
+| Stand age | Healthy NDVI | Notes |
+| --- | --- | --- |
+| 0 – 1 year | 0.22 – 0.42 | Watch for standing water in inter-rows after rain. |
+| 1 – 3 years | 0.38 – 0.62 | Slightly slower canopy build than mineral upland. |
+| 3 – 6 years | 0.58 – 0.78 |  |
+| 6 – 15 years | 0.72 – 0.85 | Post-rain dips of 0.03 – 0.06 are normal. |
+| 15 – 25 years | 0.70 – 0.83 |  |
+
+<Tip>
+  On coastal alluvial blocks, cross-check NDVI dips against the **NDWI** layer and recent rainfall before flagging stress. A synchronized NDWI rise with an NDVI dip almost always means transient waterlogging, not decline.
+</Tip>
+
+## Inland peat
+
+Deep organic soils drained via canal networks. Dark, wet peat lowers the apparent soil-background reflectance, so NDVI reads lower than mineral upland for the same canopy density, especially in immature blocks where the soil is still visible.
+
+| Stand age | Healthy NDVI | Notes |
+| --- | --- | --- |
+| 0 – 1 year | 0.18 – 0.35 | Dark peat background depresses NDVI more than mineral soil. |
+| 1 – 3 years | 0.30 – 0.55 | Slower canopy build; peat subsidence can tilt palms. |
+| 3 – 6 years | 0.50 – 0.72 |  |
+| 6 – 15 years | 0.68 – 0.82 | Peak plateau ~0.05 lower than mineral upland. |
+| 15 – 25 years | 0.65 – 0.80 | Ganoderma pressure often higher; monitor closely. |
+
+<Warning>
+  Water-table drops on peat cause rapid, widespread NDVI declines that are not disease. Confirm against canal water-level records before flagging a stress event.
+</Warning>
+
+## Reclaimed / marginal
+
+Ex-mining land, shallow soils, sandy coastal terraces, or otherwise nutrient-poor sites. Canopy closure is delayed, peaks are lower, and block-to-block variance is high. Expect a longer immature phase.
+
+| Stand age | Healthy NDVI | Notes |
+| --- | --- | --- |
+| 0 – 1 year | 0.15 – 0.32 | Cover crop establishment often patchy. |
+| 1 – 3 years | 0.28 – 0.50 | Slower vegetative growth. |
+| 3 – 6 years | 0.45 – 0.68 | Canopy closure may extend to year 7 – 8. |
+| 6 – 15 years | 0.62 – 0.80 | Peak lower than mineral upland. |
+| 15 – 25 years | 0.58 – 0.78 |  |
+
+## Choosing the right environment on a block
+
+<Steps>
+  <Step title="Open block settings">
+    From the block overview, open **Settings** in the top-right.
+  </Step>
+  <Step title="Set the crop to Oil Palm">
+    Under **Crop**, choose **Oil Palm**. Additional oil palm options appear.
+  </Step>
+  <Step title="Set the planting environment">
+    Under **Environment**, choose **Mineral upland**, **Coastal alluvial**, **Inland peat**, or **Reclaimed / marginal**. The Health tab legend switches to the corresponding band table above.
+  </Step>
+  <Step title="Set the planting date">
+    Enter the **planting date**. The platform derives current stand age and applies the matching age band automatically. You do not need to update the age manually as the stand matures.
+  </Step>
+</Steps>
+
+<Tip>
+  If a single estate contains blocks across multiple environments (common for coastal estates that extend inland), set the environment at the **block** level rather than at the estate level so each block gets the correct band.
+</Tip>
+
+## Cross-environment tips
+
+- NDVI saturates on closed oil palm canopies from year 6 onward. Switch to **NDRE** or **EVI** for stress detection on mature blocks regardless of environment.
+- Use **Anomaly** view once one full year of history exists. It adapts to your specific environment, planting material, and management regime, and absorbs seasonal rainfall variability.
+- **Ganoderma** (basal stem rot) shows as a slow, localized NDVI decline over months, often ring-shaped around infected palms. Cross-check with high-resolution imagery or drone flights before removing palms.
+- **Nutrient deficiency** (N, K, Mg, B) tends to show as diffuse block-wide dips rather than sharp local patterns. NDRE is more sensitive than NDVI once the canopy is closed.
+- **Water stress** shows first on **NDWI** and **CWSI**, not NDVI, on closed-canopy blocks. NDVI dips lag water stress by 2 – 4 weeks.

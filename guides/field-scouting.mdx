@@ -1,0 +1,86 @@
+---
+title: "Plan and Execute Field Scouting Routes from NDVI Maps"
+sidebarTitle: "Field Scouting"
+description: "Turn satellite anomaly detection into GPS-guided scouting routes and spend time exactly where crop stress is highest in your fields."
+---
+
+Instead of walking fields on a fixed grid or relying on intuition, Google turns satellite anomaly detection into targeted scouting routes, ranking problem zones by severity so you spend your time where it matters most. Every scouting trip is logged, geo-referenced, and compiled into a shareable report — building a ground-truth record that improves each subsequent season.
+
+## Generating a Scouting Plan
+
+<Steps>
+  <Step title="Open the Scouting tab">
+    Open any field from the **Fields** page, then click the **Scouting** tab in the field detail panel. Any previously completed scouting sessions are listed here by date.
+  </Step>
+  <Step title="Generate the scouting plan">
+    Click **Generate Scouting Plan**. The system analyses the latest NDVI map, identifies the 5–10 most anomalous zones ranked by severity, and places a numbered scouting point at the centroid of each zone. Points are ordered into a time-efficient route using nearest-neighbour path optimization.
+  </Step>
+  <Step title="Review the scouting points">
+    Inspect each numbered point on the map. Click a point to view its NDVI value, severity rank, zone area, and the date of the source imagery. Drag any point to a more accessible location if terrain or obstacles make the auto-placed position impractical.
+  </Step>
+  <Step title="Export to mobile">
+    Click **Export to Mobile**. If you are logged in to the Google mobile app on your phone, the route syncs automatically. Alternatively, scan the QR code displayed on screen to open the route directly on any paired device.
+  </Step>
+  <Step title="Scout in the field">
+    In the mobile app, navigate to each numbered point using the built-in GPS guidance. At each point, record your observations:
+    - Attach one or more **photos** of the crop or symptom
+    - Add free-text **notes** describing what you see
+    - Tag a **pest or disease flag** from the built-in lookup list
+    - Mark the point as **Resolved**, **Monitoring**, or **Action Required**
+  </Step>
+  <Step title="Sync your observations">
+    When you return to connectivity, tap **Sync** in the mobile app. All observations, photos, and flags upload to the platform and are attached to the scouting session. The completed session appears immediately in the field's Scouting tab.
+  </Step>
+</Steps>
+
+## Mobile App
+
+<CardGroup cols={2}>
+  <Card title="iOS" icon="apple">
+    Download the Google app from the App Store. Supports iPhone and iPad. iOS 15 or later required.
+  </Card>
+  <Card title="Android" icon="android">
+    Download from the Google Play Store. Android 10 or later required. Works on phones and rugged field tablets.
+  </Card>
+</CardGroup>
+
+### Offline mode
+
+The mobile app is designed for areas with poor connectivity. When you export a scouting route, the underlying NDVI map tiles and all scouting point metadata download to your device automatically. You can navigate, record observations, take photos, and add notes with no data signal. Everything queues locally and syncs the next time the device connects to Wi-Fi or a cellular network.
+
+<Warning>
+Do not force-close the app immediately after returning to connectivity. Allow the sync progress indicator to reach 100% before closing to ensure no observations are lost.
+</Warning>
+
+## Scouting Reports
+
+After a session syncs, Google automatically generates a PDF scouting report. Each report includes:
+
+- **Field name** and date of scouting session
+- **NDVI context map** with scouting points overlaid
+- **Observations table** — point number, GPS coordinates, severity flag, and notes for each stop
+- **Photo gallery** with captions tied to each scouting point
+- **Summary statistics** — number of points visited, percentage flagged as Action Required
+
+### Downloading reports
+
+Find completed reports under the **Reports** tab in the left sidebar. Click any report to preview it or click **Download PDF** to save it locally. You can also retrieve reports programmatically:
+
+```http
+GET https://api.example.com/v1/reports/{id}
+Authorization: Bearer <your_api_key>
+```
+
+```json
+{
+  "id": "rpt_01j9sct",
+  "type": "scouting",
+  "field_id": "fld_01j8xyz",
+  "generated_at": "2024-07-15T14:22:00Z",
+  "download_url": "https://api.example.com/v1/reports/rpt_01j9sct/download"
+}
+```
+
+<Tip>
+Schedule a scouting session at least once per week during peak vegetative growth and at every critical growth stage (tillering, heading, grain fill). Regular ground-truth data makes the platform's anomaly detection significantly more accurate for your specific crop and soil conditions over time.
+</Tip>

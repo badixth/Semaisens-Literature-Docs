@@ -1,0 +1,103 @@
+---
+title: "Google REST API: Complete Developer Reference Guide"
+sidebarTitle: "Overview"
+description: "Explore the Google REST API to programmatically manage fields, retrieve satellite imagery, calculate vegetation indices, and receive real-time webhooks."
+---
+
+The Google REST API gives you programmatic access to every feature on the platform. Use it to register and manage field boundaries, retrieve satellite and aerial imagery, calculate vegetation indices like NDVI and NDRE, generate agronomic reports, and receive real-time notifications via webhooks — all from your own applications and workflows.
+
+## Base URL
+
+All API requests are made to the following base URL. Include `/v1/` in every request path.
+
+```
+https://api.example.com/v1
+```
+
+## Quick Reference
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/api/authentication">
+    Learn how to generate API keys and authenticate every request with a Bearer token.
+  </Card>
+  <Card title="Rate Limits" icon="gauge" href="/api/rate-limits">
+    Understand request quotas by plan and how to implement exponential backoff.
+  </Card>
+  <Card title="Fields" icon="map" href="/api/fields">
+    Register field boundaries, set crop metadata, and manage your field portfolio.
+  </Card>
+  <Card title="Imagery" icon="satellite-dish" href="/api/imagery">
+    Browse satellite passes, filter by cloud cover, and upload drone orthomosaics.
+  </Card>
+  <Card title="Indices" icon="leaf" href="/api/indices">
+    Calculate NDVI, NDRE, NDWI, EVI, and custom band-math indices for your fields.
+  </Card>
+  <Card title="Reports" icon="file-chart-line" href="/api/reports">
+    Generate scouting summaries, seasonal analyses, and prescription maps.
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/api/webhooks">
+    Subscribe to real-time events for new imagery, triggered alerts, and ready reports.
+  </Card>
+</CardGroup>
+
+## Request Format
+
+Every request to the API must follow these conventions:
+
+- **Content-Type** — Include the header `Content-Type: application/json` on all requests that send a body (POST, PATCH, PUT).
+- **Authorization** — Include the header `Authorization: Bearer YOUR_API_KEY` on every request. Requests without a valid key are rejected with `401 Unauthorized`.
+- **Dates** — Express all date values in ISO 8601 format. Use `YYYY-MM-DD` for date-only fields and `YYYY-MM-DDTHH:MM:SSZ` for timestamps.
+
+## Response Format
+
+All responses are returned as JSON. The API uses standard HTTP status codes to indicate the outcome of each request.
+
+**Successful responses**
+
+| Status Code | Meaning |
+|---|---|
+| `200 OK` | The request succeeded and a response body is returned. |
+| `201 Created` | A new resource was created. The response body contains the created object. |
+| `204 No Content` | The request succeeded and there is no response body (e.g., DELETE). |
+
+**Error responses**
+
+When a request fails, the API returns an error object with a machine-readable `code`, a human-readable `message`, and the HTTP `status` code.
+
+```json
+{
+  "error": {
+    "code": "field_not_found",
+    "message": "Field with ID fld_01j8xyz was not found.",
+    "status": 404
+  }
+}
+```
+
+## Standard Error Codes
+
+| Status | Code | Description |
+|---|---|---|
+| `400` | Bad Request | The request body or query parameters are malformed or missing required fields. |
+| `401` | Unauthorized | The API key is missing, expired, or invalid. |
+| `403` | Forbidden | The API key does not have permission to perform the requested action. |
+| `404` | Not Found | The requested resource does not exist. |
+| `422` | Unprocessable Entity | The request is well-formed but contains semantic errors (e.g., invalid GeoJSON). |
+| `429` | Too Many Requests | You have exceeded your plan's rate limit. See [Rate Limits](/api/rate-limits). |
+| `500` | Internal Server Error | An unexpected error occurred on the server. Retry the request after a short delay. |
+
+## Versioning
+
+The current API version is **v1**. Include `/v1/` in every request URL to target this version. When breaking changes are introduced, they are released under a new version (e.g., `/v2/`). The previous version remains supported for a minimum of **6 months** after a new version is announced, giving you time to migrate your integrations.
+
+<Note>
+  Non-breaking changes — such as new optional fields, new endpoints, and new event types — may be added to the current version at any time without a version bump.
+</Note>
+
+## SDKs and Client Libraries
+
+Official Python and JavaScript client libraries are in active development and will be available soon. The libraries will wrap the REST API, handle authentication, and provide typed models for all resources. Until then, use any standard HTTP client with the examples throughout this reference.
+
+<Tip>
+  All code examples in this reference use plain `curl`, `requests` (Python), and `fetch` (JavaScript) so you can run them immediately without any additional dependencies.
+</Tip>

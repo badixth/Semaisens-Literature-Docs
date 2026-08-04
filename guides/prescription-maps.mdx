@@ -1,0 +1,74 @@
+---
+title: "Create Variable-Rate Prescription Maps from Satellite Data"
+sidebarTitle: "Prescription Maps"
+description: "Build satellite-derived prescription maps for variable-rate fertilizer, seed, and irrigation to cut input costs and optimize yield."
+---
+
+Prescription maps let you move beyond flat-rate application and put exactly the right amount of fertilizer, seed, or pesticide where the crop needs it — and nowhere else. By grounding application decisions in satellite-derived vegetation indices, you can reduce input costs, minimize environmental runoff, and push yield potential in areas of the field that have historically underperformed.
+
+## Understanding Variable-Rate Application
+
+Variable-rate application (VRA) divides a field into **management zones** — groups of pixels with similar index values that represent areas of comparable agronomic status. Each zone receives a different application rate tailored to its needs. A high-biomass zone might receive a maintenance nitrogen rate, while a consistently low-performing zone gets a corrective higher rate to close the yield gap.
+
+Google automates zone delineation using the vegetation index of your choice, then lets you assign and fine-tune rates per zone before exporting a file your equipment can execute directly.
+
+<Info>
+Management zones derived from multi-date imagery composites are more reliable than zones from a single image. Google automatically uses a seasonal composite when more than three imagery dates are available for the selected season.
+</Info>
+
+## Creating a Prescription Map
+
+<Steps>
+  <Step title="Open the Prescriptions tab">
+    Navigate to **Fields**, select your field, and click the **Prescriptions** tab. Any previously created prescriptions for this field are listed here.
+  </Step>
+  <Step title="Start a new prescription">
+    Click **New Prescription**. A setup panel opens on the right side of the screen.
+  </Step>
+  <Step title="Choose your base index">
+    Select the vegetation index that best matches your application goal:
+    - **NDVI** — use for variable seeding rates and general biomass-based zoning
+    - **NDRE** — use for variable nitrogen application; more sensitive to chlorophyll at high biomass
+    - **NDWI** — use for variable irrigation scheduling or fungicide timing by canopy water status
+  </Step>
+  <Step title="Set the number of management zones">
+    Choose between **2 and 5 management zones**. For most fields, 3 zones (low, medium, high) provide the right balance of spatial detail and practical manageability. The platform auto-clusters pixels using k-means and displays the resulting zone map immediately.
+  </Step>
+  <Step title="Review and adjust rates per zone">
+    The system assigns default relative rates scaled to your base application rate. Edit the rate for each zone to match your agronomic targets. For example:
+
+    | Zone | Index range | Suggested use case | Example rate |
+    |------|-------------|-------------------|--------------|
+    | Zone 1 (low) | NDRE < 0.2 | Corrective high nitrogen | 150 kg/ha |
+    | Zone 2 (medium) | NDRE 0.2–0.35 | Maintenance rate | 120 kg/ha |
+    | Zone 3 (high) | NDRE > 0.35 | Reduced maintenance | 90 kg/ha |
+  </Step>
+  <Step title="Export in your equipment's format">
+    Click **Export Prescription**, choose your equipment format (see table below), and download the file. Load the file onto your display or precision ag platform before heading to the field.
+  </Step>
+</Steps>
+
+## Export Formats
+
+| Format | Compatible platform | File extension |
+|---|---|---|
+| ISO-XML | John Deere Operations Center, ISOBUS-compliant displays | `.xml` |
+| Shapefile | AGCO Fuse, CNH AFS, ISOBUS generic | `.shp / .dbf / .prj` |
+| GeoJSON | Universal — any GIS-capable platform or custom system | `.geojson` |
+| As-applied CSV | Data analysis, record-keeping, agronomic reporting | `.csv` |
+
+<Note>
+Variable-rate application may be subject to local regulations around maximum nutrient application rates, buffer zones near waterways, and record-keeping requirements. Check with your local agricultural authority or agronomist before executing a prescription map, particularly for nitrogen and pesticide applications.
+</Note>
+
+## Reviewing Results After Application
+
+Close the loop by uploading your as-applied data after the application pass is complete. Most precision ag displays export an as-applied shapefile or CSV that records actual rates applied at each GPS point.
+
+To upload as-applied data:
+
+1. Go to the field's **Prescriptions** tab and open the completed prescription.
+2. Click **Upload As-Applied Data** and select your file.
+3. Google overlays the target prescription and the as-applied data side by side, highlighting areas where applied rates deviated from the prescription by more than 10%.
+
+Use this comparison to identify equipment calibration issues, coverage gaps, or overlaps — and carry the findings into your next application planning session.

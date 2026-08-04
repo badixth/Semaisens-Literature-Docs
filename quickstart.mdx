@@ -1,47 +1,213 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Quickstart: Your First Crop Health Analysis in 10 Minutes"
+sidebarTitle: "Quickstart"
+description: "Register a field, request NDVI imagery, and interpret your first crop health analysis using the Google Agriculture API in under 10 minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
-
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+This guide walks you through everything you need to run your first crop health analysis — from creating an account to reading NDVI values from a registered field. By the end, you'll have a working API integration and a clear picture of how to interpret vegetation index results for your crops.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Create Your Account">
+    Navigate to [app.example.com](https://app.example.com) and sign up with your email address. After registration, check your inbox for a verification email and click the confirmation link to activate your account.
+
+    <Info>
+      If you're joining an existing organization, ask your Admin to send you a team invitation from **Settings → Team** instead of creating a new account independently.
+    </Info>
+
+    For a detailed walkthrough of profile setup and plan selection, see the [Account Setup guide](/getting-started/account-setup).
+  </Step>
+
+  <Step title="Get Your API Key">
+    Once your account is active, generate an API key to authenticate your requests:
+
+    1. Log in to [app.example.com](https://app.example.com).
+    2. Go to **Settings → API Keys**.
+    3. Click **New Key**, give it a descriptive name (for example, `quickstart-key`), and click **Generate**.
+    4. Copy the key immediately — it is only shown once.
+
+    <Warning>
+      Store your API key in a secure location such as an environment variable or a secrets manager. Never commit it to source control or share it in plain text.
+    </Warning>
+
+    Use your API key as a Bearer token in the `Authorization` header of every request:
 
     ```bash
-    npm install your-package
+    Authorization: Bearer YOUR_API_KEY
     ```
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
-    ```
+  <Step title="Register Your First Field">
+    Fields are the core unit of the platform — all imagery and analysis is tied to a field boundary. Register your first field by sending a `POST` request to `/fields` with a name, crop type, and a GeoJSON polygon defining the boundary.
+
+    <CodeGroup>
+      ```bash cURL
+      curl -X POST https://api.example.com/v1/fields \
+        -H "Authorization: Bearer YOUR_API_KEY" \
+        -H "Content-Type: application/json" \
+        -d '{
+          "name": "North Corn Field",
+          "crop_type": "corn",
+          "boundary": {
+            "type": "Polygon",
+            "coordinates": [[
+              [-93.123, 41.456],
+              [-93.118, 41.456],
+              [-93.118, 41.461],
+              [-93.123, 41.461],
+              [-93.123, 41.456]
+            ]]
+          }
+        }'
+      ```
+
+      ```python Python
+      import requests
+
+      response = requests.post(
+          "https://api.example.com/v1/fields",
+          headers={
+              "Authorization": "Bearer YOUR_API_KEY",
+              "Content-Type": "application/json",
+          },
+          json={
+              "name": "North Corn Field",
+              "crop_type": "corn",
+              "boundary": {
+                  "type": "Polygon",
+                  "coordinates": [[
+                      [-93.123, 41.456],
+                      [-93.118, 41.456],
+                      [-93.118, 41.461],
+                      [-93.123, 41.461],
+                      [-93.123, 41.456],
+                  ]],
+              },
+          },
+      )
+
+      field = response.json()
+      print(field["id"])  # Save this — you'll need it for analysis requests
+      ```
+
+      ```javascript JavaScript
+      const response = await fetch("https://api.example.com/v1/fields", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer YOUR_API_KEY",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "North Corn Field",
+          crop_type: "corn",
+          boundary: {
+            type: "Polygon",
+            coordinates: [[
+              [-93.123, 41.456],
+              [-93.118, 41.456],
+              [-93.118, 41.461],
+              [-93.123, 41.461],
+              [-93.123, 41.456],
+            ]],
+          },
+        }),
+      });
+
+      const field = await response.json();
+      console.log(field.id); // Save this — you'll need it for analysis requests
+      ```
+    </CodeGroup>
+
+    A successful response returns a field object containing an `id`. Copy that `id` — you'll use it in the next step.
+
+    <Tip>
+      You can also add fields visually using the map editor in the dashboard. See [Connecting Fields](/getting-started/connecting-fields) for both the UI and upload methods.
+    </Tip>
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
 
-    ```bash
-    your-cli start
-    ```
+  <Step title="Request Crop Health Imagery">
+    With your field registered, request a vegetation index analysis by calling `GET /fields/{field_id}/indices`. Specify `NDVI` as the index and provide a target date.
+
+    <CodeGroup>
+      ```bash cURL
+      curl "https://api.example.com/v1/fields/YOUR_FIELD_ID/indices?index=NDVI&date=2024-06-15" \
+        -H "Authorization: Bearer YOUR_API_KEY"
+      ```
+
+      ```python Python
+      import requests
+
+      field_id = "YOUR_FIELD_ID"
+
+      response = requests.get(
+          f"https://api.example.com/v1/fields/{field_id}/indices",
+          headers={"Authorization": "Bearer YOUR_API_KEY"},
+          params={"index": "NDVI", "date": "2024-06-15"},
+      )
+
+      result = response.json()
+      print(result)
+      ```
+
+      ```javascript JavaScript
+      const fieldId = "YOUR_FIELD_ID";
+
+      const response = await fetch(
+        `https://api.example.com/v1/fields/${fieldId}/indices?index=NDVI&date=2024-06-15`,
+        {
+          headers: { "Authorization": "Bearer YOUR_API_KEY" },
+        }
+      );
+
+      const result = await response.json();
+      console.log(result);
+      ```
+    </CodeGroup>
+
+    The response includes per-pixel NDVI values, a field-level mean, and a breakdown of value distribution across the field boundary.
+
+    <Note>
+      Imagery availability depends on satellite pass frequency and cloud cover for your region. The platform checks multiple satellite sources and returns the closest available scene to your requested date. See the note on refresh rates below.
+    </Note>
+  </Step>
+
+  <Step title="Interpret Your Results">
+    NDVI (Normalized Difference Vegetation Index) measures the density and health of green vegetation. Values range from **-1 to 1** using this scale:
+
+    | NDVI Range | Interpretation |
+    |---|---|
+    | **> 0.6** | Dense, healthy vegetation — crops are thriving |
+    | **0.4 – 0.6** | Moderate vegetation — generally acceptable, monitor closely |
+    | **0.2 – 0.4** | Sparse or stressed vegetation — investigate for nutrient deficiency, disease, or drought stress |
+    | **0.0 – 0.2** | Bare soil or severely stressed crops |
+    | **< 0.0** | Water, cloud shadow, or non-vegetated surfaces |
+
+    Focus on areas where NDVI drops significantly below the field average — these zones are candidates for scouting and variable-rate intervention. Use the dashboard's zonal map viewer to visualize the spatial distribution across your field.
+
+    <Tip>
+      Set up an automated alert in **Settings → Alerts** to notify you whenever NDVI in any field zone drops below your defined threshold. This removes the need to check imagery manually after every satellite pass.
+    </Tip>
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+<Note>
+  Satellite imagery for most regions refreshes every **3–5 days** under clear sky conditions. Drone or aerial imagery ingested manually is processed within **2–4 hours** of upload. Cloud cover can delay availability — the API returns a `cloud_cover_pct` field in each imagery response so you can evaluate scene quality before acting on results.
+</Note>
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+## Next Steps
+
+Now that you've completed your first analysis, explore these guides to go deeper.
+
+<CardGroup cols={2}>
+  <Card title="Crop Health Monitoring" icon="seedling" href="/guides/crop-health-monitoring">
+    Learn how to detect stress, disease pressure, and nutrient deficiencies using multi-index analysis.
+  </Card>
+  <Card title="Prescription Maps" icon="map" href="/guides/prescription-maps">
+    Generate variable-rate application maps from your NDVI and NDRE results.
+  </Card>
+  <Card title="Vegetation Indices Reference" icon="magnifying-glass" href="/concepts/indices">
+    Explore all supported indices — NDVI, NDRE, NDWI, EVI, SAVI, and more.
+  </Card>
+  <Card title="API Overview" icon="code" href="/api/overview">
+    Browse the full REST API reference including endpoints, request schemas, and response formats.
+  </Card>
+</CardGroup>

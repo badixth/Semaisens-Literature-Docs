@@ -1,0 +1,42 @@
+---
+title: "Diagnose and Respond to Submergence Stress in Rice"
+sidebarTitle: "Submergence"
+description: "Identify submergence stress in paddy from sudden NDVI collapse after heavy rain, and reduce losses with submergence-tolerant cultivars, planting timing, and double transplanting."
+---
+
+Rice plants transport air (oxygen) from the leaves to the roots, so rice can survive and grow in flooded fields as long as at least some leaves stick out of the water. However, complete submergence cuts the oxygen supply and most rice varieties die within a few days. When submergence happens at flowering, fertilization cannot occur and complete yield loss is the consequence even if the plants survive.
+
+## When rice is most vulnerable
+
+Any stage where the canopy is fully submerged. Submergence during flowering causes complete yield loss even when plants recover.
+
+## How submergence shows in satellite data
+
+- **Sudden NDVI collapse** in the days after heavy rain, concentrated in **low-lying or flood-prone zones**.
+- Water in the imagery replaces canopy - NDWI rises sharply at the same time NDVI drops.
+- Very different signature from drought (slow NDWI-then-NDVI decline) and salinity (patchy but stable).
+- If canopy leaves remain above water, NDVI may only dip briefly and recover; if fully submerged for more than a few days, recovery is limited.
+
+## Reduce the damage by
+
+- **Choosing adequate cultivars** - tall and/or submergence-tolerant varieties.
+- **Adjusting the planting time** to fit in the hydrological fluctuations in the area.
+- **Double transplanting** - seedlings are transplanted two times to have tall seedlings for areas with medium deep flooding risk.
+
+## Set an alert for early warning
+
+<Tip>
+  Turn the diagnosis into a trigger. Go to the [Alerts](/guides/alerts-notifications) page and configure a rule so heavy-rain events on flood-prone fields notify you before the imagery even confirms the submergence.
+</Tip>
+
+Recommended settings for submergence on rice:
+
+- **Weather alert** - excessive rainfall exceeding your defined threshold, so you can pre-position response before imagery even confirms.
+- **NDVI drop alert** - trigger on a drop of 0.20 or more between consecutive passes in flood-prone fields.
+- **New Imagery alert** during the monsoon or flood season, so you review recovery within hours of each new pass.
+
+## Related
+
+- [Rice abiotic stress overview](/guides/Crop/Rice/rice-abiotic-stress)
+- [Healthy NDVI ranges for paddy](/guides/Crop/Rice/rice-ecosystems)
+- [Set up automated crop alerts](/guides/alerts-notifications)

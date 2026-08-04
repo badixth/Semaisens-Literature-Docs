@@ -1,0 +1,91 @@
+---
+title: "Set Up Your Google Agriculture Account and API Access"
+sidebarTitle: "Account Setup"
+description: "Create your account, complete your organization profile, choose a plan, and generate your API key to start using the Google Agriculture Platform."
+---
+
+Setting up your account takes just a few minutes and unlocks access to satellite imagery analysis, vegetation index calculations, and field health monitoring across all your farms. Follow these steps to go from a fresh signup to a fully configured account ready for your first analysis.
+
+<Steps>
+  <Step title="Create Your Account">
+    Navigate to [app.example.com](https://app.example.com) and click **Sign Up**. Enter your name, email address, and a strong password, then click **Create Account**.
+
+    Check your inbox for a verification email from `noreply@example.com` and click **Confirm Email Address**. You must verify your email before you can log in or access any platform features.
+
+    <Info>
+      If you don't receive the verification email within a few minutes, check your spam or junk folder. You can also request a new verification link from the login page by clicking **Resend verification email**.
+    </Info>
+  </Step>
+
+  <Step title="Complete Your Profile">
+    After your first login, the platform prompts you to complete your organization profile. Fill in the following fields:
+
+    - **Organization Name** — your farm, cooperative, or business name as it should appear in reports and exports.
+    - **Country** — used to determine default coordinate systems, units, and available imagery sources for your region.
+    - **Primary Crop Types** — select all crops you commonly manage (for example, corn, soybeans, wheat, cotton). This helps the platform suggest relevant vegetation indices and growth-stage benchmarks.
+
+    Click **Save Profile** when done. You can update any of these details later from **Settings → Organization**.
+  </Step>
+
+  <Step title="Choose a Plan">
+    Select the plan that fits the scale of your operation. You can start on the Free tier immediately and upgrade at any time.
+
+    | Plan | Fields | Imagery Refresh | Features |
+    |---|---|---|---|
+    | **Free** | Up to 5 fields | Weekly | NDVI, basic alerts, dashboard access |
+    | **Pro** | Unlimited fields | Every 3–5 days | All indices, prescription maps, API access, data export |
+    | **Enterprise** | Unlimited fields | Daily + on-demand drone | Custom integrations, SSO, dedicated support, SLA |
+
+    To select or upgrade your plan, go to **Settings → Billing** and click **Choose Plan**. Pro and Enterprise plans are billed monthly or annually — annual billing includes a 20% discount.
+
+    <Info>
+      If you are evaluating the platform for a large operation, contact [sales@example.com](mailto:sales@example.com) to request an Enterprise trial with full feature access and no field limits.
+    </Info>
+  </Step>
+
+  <Step title="Generate Your API Key">
+    The Google Agriculture REST API uses API keys for authentication. To generate a key:
+
+    1. Go to **Settings → API Keys**.
+    2. Click **New Key**.
+    3. Enter a descriptive name for the key — for example, `production-integration` or `personal-scripts`.
+    4. Click **Generate**.
+    5. Copy the key from the dialog immediately.
+
+    <Warning>
+      Your API key is shown only once. If you navigate away without copying it, you must revoke the key and generate a new one. Never embed your API key directly in source code, commit it to a repository, or share it in plaintext. Store it in an environment variable or a secrets manager.
+    </Warning>
+
+    Pass your API key as a Bearer token in the `Authorization` header of every API request:
+
+    ```bash
+    curl https://api.example.com/v1/fields \
+      -H "Authorization: Bearer YOUR_API_KEY"
+    ```
+
+    You can create multiple API keys — for example, one per application or team member. Revoke any key at any time from the **Settings → API Keys** page without affecting other keys.
+  </Step>
+</Steps>
+
+## Team and Permissions
+
+You can invite colleagues, agronomists, or contractors to your organization so they can view or contribute to your field data. Each team member is assigned one of three roles:
+
+| Role | What They Can Do |
+|---|---|
+| **Admin** | Full access — manage fields, billing, team members, API keys, and all platform settings. |
+| **Analyst** | Create and edit fields, run analyses, generate prescription maps, and export data. Cannot manage billing or team members. |
+| **Viewer** | Read-only access to fields, imagery, and analysis results. Cannot create, edit, or delete any data. |
+
+To invite a team member:
+
+1. Go to **Settings → Team**.
+2. Click **Invite Member**.
+3. Enter their email address and select their role.
+4. Click **Send Invite**.
+
+The invitee receives an email with a link to accept the invitation and set up their own login. Pending invitations are listed on the **Team** page and can be resent or cancelled at any time.
+
+<Note>
+  Single sign-on (SSO) via SAML 2.0 is available on Enterprise plans. SSO lets your team log in using your existing identity provider (such as Okta, Azure AD, or Google Workspace) without managing separate passwords. Contact [support@example.com](mailto:support@example.com) to enable SSO for your organization.
+</Note>

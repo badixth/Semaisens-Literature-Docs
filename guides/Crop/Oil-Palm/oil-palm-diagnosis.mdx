@@ -1,0 +1,128 @@
+---
+title: "Oil Palm Diagnosis: Decide What a Field Change Means and What to Do"
+sidebarTitle: "Oil Palm Diagnosis"
+description: "The starting point for interpreting oil palm field changes across a 25-year stand. Covers all three pillars: abiotic stress, nutrient disorders, and biotic stress, plus a scout-first decision tree keyed to what you see on individual palms."
+---
+
+Oil palm is a 25-year crop with individual palms yielding bunches every 10 to 14 days. Diagnosis works at three scales at once: whole block, palm cluster, and individual palm. Use this guide to move from a field observation or a satellite alert to a specific cause and a specific action.
+
+For the standard census and inspection sequence a scout should follow on the ground, see [Field Walk Protocol](/guides/Crop/Oil-Palm/field-walk-protocol).
+
+## The three pillars
+
+<CardGroup cols={3}>
+  <Card title="Abiotic Stress" icon="sun" href="/guides/Crop/Oil-Palm/abiotic/drought">
+    Water deficit, waterlogging, peat subsidence, acid sulfate, salinity, wind, lightning, fire. Slow, block-scale, weather-driven.
+  </Card>
+
+  <Card title="Nutrient Disorders" icon="flask" href="/guides/Crop/Oil-Palm/nutrient/potassium">
+    N, P, K, Mg, Ca, B, Cu, Fe, Zn, and toxicities. Frond-color signatures are unusually specific in oil palm.
+  </Card>
+
+  <Card title="Biotic Stress" icon="bug" href="/guides/Crop/Oil-Palm/biotic/diseases/ganoderma">
+    Diseases, insect pests, and weeds. Individual-palm and cluster-scale. Ground confirmation essential.
+  </Card>
+</CardGroup>
+
+## Scout-first decision tree
+
+Use what you see first to pick the pillar. The scout looks at four things on each palm, in this order.
+
+### 1. Block-level pattern
+
+| What you see across the block | Likely pillar |
+| --- | --- |
+| Whole block uniformly off, matches weather or soil map | **Abiotic** or block-wide nutrient |
+| Gradient across the block following topography | **Abiotic** (drainage) or soil-linked nutrient |
+| Scattered individual palms declining, no clear pattern | **Biotic** - trunk disease (Ganoderma) |
+| Spreading focus of dying palms, expanding month to month | **Biotic** - contagious disease (Bud Rot, Fusarium, Red Ring) |
+| Fronds chewed, defoliated, or skeletonized | **Biotic** - insects (bagworms, nettle caterpillars) |
+| Spears broken, bored, or rotten | **Biotic** - Rhino beetle, palm weevil, or Bud Rot |
+
+### 2. Frond color and position (nutrient decision tree)
+
+Frond color patterns in oil palm are so specific they are often named after the deficiency. Match what you see to the table.
+
+| What you see | Where on the palm | Likely cause |
+| --- | --- | --- |
+| Overall pale green, whole canopy | All fronds | [Nitrogen](/guides/Crop/Oil-Palm/nutrient/nitrogen) |
+| Confluent orange spots, older fronds | Mid to lower canopy | [Potassium](/guides/Crop/Oil-Palm/nutrient/potassium) (mineral soils) |
+| Bright orange whole fronds, older first | Mid to lower canopy | [Magnesium](/guides/Crop/Oil-Palm/nutrient/magnesium) (light and sandy soils) |
+| Hooked, fish-tail, or little-leaf fronds | Young spear fronds | [Boron](/guides/Crop/Oil-Palm/nutrient/boron) |
+| Mid-crown yellow-green fronds | Mid canopy | [Copper](/guides/Crop/Oil-Palm/nutrient/copper) (peat and sandy soils) |
+| Chlorotic youngest fronds | Spear and just below | [Iron](/guides/Crop/Oil-Palm/nutrient/iron) (high-pH soils) |
+| Older fronds bronze or purple | Lower canopy | [Phosphorus](/guides/Crop/Oil-Palm/nutrient/phosphorus) |
+
+### 3. Trunk (disease decision tree)
+
+| What you see | Likely cause |
+| --- | --- |
+| Bracket fungus at base \+ one-sided frond collapse | [Ganoderma / Basal Stem Rot](/guides/Crop/Oil-Palm/biotic/diseases/ganoderma) |
+| Bracket fungus mid-trunk | [Upper Stem Rot](/guides/Crop/Oil-Palm/biotic/diseases/upper-stem-rot) |
+| Wilting spreads outward from one palm, no brackets | Fusarium Wilt or Bud Rot |
+| Spear rot with necrotic center | Bud Rot |
+| Ring of red-brown tissue when trunk is sliced | Red Ring |
+| Bore holes with frass at trunk | Palm Weevil |
+
+### 4. Spear and youngest fronds (growing-point decision tree)
+
+| What you see | Likely cause |
+| --- | --- |
+| Spear pulls out easily, rotten inside | Bud rot, or late-stage rhino beetle |
+| V-shaped notches in unopened frond | Rhino beetle feeding |
+| Hooked, deformed young frond | Boron deficiency |
+| Chlorotic young frond | Iron deficiency or Crown Disease |
+
+## Stand-age vulnerability
+
+Different stresses matter at different ages. Use this alongside the pattern tables.
+
+| Stand age | What matters most |
+| --- | --- |
+| Nursery (\< 12 months) | Cercospora, anthracnose, nursery blast, boron, iron, rats |
+| Immature (1 to 3 years) | Rhino beetle, rats, Imperata, boron, drought, waterlogging |
+| Yield build-up (3 to 8 years) | Potassium, magnesium, drought, Ganoderma (early), bagworms, nettle caterpillars |
+| Peak yield (8 to 18 years) | Potassium, magnesium, Ganoderma, drought lag effects, bunch pests |
+| Decline (18\+ years) | Ganoderma cluster expansion, replanting decisions |
+
+## How satellites contribute
+
+Oil palm imagery works at three scales at once. Match the tool to the question.
+
+| Scale | Best for | Typical alert |
+| --- | --- | --- |
+| Block / canopy | Slow abiotic and nutrient decline, block-wide stress | NDVI or EVI monthly trend below stand-age baseline |
+| Palm cluster | Spreading disease foci (Ganoderma, Bud Rot) | Localized zonal NDVI drop expanding month to month |
+| Individual palm | Single declining or dead palms | Very-high-resolution or drone imagery; crown count anomalies |
+
+<Warning>
+  Oil palm change is slow. A weekly NDVI review is over-monitoring for most abiotic and nutrient issues. Monthly is usually enough, except during outbreak or replanting phases.
+</Warning>
+
+## Decision flow
+
+<Steps>
+  <Step title="Read the block-level pattern">
+    Uniform, gradient, scattered, or spreading? Use the block-level table to pick the pillar before you walk in.
+  </Step>
+  <Step title="Walk to suspect palms and inspect">
+    Follow the [Field Walk Protocol](/guides/Crop/Oil-Palm/field-walk-protocol). Check crown, frond color and position, trunk, and spear in that order.
+  </Step>
+  <Step title="Match symptoms to a specific cause">
+    Use the frond, trunk, and spear tables above to move from symptom to page.
+  </Step>
+  <Step title="Act, record, and set a monitoring alert">
+    Apply the recommended action, record the palm or block, and use the [Alerts](/guides/alerts-notifications) page to configure a follow-up so the same issue is flagged earlier next time.
+  </Step>
+</Steps>
+
+## Related
+
+- [Healthy NDVI ranges for oil palm across planting environments](/guides/Crop/Oil-Palm/oil-palm-ecosystems) - stand-age baselines to compare against.
+- [Field Walk Protocol](/guides/Crop/Oil-Palm/field-walk-protocol) - the standard scout inspection sequence.
+- [Set up automated crop alerts](/guides/alerts-notifications) - configure the triggers that surface these stresses.
+- [Analyze crop performance across a full season](/guides/seasonal-analysis) - the right tool for slow oil palm decline.
+
+<Note>
+  This diagnosis covers the three major stress groups plus a scout-first decision tree. Rare stresses (nutrient interactions, replanting-transition problems, physiological disorders) can be added as short reference pages later.
+</Note>

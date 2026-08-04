@@ -1,0 +1,123 @@
+---
+title: "Set Up Automated Crop Alerts and Field Notifications"
+sidebarTitle: "Alerts"
+description: "Configure threshold, drop, imagery, and weather alerts so you're notified the moment new satellite data reveals a stress event in your fields."
+---
+
+Alerts let Google do the monitoring so you don't have to. Rather than manually checking the dashboard after every imagery pass, you define the conditions that matter to your operation and choose how you want to be notified. The moment new satellite imagery arrives and a threshold is crossed, an alert fires — giving you hours or days of lead time over purely ground-based observation.
+
+<Tip>
+  **Not sure what triggered your alert?** Alerts tell you _something changed_. To decide _what changed and what to do_ on a rice field, see [Rice Diagnosis](/guides/Crop/rice-abiotic-stress) - a decision guide covering the three pillars of rice stress: abiotic (drought, salinity, poor soil, submergence), nutrient deficiency (N, P, K, Zn, S, iron toxicity), and biotic (diseases, insect pests, weeds).
+</Tip>
+
+## Alert Types
+
+<CardGroup cols={2}>
+  <Card title="NDVI Drop Alert" icon="arrow-trend-down">
+    Triggers when NDVI falls by a defined amount between consecutive imagery acquisitions. Use this to catch rapid deterioration — crop disease, hail damage, or sudden drought stress — as soon as it registers in the data.
+  </Card>
+
+  <Card title="Threshold Alert" icon="gauge-high">
+    Triggers when any supported index (NDVI, NDRE, NDWI) crosses a value you set. Useful for monitoring slow-developing stress such as nutrient deficiency or prolonged waterlogging that approaches a critical level over several weeks.
+  </Card>
+
+  <Card title="New Imagery Alert" icon="satellite">
+    Notifies you the moment a new, cloud-free imagery acquisition is validated and available for a field. Use this when you are actively monitoring a disease outbreak or a recently applied treatment and need to know the instant fresh data arrives.
+  </Card>
+
+  <Card title="Weather Alert" icon="cloud-bolt">
+    Triggers on weather events detected at your field location: frost risk (temperature forecast below 0 °C within 48 hours), drought stress (consecutive days below 30% field capacity), or excessive rainfall (cumulative precipitation exceeding your defined threshold).
+  </Card>
+</CardGroup>
+
+## Creating an Alert
+
+<Steps>
+  <Step title="Open the Alerts tab">
+    Navigate to **Fields**, select the field you want to monitor, and click the **Alerts** tab. Existing alerts for this field are listed with their current status.
+  </Step>
+  <Step title="Start a new alert">
+    Click **New Alert**. The alert configuration panel opens.
+  </Step>
+  <Step title="Choose the alert type">
+    Select one of the four alert types: **NDVI Drop**, **Threshold**, **New Imagery**, or **Weather**. The configuration fields update to match the selected type.
+  </Step>
+  <Step title="Set conditions">
+    Configure the trigger conditions for your chosen type:
+
+    - **NDVI Drop** — set the minimum drop magnitude (e.g., 0.15 between any two consecutive passes)
+    - **Threshold** — select the index and the value it must cross (e.g., NDRE falls below 0.18)
+    - **New Imagery** — no additional conditions; fires on every new validated acquisition
+    - **Weather** — select the event type and set the numeric threshold if applicable
+  </Step>
+  <Step title="Choose delivery channels">
+    Select one or more delivery methods: **Email**, **SMS**, or **Webhook**. You can combine all three for a single alert. See the [Delivery Channels](#delivery-channels) section below for setup details.
+  </Step>
+  <Step title="Save the alert">
+    Click **Save Alert**. The alert activates immediately and begins evaluating conditions against every new imagery acquisition or weather update for this field.
+  </Step>
+</Steps>
+
+## Delivery Channels
+
+<Tabs>
+  <Tab title="Email">
+    Enter up to **five email addresses** per alert. Each address receives a formatted HTML email containing:
+
+    - Alert name and field
+    - Triggered condition and current index value
+    - A thumbnail of the latest NDVI map with the affected area highlighted
+    - A direct link to the field in the platform
+
+    Email addresses do not need to belong to platform users — you can notify agronomists, consultants, or farm managers who do not have a login.
+  </Tab>
+  <Tab title="SMS">
+    SMS delivery requires a **verified mobile number** on your account. Go to **Profile \> Contact Details** to add and verify a phone number. Each SMS contains a brief summary of the triggered condition and a short link to the field. Standard messaging rates from your carrier may apply.
+
+    <Warning>
+      SMS delivery is currently available in Australia, the United States, Canada, the United Kingdom, and the European Union. If you are unsure whether your country is covered, see the [FAQ](/help/faq) or contact support.
+    </Warning>
+  </Tab>
+  <Tab title="Webhook">
+    Enter your endpoint URL. Google sends a `POST` request to that URL with a JSON payload every time the alert fires. Webhook delivery is ideal for integrating alerts into farm management software, Slack channels, or custom dashboards.
+
+    Your endpoint must respond with HTTP `200` within 10 seconds. Failed deliveries are retried three times at 5-minute intervals before the alert is marked as delivery-failed. Review delivery logs under **Settings \> Alerts \> Webhook Logs**.
+
+    For full webhook integration documentation, see the [Webhooks API reference](/api/webhooks).
+  </Tab>
+</Tabs>
+
+## Webhook Payload Example
+
+When an NDVI Drop alert fires, Google sends a payload structured like this:
+
+```json
+{
+  "event": "alert.triggered",
+  "alert_id": "alr_01j9abc",
+  "field_id": "fld_01j8xyz",
+  "field_name": "North Corn Field",
+  "alert_type": "ndvi_drop",
+  "triggered_at": "2024-07-12T08:34:00Z",
+  "details": {
+    "previous_ndvi": 0.71,
+    "current_ndvi": 0.48,
+    "drop": 0.23
+  }
+}
+```
+
+The `details` object varies by alert type. Threshold alerts include `index`, `threshold_value`, and `current_value`. Weather alerts include `weather_event`, `forecast_value`, and `forecast_time`.
+
+## Managing Alerts
+
+Access all alerts across every field from **Settings \> Alerts** in the left sidebar. From this view you can:
+
+- **Mute** an alert for a defined period (e.g., during a planned dormancy period or off-season) without deleting it
+- **Edit** thresholds, delivery channels, or conditions at any time
+- **Delete** an alert permanently
+- **View history** — a log of every time an alert has fired, including delivery status for each channel
+
+<Note>
+  Alert notifications are typically delivered within **30 minutes** of a new imagery acquisition completing validation and ingestion. Weather alerts fire as soon as the underlying forecast data updates, which occurs every six hours. During periods of high imagery volume across the platform, delivery may occasionally extend to 60 minutes.
+</Note>

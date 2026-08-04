@@ -1,0 +1,119 @@
+---
+title: "Fields, Zones & Seasons: The Google Agriculture Data Model"
+sidebarTitle: "Data Model"
+description: "Understand how the platform organizes your agricultural data across Organizations, Fields, Zones, Seasons, and Observations for accurate analysis."
+---
+
+Everything in the platform is organized around a clear hierarchy designed to mirror how farms are actually structured and managed. At the top level, an **Organization** represents your farm, company, or team and holds all your data. Within an organization, you create **Fields** — the spatial units that anchor all imagery and analysis. Fields are subdivided into **Zones** for variable-rate management, grouped into **Seasons** to track crop cycles, and generate **Observations** that power time-series analysis. Understanding this hierarchy helps you navigate the API, interpret results, and build integrations correctly.
+
+## Fields
+
+A field is the core spatial unit in the platform. Every imagery layer, index calculation, alert, and prescription map is linked to a specific field boundary. You define a field using a GeoJSON `Polygon` or `MultiPolygon`, which tells the platform exactly which area to clip, process, and analyze.
+
+**Field properties**
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | string | Unique field identifier (prefix `fld_`) |
+| `name` | string | Human-readable field name |
+| `crop_type` | string | Current or planned crop (e.g., `corn`, `wheat`) |
+| `planting_date` | date | ISO 8601 date of planting |
+| `harvest_date` | date | ISO 8601 date of harvest or expected harvest |
+| `area_hectares` | number | Calculated area of the boundary polygon |
+| `status` | enum | `active` or `archived` |
+| `boundary` | GeoJSON | The spatial boundary of the field |
+
+**Example field object**
+
+```json
+{
+  "id": "fld_01j8xyz",
+  "name": "North Corn Field",
+  "crop_type": "corn",
+  "planting_date": "2024-05-01",
+  "harvest_date": "2024-10-15",
+  "area_hectares": 42.3,
+  "status": "active",
+  "boundary": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [-93.123, 41.456],
+        [-93.118, 41.456],
+        [-93.118, 41.461],
+        [-93.123, 41.461],
+        [-93.123, 41.456]
+      ]
+    ]
+  }
+}
+```
+
+<Note>
+  All coordinates in the platform use **WGS84 (EPSG:4326)** — longitude first, then latitude. If your boundaries are in a projected coordinate system such as UTM, reproject them to WGS84 before uploading. The platform will reject boundaries provided in any other CRS.
+</Note>
+
+## Zones
+
+Zones are sub-regions within a field used for variable-rate management and targeted analysis. Rather than treating an entire field as a uniform unit, zones let you differentiate management recommendations based on soil type, historical yield, terrain, or index-derived clusters.
+
+**Zone properties**
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | string | Unique zone identifier (prefix `zon_`) |
+| `field_id` | string | The parent field this zone belongs to |
+| `name` | string | Zone label (e.g., "Zone A", "High Productivity") |
+| `area_hectares` | number | Calculated area of the zone polygon |
+| `boundary` | GeoJSON | The spatial boundary of the zone |
+
+**How zones are created**
+
+<CardGroup cols={2}>
+  <Card title="Auto-Generated Zones" icon="wand-magic-sparkles">
+    Use the platform's cluster analysis tool to automatically partition a field into zones based on historical NDVI patterns, soil data, or elevation. Navigate to **Field > Zones > Generate** and select your clustering inputs and the desired number of zones.
+  </Card>
+  <Card title="Manually Drawn Zones" icon="pen-to-square">
+    Draw zone boundaries directly on the field map using the polygon editor. This is useful when you already know where management units are — such as soil survey boundaries or drainage tile layouts.
+  </Card>
+</CardGroup>
+
+## Seasons
+
+A season ties a specific crop cycle to a field, providing the temporal context that makes index trends meaningful. Without a defined season, the platform cannot correctly calibrate growth stage models, generate emergence alerts, or compare this year's canopy development to previous years.
+
+**Season properties**
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | string | Unique season identifier (prefix `ssn_`) |
+| `field_id` | string | The field this season belongs to |
+| `crop_type` | string | The crop planted during this season |
+| `planting_date` | date | ISO 8601 planting date |
+| `harvest_date` | date | ISO 8601 actual or projected harvest date |
+
+<Tip>
+  Create a new season as soon as you plant. The platform uses the planting date to calculate growing degree days (GDD), align crop growth models, and identify anomalies relative to expected canopy development at each growth stage.
+</Tip>
+
+## Observations
+
+An observation is a single data point representing the value of a specific vegetation index (or other derived metric) for a field or zone at a specific point in time. Observations are generated automatically each time new imagery is processed, and they are the building blocks of all time-series analysis in the platform.
+
+**Observation properties**
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | string | Unique observation identifier (prefix `obs_`) |
+| `field_id` | string | The field this observation belongs to |
+| `zone_id` | string | The zone this observation belongs to (if zone-level) |
+| `index` | string | The index type (e.g., `ndvi`, `ndre`, `ndwi`) |
+| `value` | number | The computed mean index value for the area |
+| `acquired_at` | datetime | ISO 8601 timestamp of image acquisition |
+| `source` | string | Imagery source (e.g., `sentinel-2`, `planet`) |
+
+You can retrieve observation time series via the API to build custom charts, trigger external workflows, or export historical data for agronomic modeling. Each observation also carries pixel-level statistics — minimum, maximum, and standard deviation — so you can assess within-field variability alongside the field-wide mean.
+
+<Info>
+  Field-level observations represent the area-weighted mean index value across all non-cloudy pixels within the field boundary. Zone-level observations are computed independently for each zone's pixel subset and may differ from the field mean.
+</Info>

@@ -1,0 +1,176 @@
+---
+title: "Vegetation Indices Reference: NDVI, NDRE, NDWI & More"
+sidebarTitle: "Indices"
+description: "Understand how vegetation indices combine spectral bands to reveal crop health, water stress, chlorophyll content, and nutrient status across your fields."
+---
+
+Vegetation indices are mathematical combinations of two or more spectral reflectance bands that amplify specific signals about crop condition while suppressing noise from soil, atmosphere, and shadows. Because plants absorb and reflect light differently depending on their health status, these indices give you a quantitative, spatially explicit view of what is happening across every zone of your field — from nitrogen deficiency to drought stress to early disease onset.
+
+## Supported Indices
+
+<Accordion title="NDVI — Normalized Difference Vegetation Index">
+  **Formula**
+
+  ```
+  NDVI = (NIR - Red) / (NIR + Red)
+  ```
+
+  **What it measures**
+
+  NDVI quantifies the density and greenness of live vegetation. Healthy plants absorb red light for photosynthesis and strongly reflect NIR, producing high NDVI values. Stressed or sparse vegetation reflects more red and less NIR, lowering the score.
+
+  **Scale & interpretation**
+
+  | Value Range | Condition |
+  |---|---|
+  | < 0.1 | Bare soil, water, or non-vegetated surfaces |
+  | 0.1 – 0.3 | Sparse or emerging vegetation |
+  | 0.3 – 0.6 | Moderate vegetation density |
+  | > 0.6 | Dense, healthy, actively growing canopy |
+
+  **Typical use cases**
+
+  - General crop health monitoring throughout the season
+  - Early detection of large-scale stress patterns
+  - Benchmarking field performance against regional or historical averages
+  - Generating management zones for variable-rate applications
+</Accordion>
+
+<Accordion title="NDRE — Normalized Difference Red Edge">
+  **Formula**
+
+  ```
+  NDRE = (NIR - RedEdge) / (NIR + RedEdge)
+  ```
+
+  **What it measures**
+
+  NDRE uses the red-edge band (~720 nm), which is highly sensitive to chlorophyll concentration in plant leaves. Because NDRE does not saturate as early as NDVI in dense canopies, it is better suited for detecting subtle nutrient deficiencies that do not yet visibly affect biomass.
+
+  **Scale & interpretation**
+
+  NDRE values typically range from **-1 to +1**, with healthy, high-chlorophyll crops producing values between **0.2 and 0.4**. Lower values in an otherwise green field often indicate nitrogen stress before visual symptoms appear.
+
+  **Typical use cases**
+
+  - In-season nitrogen management and variable-rate fertilizer prescriptions
+  - Identifying chlorosis or micronutrient deficiencies at sub-field scale
+  - Mid-season canopy health assessments when NDVI has saturated in high-biomass crops
+</Accordion>
+
+<Accordion title="NDWI — Normalized Difference Water Index">
+  **Formula**
+
+  ```
+  NDWI = (Green - NIR) / (Green + NIR)
+  ```
+
+  **What it measures**
+
+  NDWI is sensitive to liquid water content in plant tissue and canopy moisture. Positive values indicate water-rich vegetation, while declining values signal canopy dehydration that often precedes visible wilting.
+
+  **Scale & interpretation**
+
+  Values range from **-1 to +1**. Well-irrigated crops in humid conditions typically score between **0.1 and 0.4**. Values approaching or falling below **0** in a growing crop suggest water stress requiring investigation.
+
+  **Typical use cases**
+
+  - Irrigation scheduling and deficit detection
+  - Monitoring drought stress progression across a field
+  - Identifying waterlogging or drainage problems (persistently high values in low areas)
+</Accordion>
+
+<Accordion title="EVI — Enhanced Vegetation Index">
+  **Formula**
+
+  ```
+  EVI = 2.5 × (NIR - Red) / (NIR + 6 × Red - 7.5 × Blue + 1)
+  ```
+
+  **What it measures**
+
+  EVI was designed to address two limitations of NDVI: saturation in high-biomass, dense canopies and sensitivity to soil and atmospheric background signals. The blue band term in the denominator corrects for residual aerosol effects, making EVI more reliable in humid or hazy conditions.
+
+  **Scale & interpretation**
+
+  EVI values typically range from **0 to 1**. Dense tropical vegetation approaches **0.9**; most temperate row crops peak between **0.5 and 0.7** at maximum canopy. EVI remains linearly responsive to vegetation density where NDVI would plateau.
+
+  **Typical use cases**
+
+  - High-biomass crops (corn, sorghum, sugarcane) where NDVI saturates
+  - Regions with persistent aerosol haze or smoke
+  - Comparing vegetation density across fields with very different management histories
+</Accordion>
+
+<Accordion title="SAVI — Soil-Adjusted Vegetation Index">
+  **Formula**
+
+  ```
+  SAVI = ((NIR - Red) / (NIR + Red + L)) × (1 + L)
+  ```
+
+  *Where **L** is a soil brightness correction factor (default 0.5).*
+
+  **What it measures**
+
+  SAVI introduces the soil brightness correction factor **L** to reduce the influence of exposed soil reflectance on vegetation signals. In fields with partial canopy cover — common during early growth stages — bare soil between rows significantly distorts standard NDVI values. SAVI compensates for this by scaling the denominator.
+
+  **Scale & interpretation**
+
+  SAVI values range from **-1 to +1**, closely mirroring NDVI but with suppressed soil noise. Use the default L = 0.5 for most conditions; increase toward L = 1 for very sparse canopies and decrease toward L = 0 for very dense canopies.
+
+  **Typical use cases**
+
+  - Early-season monitoring before full canopy closure
+  - Semi-arid or dryland fields with significant bare soil exposure
+  - Detecting crop emergence uniformity across a field
+</Accordion>
+
+<Accordion title="MSAVI2 — Modified Soil-Adjusted Vegetation Index 2">
+  **Formula**
+
+  ```
+  MSAVI2 = (2 × NIR + 1 - √((2 × NIR + 1)² - 8 × (NIR - Red))) / 2
+  ```
+
+  **What it measures**
+
+  MSAVI2 is a self-adjusting version of SAVI that eliminates the need to manually select the L correction factor. The formula automatically scales soil correction based on the observed vegetation density, making it especially powerful for monitoring fields through the full emergence-to-canopy-closure window.
+
+  **Scale & interpretation**
+
+  Like SAVI, values range from **-1 to +1**. MSAVI2 tends to produce slightly higher values than NDVI in sparse-canopy conditions, reflecting the removal of confounding soil signal.
+
+  **Typical use cases**
+
+  - Early-season emergence monitoring and stand count estimation
+  - Fields with variable canopy density (uneven emergence, replanted areas)
+  - Automated seasonal tracking without per-field parameter tuning
+</Accordion>
+
+## Choosing the Right Index
+
+<Tip>
+  As a starting point: use **NDVI** for general crop health monitoring throughout the season, **NDRE** for in-season nitrogen management and late-season chlorophyll assessments, and **NDWI** for irrigation scheduling and drought stress detection. Switch to **SAVI** or **MSAVI2** early in the season before canopy closure, and use **EVI** for high-biomass crops or areas with persistent haze.
+</Tip>
+
+## Custom Indices
+
+If none of the built-in indices match your specific analysis need, you can define your own band math expressions via the API. Custom indices support any combination of available bands (Blue, Green, Red, RedEdge, NIR, SWIR1, SWIR2) using standard arithmetic operators and functions.
+
+Refer to the [Custom Indices API reference](/api/indices) for the expression syntax, supported band identifiers, and example requests for creating and applying custom index definitions to your fields.
+
+## Index Color Maps
+
+Every index layer in the platform is rendered using a standardized color gradient to make spatial patterns immediately recognizable:
+
+| Color | Meaning |
+|---|---|
+| **Red / Dark Orange** | Low index values — stressed, sparse, or non-vegetated areas |
+| **Yellow / Amber** | Moderate values — developing canopy or mild stress |
+| **Light Green** | Good values — healthy, adequately dense vegetation |
+| **Dark Green** | High values — dense, vigorous, actively growing canopy |
+
+<Info>
+  You can switch any index layer to a single-band grayscale display or apply a custom color ramp by opening the layer style panel in the map view. Custom color ramps are saved per-field and persist across sessions.
+</Info>

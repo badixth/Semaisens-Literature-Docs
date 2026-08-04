@@ -1,0 +1,102 @@
+---
+title: "Analyze and Compare Crop Performance Across a Full Season"
+sidebarTitle: "Seasonal Analysis"
+description: "Review how crop health evolved from emergence to harvest, compare seasons, and correlate NDVI patterns with yield data for smarter planning."
+---
+
+Seasonal analysis gives you a complete field performance retrospective — a continuous record of how crop health evolved from emergence through harvest. By reviewing the full arc of a season in one place, including vegetation indices, growing degree days, and rainfall, you gain the context needed to explain yield outcomes and make better input and management decisions before the next season begins.
+
+## Accessing Seasonal Analysis
+
+Navigate to **Fields** and select the field you want to review. Click the **Seasons** tab, then select the season from the dropdown. Google loads all imagery acquisitions captured within the season's defined start and end dates, along with any linked weather and yield data.
+
+<Info>
+Season dates are configured per field under **Field Settings > Season Boundaries**. If you haven't defined a season yet, Google defaults to a calendar year. Accurate season boundaries improve the quality of growth-stage annotations on the NDVI time-series chart.
+</Info>
+
+## Key Charts and Visualizations
+
+### NDVI time-series chart
+
+The primary chart plots NDVI on the vertical axis against acquisition date on the horizontal axis, with one data point per imagery pass. Key growth stages — emergence, tillering, heading, grain fill, and senescence — are annotated automatically based on GDD accumulation and crop type. Hover over any data point to see the exact NDVI value, acquisition date, and cloud cover percentage for that image.
+
+### Growing Degree Day (GDD) overlay
+
+Toggle on the **GDD overlay** to add a cumulative GDD curve to the chart. GDD data is sourced from your linked weather station or, if none is connected, from ERA5 reanalysis data interpolated to your field's centroid. Aligning GDD accumulation with NDVI trajectory helps you distinguish weather-driven development from stress-driven anomalies.
+
+### Rainfall overlay
+
+Toggle on the **Rainfall overlay** to display daily precipitation as a bar chart beneath the NDVI time series. Spikes in rainfall that coincide with NDVI drops can indicate waterlogging or disease pressure. Prolonged dry periods preceding NDVI decline point to drought stress.
+
+<Tip>
+Use the rainfall and GDD overlays together when writing your end-of-season agronomic notes. The combination of weather drivers and crop response in a single view makes it straightforward to build a narrative explanation of yield outcomes.
+</Tip>
+
+## Comparing Seasons
+
+Click **Compare Season** in the top-right corner of the Seasons tab and select a prior season for the same field. Both NDVI time series appear on a single chart with date normalized to days after planting, so curves from different calendar years align correctly for comparison. Year-on-year divergence in peak NDVI or in the rate of canopy development often points to differences in planting date, variety, or input program.
+
+<Note>
+Season comparison requires at least two seasons with three or more imagery acquisitions each. Seasons with heavy cloud cover and fewer than three clear images display a data-density warning.
+</Note>
+
+## Yield Correlation
+
+If you have uploaded a yield map for the season, Google automatically correlates spatially-matched NDVI values against yield data. The correlation view shows:
+
+- A **scatter plot** of NDVI (at peak vegetative growth) versus yield (in tonnes or bushels per hectare)
+- A **Pearson R² coefficient** quantifying how strongly NDVI predicted final yield in this field
+- A **spatial residual map** highlighting areas where NDVI predicted well and areas where yield departed from the NDVI-based expectation — often indicating soil constraints, pest damage, or harvest losses unrelated to crop health
+
+To upload a yield map, go to **Field Settings > Data Uploads > Yield Map** and select a shapefile or CSV exported from your yield monitor.
+
+## Exporting Season Reports
+
+<Tabs>
+  <Tab title="PDF Report">
+    Click **Export > PDF Summary** to generate a formatted report containing:
+    - Field name, crop type, and season dates
+    - NDVI time-series chart with GDD and rainfall overlays
+    - Season comparison chart (if a comparison season was selected)
+    - Yield correlation scatter plot (if yield data is present)
+    - Key statistics: peak NDVI, date of peak, total GDD, total seasonal rainfall
+  </Tab>
+  <Tab title="CSV Export">
+    Click **Export > CSV** to download a flat file containing every imagery observation for the season. Each row represents one acquisition and includes date, mean NDVI, minimum NDVI, maximum NDVI, standard deviation, cloud cover percentage, and GDD at acquisition date.
+  </Tab>
+  <Tab title="API">
+    Request a seasonal report programmatically using the reports endpoint:
+
+    ```http
+    POST https://api.example.com/v1/fields/{id}/reports
+    Authorization: Bearer <your_api_key>
+    Content-Type: application/json
+    ```
+
+    ```json
+    {
+      "type": "seasonal",
+      "season_id": "ssn_2024_corn",
+      "index": "NDVI",
+      "format": "pdf"
+    }
+    ```
+
+    The response returns a report object with a `download_url` valid for 24 hours:
+
+    ```json
+    {
+      "report_id": "rpt_01j9sea",
+      "status": "processing",
+      "estimated_ready_seconds": 15,
+      "download_url": null
+    }
+    ```
+
+    Poll the `GET /reports/{report_id}` endpoint until `status` is `"ready"`, then fetch the `download_url`.
+  </Tab>
+</Tabs>
+
+<Tip>
+Run your seasonal analysis during the last two weeks of harvest while observations are fresh. Use the insights to inform input purchasing decisions for next season — peak NDVI shortfalls often indicate where additional phosphorus, lime, or drainage investment will pay the highest return.
+</Tip>

@@ -1,0 +1,222 @@
+---
+title: "Imagery API: Retrieve Satellite and Aerial Imagery"
+sidebarTitle: "Imagery"
+description: "Browse available satellite passes for your fields, filter by source and cloud cover, and upload drone orthomosaics for analysis in the Google platform."
+---
+
+The Imagery API gives you access to all satellite and aerial image data associated with your fields. You can browse available imagery from providers like Sentinel-2 and Landsat, filter passes by date range and cloud cover, and upload your own drone orthomosaics for processing. Imagery records form the basis for all vegetation index calculations — every index computation is tied to a specific imagery capture.
+
+## The Imagery Object
+
+<ResponseField name="id" type="string">
+  The unique identifier for the imagery record. Prefixed with `img_`.
+</ResponseField>
+
+<ResponseField name="field_id" type="string">
+  The ID of the field this image was captured for.
+</ResponseField>
+
+<ResponseField name="source" type="string">
+  The imagery provider. One of `sentinel2`, `landsat`, `planet`, or `drone`.
+</ResponseField>
+
+<ResponseField name="capture_date" type="string">
+  The date the image was captured, in `YYYY-MM-DD` format.
+</ResponseField>
+
+<ResponseField name="cloud_cover" type="number">
+  The percentage of the image obscured by cloud cover, from `0.0` (clear) to `100.0` (fully overcast).
+</ResponseField>
+
+<ResponseField name="resolution_m" type="number">
+  The spatial resolution of the image in metres per pixel (e.g., `10` for Sentinel-2).
+</ResponseField>
+
+<ResponseField name="bands" type="array">
+  An array of spectral band identifiers available in the image (e.g., `["B02", "B03", "B04", "B08", "B11"]`).
+</ResponseField>
+
+<ResponseField name="thumbnail_url" type="string">
+  A URL to a low-resolution preview image. Thumbnails are publicly accessible and do not require authentication.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The processing status of the image. One of `processing`, `ready`, or `failed`.
+</ResponseField>
+
+---
+
+## List Imagery for a Field
+
+Retrieve all available imagery records for a given field, optionally filtered by date range, source, and cloud cover. Results are sorted by `capture_date` descending (most recent first).
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique field ID (e.g., `fld_01j8xyz`).
+</ParamField>
+
+### Query Parameters
+
+<ParamField query="start_date" type="string">
+  Filter to images captured on or after this date. Format: `YYYY-MM-DD`.
+</ParamField>
+
+<ParamField query="end_date" type="string">
+  Filter to images captured on or before this date. Format: `YYYY-MM-DD`.
+</ParamField>
+
+<ParamField query="source" type="string">
+  Filter by imagery provider. Accepted values: `sentinel2`, `landsat`, `planet`, `drone`. Omit to return imagery from all sources.
+</ParamField>
+
+<ParamField query="max_cloud_cover" default="20" type="number">
+  Return only images where cloud cover is at or below this percentage (0–100). Set to `100` to include all images regardless of cloud cover.
+</ParamField>
+
+### Example Request
+
+```bash
+curl "https://api.example.com/v1/fields/fld_01j8xyz/imagery?start_date=2024-06-01&end_date=2024-06-30" \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Example Response
+
+```json
+{
+  "data": [
+    {
+      "id": "img_01k2abc",
+      "field_id": "fld_01j8xyz",
+      "source": "sentinel2",
+      "capture_date": "2024-06-15",
+      "cloud_cover": 3.2,
+      "resolution_m": 10,
+      "bands": ["B02", "B03", "B04", "B08", "B11"],
+      "thumbnail_url": "https://tiles.example.com/img_01k2abc/thumb.png",
+      "status": "ready"
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "per_page": 20
+}
+```
+
+<Tip>
+  Use the `max_cloud_cover` filter aggressively during cloudy seasons. Images with more than 20% cloud cover often produce unreliable index values, particularly for field-level NDVI analysis.
+</Tip>
+
+---
+
+## List Imagery Sources
+
+Retrieve the full list of imagery providers available on the platform, including their resolution, revisit frequency, and subscription requirements.
+
+### Example Request
+
+```bash
+curl https://api.example.com/v1/imagery/sources \
+  -H "Authorization: Bearer YOUR_API_KEY"
+```
+
+### Response Fields
+
+<ResponseField name="id" type="string">
+  The provider identifier used in other endpoints (e.g., `sentinel2`, `planet`).
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  The human-readable name of the provider (e.g., `"Sentinel-2 (ESA)"`).
+</ResponseField>
+
+<ResponseField name="resolution_m" type="number">
+  The native spatial resolution in metres per pixel.
+</ResponseField>
+
+<ResponseField name="revisit_days" type="number">
+  The typical number of days between consecutive passes over the same location.
+</ResponseField>
+
+<ResponseField name="requires_subscription" type="boolean">
+  If `true`, access to this source requires a paid add-on or Enterprise plan. Contact your account manager to enable premium sources.
+</ResponseField>
+
+### Example Response
+
+```json
+{
+  "data": [
+    {
+      "id": "sentinel2",
+      "name": "Sentinel-2 (ESA)",
+      "resolution_m": 10,
+      "revisit_days": 5,
+      "requires_subscription": false
+    },
+    {
+      "id": "landsat",
+      "name": "Landsat 8/9 (USGS)",
+      "resolution_m": 30,
+      "revisit_days": 16,
+      "requires_subscription": false
+    },
+    {
+      "id": "planet",
+      "name": "Planet SkySat",
+      "resolution_m": 0.5,
+      "revisit_days": 1,
+      "requires_subscription": true
+    }
+  ]
+}
+```
+
+---
+
+## Upload Drone Imagery
+
+Upload a drone-captured orthomosaic GeoTIFF for a field. The file is processed asynchronously — the response returns immediately with a `status` of `processing`. Subscribe to the `imagery.available` [webhook event](/api/webhooks) to receive a notification when processing is complete.
+
+### Path Parameters
+
+<ParamField path="id" type="string" required>
+  The unique field ID.
+</ParamField>
+
+### Request Body (multipart/form-data)
+
+<ParamField body="file" type="file" required>
+  The orthomosaic file in GeoTIFF format. Maximum file size is **2 GB**. The GeoTIFF must be georeferenced (contain embedded projection and coordinate information).
+</ParamField>
+
+<ParamField body="band_type" type="string" required>
+  The type of imagery in the file. Accepted values:
+
+  - `rgb` — Standard red, green, blue true-colour image.
+  - `ndvi` — A pre-calculated NDVI single-band raster.
+  - `multispectral` — A multi-band image with separate spectral channels (NIR, Red Edge, etc.).
+</ParamField>
+
+<ParamField body="capture_date" type="string" required>
+  The date the drone flight was conducted, in `YYYY-MM-DD` format.
+</ParamField>
+
+### Example Request
+
+```bash
+curl -X POST https://api.example.com/v1/fields/fld_01j8xyz/imagery/upload \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "file=@/path/to/orthomosaic.tif" \
+  -F "band_type=multispectral" \
+  -F "capture_date=2024-06-20"
+```
+
+<Note>
+  Do not set `Content-Type: application/json` on upload requests. The `Content-Type` header is set automatically by your HTTP client when using multipart form data.
+</Note>
+
+<Warning>
+  Uploading large files over slow connections may time out. For files larger than 500 MB, contact support to request a resumable upload link.
+</Warning>

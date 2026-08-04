@@ -1,0 +1,54 @@
+---
+title: "Diagnose and Respond to Drought Stress in Rice"
+sidebarTitle: "Drought"
+description: "Identify drought stress in paddy from NDWI and NDVI patterns, confirm with field symptoms, and reduce yield loss through irrigation, cultivar choice, and nutrient management."
+---
+
+Rice is very sensitive to drought, especially around the flowering stage. All plant nutrients are taken up via water, so when water is limited the nutrient uptake of the plant is also reduced.
+
+## When rice is most vulnerable
+
+From booting through flowering. Water stress during this window causes the largest yield losses of any growth stage.
+
+## How drought shows in satellite data
+
+- **NDWI drops first**, often 1 to 2 imagery passes before NDVI reacts. Watch NDWI as the leading indicator.
+- **NDVI decline follows**, usually as a gradual downward slope rather than a sudden collapse.
+- Patterns often appear first in **elevated zones, sandy patches, and field edges** where water holds less well.
+- Distinct from submergence (sudden NDVI collapse after rain) and salinity (patchy in low-lying / coastal zones).
+
+## Field symptoms
+
+- Stunted growth
+- Leaf rolling
+- Burning of leaf tips
+- Early leaf senescence (early aging)
+- Occurrence of whiteheads and spikelet sterility
+- Flowering can be earlier or later depending on the variety
+
+## Reduce the damage by
+
+- **Irrigation** - the best method but often expensive and difficult.
+- **Having leveled fields** so water spreads evenly and does not pool away from stressed zones.
+- **Choosing a good cultivar and a planting date** that increases the probability of moisture being available at flowering.
+- **Direct seeding** establishment, which makes better use of early rains and helps to avoid late seasons.
+- **Good nutrient management** to avoid drought-induced nutrient limitations.
+- **Improving the soil** so it can better hold water (for example, by using organic materials like manure or crop residues).
+
+## Set an alert for early warning
+
+<Tip>
+  Turn the diagnosis into a trigger. Go to the [Alerts](/guides/alerts-notifications) page and configure a rule so the platform catches this stress before the next flowering window.
+</Tip>
+
+Recommended settings for drought on rice:
+
+- **NDWI threshold alert** - trigger when NDWI falls below your dry-baseline for the field, one to two weeks before booting.
+- **NDVI drop alert** - trigger on a drop of 0.10 or more between consecutive passes during booting to flowering.
+- **Weather alert** - drought stress event (consecutive days below 30% field capacity).
+
+## Related
+
+- [Rice abiotic stress overview](/guides/Crop/Rice/rice-abiotic-stress)
+- [Healthy NDVI ranges for paddy](/guides/Crop/Rice/rice-ecosystems)
+- [Set up automated crop alerts](/guides/alerts-notifications)

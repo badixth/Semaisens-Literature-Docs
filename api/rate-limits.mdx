@@ -1,0 +1,87 @@
+---
+title: "Google API Rate Limits, Quotas, and Backoff Strategies"
+sidebarTitle: "Rate Limits"
+description: "Understand Google API request quotas by plan, read rate-limit response headers, and implement exponential backoff to handle 429 errors gracefully."
+---
+
+The Google API enforces rate limits to ensure fair usage and stable performance for all customers. Limits are applied per API key and measured on a rolling per-minute and per-day basis. If your integration exceeds these limits, the API returns a `429 Too Many Requests` response until the window resets.
+
+## Limits by Plan
+
+| Plan | Requests per Minute | Requests per Day |
+|---|---|---|
+| **Free** | 100 | 1,000 |
+| **Pro** | 500 | 50,000 |
+| **Enterprise** | Custom | Custom |
+
+<Note>
+  Enterprise customers can request custom rate limit increases by contacting [support@example.com](mailto:support@example.com). Include your average and peak request volumes, and a description of your use case.
+</Note>
+
+## Rate Limit Headers
+
+Every API response includes the following headers so you can monitor your current consumption programmatically.
+
+| Header | Type | Description |
+|---|---|---|
+| `X-RateLimit-Limit` | Integer | The maximum number of requests allowed in the current window for your plan. |
+| `X-RateLimit-Remaining` | Integer | The number of requests remaining in the current window. |
+| `X-RateLimit-Reset` | Unix timestamp | The UTC time (as a Unix timestamp) when the current window resets and the counter returns to the full limit. |
+
+## Exceeding the Rate Limit
+
+When you exceed your limit, the API responds with:
+
+- **Status:** `429 Too Many Requests`
+- **Header:** `Retry-After: <seconds>` — the number of seconds to wait before retrying
+- **Body:**
+
+```json
+{
+  "error": {
+    "code": "rate_limit_exceeded",
+    "message": "You have exceeded your request quota. Retry after 42 seconds.",
+    "status": 429
+  }
+}
+```
+
+Do not retry immediately after receiving a `429`. Use the `Retry-After` value or implement exponential backoff (see below).
+
+## Best Practices
+
+- **Implement exponential backoff** — Automatically retry failed requests with increasing delays rather than hammering the API.
+- **Cache responses where possible** — Resources like field metadata and imagery source lists change infrequently. Cache them locally and refresh periodically instead of re-fetching on every operation.
+- **Use webhooks instead of polling** — Subscribe to [webhook events](/api/webhooks) for imagery availability and report completion rather than polling `GET` endpoints in a loop.
+- **Reduce round trips where possible** — For large-scale operations, use range-based query parameters and time-series endpoints to fetch multiple results in a single request. See [Bulk Operations](#bulk-operations) below.
+
+## Exponential Backoff Example
+
+The following Python function retries a request up to five times with exponentially increasing wait times (1 s, 2 s, 4 s, 8 s, 16 s) when it receives a `429` response.
+
+```python
+import time
+import requests
+
+def request_with_backoff(url, headers, max_retries=5):
+    for attempt in range(max_retries):
+        response = requests.get(url, headers=headers)
+        if response.status_code == 429:
+            wait = 2 ** attempt  # 1s, 2s, 4s, 8s, 16s
+            time.sleep(wait)
+            continue
+        return response
+    raise Exception("Max retries exceeded")
+```
+
+<Tip>
+  Add a small amount of random jitter to each wait period (e.g., `wait = 2 ** attempt + random.uniform(0, 1)`) to prevent multiple clients from retrying simultaneously and creating a burst of traffic when the window resets.
+</Tip>
+
+## Bulk Operations
+
+For high-volume workflows such as ingesting large field portfolios or requesting indices across many dates at once, structure your integration to minimise round trips. Where possible, use query parameters (such as date ranges on the indices time-series endpoint) to retrieve multiple results in a single request rather than issuing individual requests in a loop.
+
+<Note>
+  If your use case requires bulk ingestion or batch processing at a scale not supported by the current API, contact [support@example.com](mailto:support@example.com) to discuss your requirements. Enterprise plans include dedicated support for high-volume integration patterns.
+</Note>

@@ -1,0 +1,85 @@
+---
+title: "Diagnose and Respond to Fire Damage in Oil Palm"
+sidebarTitle: "Fire Damage"
+description: "Identify fire damage in oil palm from scorched fronds, charred trunks, and post-fire mortality patterns on peat and drought-affected blocks, and manage it with prevention infrastructure, water-table control on peat, and rapid post-fire triage."
+---
+
+Fire is a low-frequency, high-consequence hazard on oil palm plantations. Two fire types dominate: **surface fires** from burning debris or arson that scorch the crown and trunk, and **peat fires** that burn underground for weeks and destroy the root system. Peat fires are particularly damaging because they can smoulder underground and re-ignite surface debris repeatedly. Both increase during drought years and in ENSO El Nino cycles.
+
+**Regional priority:** Very high on peat plantations in Sumatra, Kalimantan, and parts of Malaysia during El Nino years. Moderate elsewhere; correlated with drought and dry-season debris accumulation.
+
+## When oil palm is most vulnerable
+
+All ages. Immature palms burn most completely because the growing point is close to the ground. Mature palms can survive surface fires with scorched lower fronds but die if peat fire damages the root system.
+
+## How fire damage shows in satellite data
+
+- **Burned-area imagery** (BAI, NBR indices) purpose-built for fire detection.
+- **NIR-based fire detection** through MODIS, VIIRS, and Sentinel-2 hotspot products - useful for real-time fire monitoring.
+- **True-color imagery** shows scorched blocks clearly.
+- **NDVI collapse** across affected blocks; recovery over months to years depending on damage severity.
+- **Long-lived smoke plumes** visible in true-color imagery during peat-fire events.
+- **Repeat imagery over weeks** distinguishes surface fire (rapid recovery start) from peat fire (extended damage, delayed recovery).
+
+<Warning>
+  Peat fires can smoulder underground for weeks after the surface fire is extinguished. Do not declare a peat fire out based on surface observation alone.
+</Warning>
+
+## Field symptoms
+
+**Surface fire damage:**
+
+- **Scorched lower fronds** and burnt-off frond bases.
+- **Charred trunk** with blackened surface but often intact interior.
+- **Green upper crown** if the fire was fast-moving - the palm may recover.
+- **Sooty deposits** on lower canopy and ground.
+- **Cover crop and understory burned off** entirely.
+
+**Peat fire damage:**
+
+- **Sunken ground surface** where peat has burned away below the root zone.
+- **Exposed and charred root plates** - dry, blackened root systems.
+- **Palms falling over** in the days and weeks after the fire as root support disappears.
+- **Smoke rising from apparently intact ground** - a sign that fire is still active underground.
+- **Complete mortality** on severely burned zones; palms may not visibly die for weeks but do not recover.
+
+## Reduce the damage by
+
+**Prevention:**
+
+- **Water-table maintenance on peat** - dry peat is the primary fire fuel. Keep water table controlled at 50 to 70 cm below surface during dry season.
+- **Fire-break maintenance** - cleared, wetted, or paved fire-breaks around every block, especially on peat.
+- **Debris management** - do not accumulate large piles of dry pruning debris; chip and spread.
+- **Do not burn debris** as a management practice - the industry has largely moved past this; strict enforcement is the standard.
+- **Community fire-risk communication** during drought years - many peat fires start from adjacent land use.
+- **Fire-danger monitoring** - subscribe to national and regional fire-alert services.
+
+**Response:**
+
+- **Immediate suppression** - water pumps, canal water, and firebreak reinforcement on any active fire.
+- **Peat fire suppression** requires flooding the burned zone with water for extended periods to extinguish smouldering deep peat.
+- **Post-fire census** - inspect every palm; separate surface-scorched (may recover) from peat-fire-affected (do not recover).
+- **Salvage-fell** confirmed dead palms early to prevent them becoming pest breeding sites.
+- **Replant only after soil investigation** - peat blocks that lost peat depth may not be suitable for oil palm second-rotation.
+- **Regulatory reporting** where required.
+
+## Set an alert for early warning
+
+<Tip>
+  Turn the diagnosis into a trigger. Fire alerts pair drought and fire-risk indices with fire-detection hotspot services and rapid imagery review.
+</Tip>
+
+Recommended settings for fire damage on oil palm:
+
+- **Fire-danger index alert** during dry season - trigger when cumulative water deficit and vapor-pressure deficit exceed thresholds.
+- **Hotspot detection alert** - MODIS, VIIRS, and Sentinel-2 fire products review every 6 to 12 hours during high-risk periods.
+- **Post-fire imagery review** - schedule high-resolution imagery within days of any confirmed fire.
+- **Peat-block flag** - all peat blocks receive elevated fire-risk monitoring during dry seasons.
+- **Regional coordination** - subscribe to national fire and haze bulletins.
+
+## Related
+
+- [Oil Palm Diagnosis](/guides/Crop/Oil-Palm/oil-palm-diagnosis)
+- [Drought](/guides/Crop/Oil-Palm/abiotic/drought) - the leading enabler of fire on peat.
+- [Peat Subsidence & Leaning](/guides/Crop/Oil-Palm/abiotic/peat-subsidence) - dry peat fire risk.
+- [Set up automated crop alerts](/guides/alerts-notifications)

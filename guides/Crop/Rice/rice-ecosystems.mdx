@@ -1,0 +1,106 @@
+---
+title: "Healthy NDVI Ranges for Paddy Across Rice Ecosystems"
+sidebarTitle: "Rice Ecosystems"
+description: "Indicative healthy NDVI bands for paddy across irrigated lowland, rainfed lowland, rainfed upland, and flood-prone ecosystems, by growth phase."
+---
+
+Healthy NDVI for paddy is not a single curve. The same variety planted in an irrigated lowland versus a rainfed upland field will read differently on satellite imagery because of water background, canopy density, and establishment method. This page lists indicative healthy NDVI bands by rice ecosystem so you can interpret the Health tab correctly for the field in front of you.
+
+For the base paddy preset and the generic Health tab workflow, see [Crop Health](/guides/crop-health-monitoring).
+
+## Rice ecosystems at a glance
+
+| Ecosystem | Water regime | Establishment | Typical peak NDVI |
+| --- | --- | --- | --- |
+| Irrigated lowland | Controlled flooding, bunded | Transplanted (mostly) | 0.75 – 0.90 |
+| Rainfed lowland | Bunded, rainfall-dependent standing water | Transplanted or direct-seeded | 0.65 – 0.85 |
+| Flood-prone / deepwater | Prolonged deep flooding (\> 50 cm) | Transplanted or broadcast | 0.55 – 0.80 |
+| Rainfed upland | Aerobic soil, no standing water | Direct-seeded | 0.55 – 0.75 |
+
+<Info>
+  Ranges on this page are indicative bands drawn from published Sentinel-2 and Landsat rice studies and IRRI agronomy references. The platform refines them automatically once it has one or more seasons of field history.
+</Info>
+
+## Irrigated lowland
+
+Controlled water depth, uniform stand, and dense transplanted canopy. This is the baseline used by the default paddy preset in [Crop Health](/guides/crop-health-monitoring).
+
+| Phase | Days after transplanting | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| Transplanting / early vegetative | 0 – 20 | 0.20 – 0.40 | Water visible between hills depresses NDVI. |
+| Tillering | 20 – 45 | 0.40 – 0.65 | Canopy closes evenly under stable water. |
+| Panicle initiation / booting | 45 – 70 | 0.65 – 0.80 | Steady rise, low field-to-field variance. |
+| Heading / flowering | 70 – 95 | 0.75 – 0.90 | Peak NDVI, saturates. Use NDRE for finer detail. |
+| Ripening / maturity | 95 – 120 | 0.40 – 0.65 | Decline expected as grain fills. |
+
+## Rainfed lowland
+
+Bunded fields that rely on rainfall to maintain standing water. Water depth fluctuates, and short dry spells during tillering are common. Expect slightly lower peaks and a noisier time series than irrigated lowland.
+
+| Phase | Days after establishment | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| Early vegetative | 0 – 25 | 0.20 – 0.40 | Add ~5 – 10 days if direct-seeded rather than transplanted. |
+| Tillering | 25 – 50 | 0.35 – 0.60 | Uneven tillering from dry spells is normal. |
+| Panicle initiation / booting | 50 – 75 | 0.60 – 0.80 | Watch for stalled NDVI rise, a sign of moisture stress. |
+| Heading / flowering | 75 – 100 | 0.70 – 0.85 | Peak slightly below irrigated lowland. |
+| Ripening / maturity | 100 – 125 | 0.40 – 0.65 | Decline may start earlier if end-of-season rains fail. |
+
+<Tip>
+  On rainfed lowland fields, prioritize the **Anomaly** view over absolute NDVI once you have one season of history. It absorbs weather-driven variability that the absolute band cannot.
+</Tip>
+
+## Flood-prone / deepwater
+
+Fields subject to prolonged deep flooding, typically in river deltas and low-lying coastal areas. Standing water and elongated plant architecture depress NDVI throughout the season, and flood pulses cause temporary dips even in healthy crops.
+
+| Phase | Days after establishment | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| Early vegetative | 0 – 30 | 0.15 – 0.35 | Deep water background lowers early NDVI. |
+| Tillering / elongation | 30 – 60 | 0.30 – 0.55 | Plants elongate rather than tiller heavily; canopy stays sparser. |
+| Reproductive | 60 – 90 | 0.50 – 0.75 | NDVI recovers as canopy rises above water. |
+| Heading / flowering | 90 – 115 | 0.55 – 0.80 | Peak lower than lowland due to water background. |
+| Ripening / maturity | 115 – 145 | 0.35 – 0.60 | Longer season overall. |
+
+<Warning>
+  Sudden NDVI drops on flood-prone fields often reflect a flood pulse, not crop damage. Cross-check with the **NDWI** layer and recent rainfall before flagging a stress event.
+</Warning>
+
+## Rainfed upland
+
+Aerobic soil, no standing water, direct-seeded. Stands are sparser, canopy shorter, and NDVI rarely saturates. This is the most variable ecosystem to interpret from satellite.
+
+| Phase | Days after sowing | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| Emergence / early vegetative | 0 – 25 | 0.15 – 0.30 | Dry soil background, no water reflectance. |
+| Tillering | 25 – 55 | 0.30 – 0.50 | Lower than lowland at the same phase. |
+| Panicle initiation / booting | 55 – 80 | 0.45 – 0.65 | Peak biomass much lower than lowland. |
+| Heading / flowering | 80 – 105 | 0.55 – 0.75 | Rarely saturates. NDRE gains are smaller here. |
+| Ripening / maturity | 105 – 130 | 0.30 – 0.55 | Decline can be sharp if terminal drought hits. |
+
+<Info>
+  For direct-seeded fields (common in rainfed lowland and upland), shift each phase window by roughly 7 – 10 days later compared with transplanted paddy of the same variety.
+</Info>
+
+## Choosing the right ecosystem on a field
+
+<Steps>
+  <Step title="Open field settings">
+    From the field overview, open **Settings** in the top-right.
+  </Step>
+  <Step title="Set the crop to Paddy">
+    Under **Crop**, choose **Paddy**. Additional paddy options appear.
+  </Step>
+  <Step title="Set the ecosystem">
+    Under **Ecosystem**, choose **Irrigated lowland**, **Rainfed lowland**, **Flood-prone / deepwater**, or **Rainfed upland**. The Health tab legend switches to the corresponding band table above.
+  </Step>
+  <Step title="Set establishment method and date">
+    Choose **Transplanted** or **Direct-seeded** and enter the date. The platform derives the current phase from days-after-establishment and applies the matching band automatically.
+  </Step>
+</Steps>
+
+## Cross-ecosystem tips
+
+- NDVI saturates above ~0.8 in every ecosystem. At heading and flowering, switch to **NDRE** regardless of ecosystem.
+- Water background lowers NDVI early in the season for all flooded ecosystems. Do not read early-vegetative values against the generic scale.
+- After one full season of history, prefer **Anomaly** view over the absolute bands. It adapts to your specific ecosystem, variety, and region.
+- If a field straddles two ecosystems (for example, an upper terrace that is upland and a lower terrace that is rainfed lowland), split it into two fields so each gets the correct band.

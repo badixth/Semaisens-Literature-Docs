@@ -1,0 +1,87 @@
+---
+title: "Satellite & Drone Imagery Sources: Coverage and Setup"
+sidebarTitle: "Imagery Sources"
+description: "Explore the satellite constellations and drone upload options the platform supports, including resolution, revisit rates, and how to connect providers."
+---
+
+The platform aggregates imagery from multiple satellite constellations and drone uploads so you always have the best available data for your fields — whether that means free daily Sentinel-2 coverage or sub-meter drone orthomosaics captured during a scouting flight. Each source has different characteristics in terms of resolution, revisit frequency, and cost, and the platform is designed to seamlessly blend them into a unified view of every field you manage.
+
+## Satellite Sources
+
+| Satellite | Provider | Resolution | Revisit Rate | Cost |
+|---|---|---|---|---|
+| Sentinel-2 | ESA (European Space Agency) | 10 m | ~5 days | Free (included) |
+| Landsat 8 / 9 | USGS | 30 m | 16 days | Free (included) |
+| Planet PlanetScope | Planet Labs (commercial) | 3 m | Daily | Requires Planet subscription |
+| Maxar | Maxar Technologies (commercial) | < 0.5 m | On demand | Requires Maxar subscription |
+
+## Automatic vs. Manual Imagery
+
+**Automatically ingested (no setup required)**
+
+Sentinel-2 and Landsat 8/9 imagery is ingested automatically for all registered fields at no additional cost. As soon as you create a field boundary, the platform begins pulling available scenes and processing them for vegetation index calculations. Historical imagery going back to Sentinel-2's operational start in 2015 is also available for retrospective analysis.
+
+**Commercial imagery (subscription required)**
+
+Planet and Maxar imagery requires a separate commercial subscription with those providers. Once you have a subscription, connect it to the platform by navigating to **Settings > Imagery Sources** and entering your API credentials. After connecting, high-resolution imagery will be automatically ingested alongside free sources for all active fields.
+
+<Warning>
+  Commercial imagery costs are governed by your agreement with Planet or Maxar and are billed directly by those providers — not through the Google Agriculture Platform. Connecting a commercial account will cause the platform to make imagery requests on your behalf, which may count against your subscription quota. Review your provider's pricing before enabling automatic high-resolution ingestion.
+</Warning>
+
+## Drone Imagery
+
+When satellite resolution is not sufficient for the detail level your scouting requires, you can upload drone-captured orthomosaics directly to the platform. Drone imagery is processed using the same pipeline as satellite imagery — atmospherically corrected where metadata permits — and immediately available as an analysis layer alongside your satellite-derived indices.
+
+**Supported formats and specifications**
+
+| Attribute | Supported Values |
+|---|---|
+| File format | GeoTIFF (`.tif`, `.tiff`) |
+| Band configurations | RGB, NDVI single-band, multispectral (5-band) |
+| Maximum file size | 2 GB per upload |
+| Coordinate system | WGS84 (EPSG:4326) or any EPSG-registered CRS |
+
+**How to upload drone imagery**
+
+<Steps>
+  <Step title="Open the field">
+    Navigate to the field you want to attach the drone imagery to and open the field detail view.
+  </Step>
+  <Step title="Go to the Imagery tab">
+    Select the **Imagery** tab at the top of the field view to see all imagery layers associated with this field.
+  </Step>
+  <Step title="Start the upload">
+    Click **Upload** and select your GeoTIFF file from your local machine. The uploader accepts files up to 2 GB.
+  </Step>
+  <Step title="Confirm geolocation">
+    The platform reads the embedded geospatial metadata from the GeoTIFF and displays a preview overlay on the field map. Confirm that the drone imagery aligns correctly with your field boundary, then click **Confirm** to begin processing.
+  </Step>
+  <Step title="Wait for processing">
+    Processing time depends on file size and band count, typically between 2 and 15 minutes. You will receive an in-app notification and an email when the layer is ready.
+  </Step>
+</Steps>
+
+<Tip>
+  Make sure your drone imagery is processed into a georeferenced orthomosaic before uploading. Raw UAV images or non-georeferenced files are not supported. Most drone processing software — including DJI Terra, Pix4D, and Agisoft Metashape — exports analysis-ready GeoTIFFs directly.
+</Tip>
+
+## Image Quality & Cloud Cover
+
+Optical satellite imagery is only useful when the sky above your field is clear. The platform automatically filters out scenes with more than **20% cloud cover** over your field boundary, ensuring that cloudy scenes do not contaminate your index time series or trigger false alerts.
+
+If you work in a persistently cloudy region or need to capture data during a cloudy period, you can adjust the cloud cover threshold:
+
+1. Go to **Settings > Preferences > Cloud Cover Filter**.
+2. Move the slider to your desired maximum cloud cover percentage (0–100%).
+3. Save your preferences. The new threshold applies to all future image ingestion for your organization.
+
+<Note>
+  Raising the cloud cover threshold allows more images into your time series but increases the risk of cloud-contaminated pixels affecting index values. If you raise the threshold, inspect imagery carefully on the map before including it in prescriptions or reports. Lowering the threshold below 20% may result in longer gaps between available scenes in cloudy climates.
+</Note>
+
+## Data Retention
+
+<Note>
+  Processed imagery and index layers are retained for **2 years** on Free and Pro plans. **Enterprise** plans include unlimited historical data retention. If you need to preserve data beyond the retention window on a Free or Pro plan, export your imagery and observation time series before the retention period expires.
+</Note>

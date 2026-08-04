@@ -1,0 +1,156 @@
+---
+title: "Healthy NDVI Ranges for Rubber Across Planting Environments"
+sidebarTitle: "Rubber Ecosystems"
+description: "Indicative healthy NDVI bands for Hevea rubber across mineral upland, hilly / sloping, coastal lowland, and peat environments, by stand age and wintering cycle."
+---
+
+Rubber (_Hevea brasiliensis_) is a perennial tree crop with a closed, tall canopy that dominates satellite reflectance for most of its productive life. Healthy NDVI is driven by **stand age**, **planting environment**, and the annual **wintering** (leaf fall and refoliation) cycle, which causes a predictable NDVI dip every year that is easily mistaken for stress.
+
+This page lists indicative healthy NDVI bands for **Malaysian rubber plantations** by environment and stand age so you can interpret the Health tab correctly for the block in front of you. Bands are aligned to Malaysian Rubber Board (MRB / LGM) planting recommendations and RRIM clone series.
+
+For the generic Health tab workflow, see [Crop Health](/guides/crop-health-monitoring).
+
+## Rubber planting environments at a glance
+
+| Environment | Soil / terrain | Typical peak NDVI (mature) | Interpretation risk |
+| --- | --- | --- | --- |
+| Mineral upland | Well-drained inland mineral soils, gentle slopes | 0.78 – 0.90 | Baseline. Cleanest NDVI signal. Bulk of Malaysian rubber sits here. |
+| Hilly / sloping | Undulating to steep terrain, terraced | 0.72 – 0.88 | Mild slope-shadow effects; smaller than in temperate zones because Malaysia is near the equator. |
+| Coastal lowland | Flat, high water table, alluvial clay | 0.72 – 0.86 | Waterlogging dips after heavy rain. Common in Kedah, coastal Perak (Bagan Datuk), and coastal Selangor. |
+
+<Info>
+  Ranges on this page are indicative bands drawn from published Sentinel-2 and Landsat rubber studies and MRB / RRIM / IRRDB agronomy references. The platform refines them automatically once it has one or more years of block history.
+</Info>
+
+<Warning>
+  Rubber on **peat** is rare in Malaysia; Malaysian peat is overwhelmingly under oil palm. If you have rubber on peat, treat the mineral-upland bands as a starting point and let the platform refine from block history, expecting peak NDVI ~0.05 lower.
+</Warning>
+
+## Stand age drives the NDVI curve
+
+Malaysian rubber runs a **25 – 30 year economic cycle**: **5 – 7 years of immaturity** before opening for tapping, then **20 – 25 years of tapping**, then replanting. RRIM 2000 / 3000 series latex-timber clones typically reach tappable girth (50 cm at 150 cm from union) at **year 5 – 6** on good mineral upland; slower sites push this to year 6 – 7. Use the age bands below as the primary lens, then adjust for planting environment.
+
+| Stand age | Canopy state | Healthy NDVI | Notes |
+| --- | --- | --- | --- |
+| 0 – 1 year (newly planted) | Bare inter-row, small seedlings | 0.20 – 0.40 | Legume cover crops (Mucuna, Pueraria, Calopogonium) dominate the signal. |
+| 1 – 3 years (immature) | Saplings expanding, ground still visible | 0.35 – 0.60 | Uniform rise expected; patches flag replanting failures. |
+| 3 – 5 years (pre-tapping) | Canopy closing | 0.55 – 0.80 | Steady climb toward closure. Girth check for tapping readiness at year 5. |
+| 5 – 7 years (opening) | Closed canopy, tapping begins | 0.75 – 0.88 | Canopy closure and first tapping around year 5 – 7. |
+| 7 – 20 years (prime tapped) | Closed, mature canopy | 0.78 – 0.90 | Peak NDVI plateau. Small dips may reflect tapping intensity or disease. |
+| 20 – 25 years (late tapped) | Closed, taller trees | 0.75 – 0.88 | Slight decline is normal; sharp drops flag disease or over-tapping. |
+| \> 25 years (senescent / pre-replant) | Thinning canopy | 0.65 – 0.82 | Plan replanting; NDVI alone cannot tell age-decline from disease. |
+
+<Info>
+  NDVI saturates on closed rubber canopies. From year 5 – 6 onward (once canopy closes), switch to **NDRE** or **EVI** for finer differentiation between healthy and mildly stressed blocks.
+</Info>
+
+## The wintering dip is normal
+
+Every year, mature rubber trees drop their leaves (**wintering**) then refoliate over 4 – 8 weeks. This causes a repeatable seasonal NDVI dip of **0.10 – 0.25** that lasts roughly 6 – 10 weeks. In Peninsular Malaysia the wintering window is typically **February to March**, extending into early April in some clones and northern states (Perlis, Kedah, north Perak). Sabah and Sarawak run slightly later and less synchronized due to the equatorial rainfall pattern.
+
+| Wintering stage | Duration | NDVI change | Notes |
+| --- | --- | --- | --- |
+| Pre-wintering | – | At plateau | Normal peak NDVI. |
+| Leaf fall | 2 – 4 weeks | Drop of 0.10 – 0.25 | Sharpest decline. Do not flag as stress. |
+| Bare / refoliation | 2 – 4 weeks | Trough at 0.55 – 0.70 | Depends on clone and completeness of defoliation. |
+| Recovery | 2 – 4 weeks | Rapid rise back to plateau | NDVI returns to pre-wintering levels within ~8 weeks. |
+
+<Warning>
+  A once-a-year NDVI drop of 0.10 – 0.25 in Feb – Apr on mature Malaysian rubber is almost always wintering, not disease. Confirm by comparing to the same block in previous years. A drop **outside** the historical wintering window, or one that fails to recover within 8 – 10 weeks, is the real stress signal.
+</Warning>
+
+<Tip>
+  Once one full year of history exists on a rubber block, switch to **Anomaly** view. It compares each pixel to the same block on the same calendar week last year and automatically absorbs the wintering dip.
+</Tip>
+
+## Mineral upland
+
+Well-drained inland mineral soils on gentle slopes. This is the baseline used by the default rubber preset in [Crop Health](/guides/crop-health-monitoring) and covers the majority of Malaysian rubber planted in Perak, Negeri Sembilan, Johor, Pahang, Kedah, and inland Sarawak. Uniform soil, stable moisture, and even canopy give the cleanest NDVI signal.
+
+| Stand age | Healthy NDVI | Notes |
+| --- | --- | --- |
+| 0 – 1 year | 0.25 – 0.45 | Cover crop establishment visible within 3 – 6 months. |
+| 1 – 3 years | 0.40 – 0.65 | Uniform rise expected block-wide. |
+| 3 – 5 years | 0.60 – 0.80 | Canopy closure typically at year 5 for RRIM 2000 / 3000 clones. |
+| 5 – 7 years | 0.78 – 0.88 | Opening for tapping around year 5 – 6 on good sites. |
+| 7 – 20 years | 0.80 – 0.90 | Peak plateau. |
+| 20 – 25 years | 0.75 – 0.88 | Gentle decline. |
+
+## Hilly / sloping
+
+Undulating to steep terrain, often terraced. Common in Perak, Pahang, Negeri Sembilan, and highland belts. Because Malaysia sits at 1° – 7°N, sun angles are nearly overhead year-round, so slope-aspect bias is **weaker than in temperate zones** but still present in early morning and late afternoon imagery, and on steeper (\> 20°) slopes.
+
+| Stand age | Healthy NDVI | Notes |
+| --- | --- | --- |
+| 0 – 1 year | 0.22 – 0.42 | Terrace edges show as bare soil strips. |
+| 1 – 3 years | 0.38 – 0.62 | Slightly slower canopy build on erosion-prone slopes. |
+| 3 – 5 years | 0.55 – 0.78 | Canopy closure delayed by ~6 – 12 months on steep sites. |
+| 5 – 7 years | 0.72 – 0.85 | First tapping often at year 6 – 7 on hilly blocks. |
+| 7 – 20 years | 0.78 – 0.90 | Shaded-slope pixels read 0.02 – 0.05 lower than exposed slopes at low sun angles. |
+| 20 – 25 years | 0.72 – 0.85 |  |
+
+<Tip>
+  On sloping blocks, prefer **relative** comparisons (Anomaly view or same-block year-over-year) over absolute NDVI thresholds. Slope-shadow bias is systematic per pixel and cancels out when comparing the same pixel to itself.
+</Tip>
+
+## Coastal lowland
+
+Flat coastal blocks on alluvial clay with a high water table. In Malaysia, this includes coastal Kedah, Bagan Datuk (Perak), and coastal Selangor. Less common than oil palm in this environment, but a real category for older rubber estates. Yields are strong when drainage is maintained; heavy rain events cause temporary waterlogging and short-lived NDVI dips.
+
+| Stand age | Healthy NDVI | Notes |
+| --- | --- | --- |
+| 0 – 1 year | 0.20 – 0.40 | Watch for standing water in inter-rows after rain. |
+| 1 – 3 years | 0.35 – 0.60 | Slightly slower canopy build than mineral upland. |
+| 3 – 5 years | 0.55 – 0.78 | Root disease risk (white root, red root) higher in wet soils. |
+| 5 – 7 years | 0.70 – 0.84 |  |
+| 7 – 20 years | 0.75 – 0.86 | Post-rain dips of 0.03 – 0.06 are normal. |
+| 20 – 25 years | 0.72 – 0.84 |  |
+
+<Tip>
+  On coastal lowland blocks, cross-check NDVI dips against the **NDWI** layer and rainfall records before flagging stress. A synchronized NDWI rise with an NDVI dip usually means transient waterlogging, not decline.
+</Tip>
+
+## Choosing the right environment on a block
+
+<Steps>
+  <Step title="Open block settings">
+    From the block overview, open **Settings** in the top-right.
+  </Step>
+  <Step title="Set the crop to Rubber">
+    Under **Crop**, choose **Rubber**. Additional rubber options appear.
+  </Step>
+  <Step title="Set the clone">
+    Choose the clone based on the current MRB Planting Recommendations:
+
+    - **RRIM 2000 series** (RRIM 2001, 2002, 2007, 2008, 2014, 2015, 2020, 2023, 2024, 2025, 2026) — current latex-timber standard
+    - **RRIM 3001** — newer latex-timber release
+    - **RRIM 900 series** (RRIM 928, 929) — still planted, older latex clones
+    - **PB series** (PB 260, PB 350, PB 355, PB 359) — widely planted
+    - **GT 1** — legacy clone, largely obsolete for new planting but common in older stands
+    - **Other**
+
+    Clones differ in canopy density, wintering timing, and disease susceptibility (notably Corynespora sensitivity on some RRIM 2000 clones), so the phase and wintering windows scale accordingly.
+  </Step>
+  <Step title="Set the planting environment">
+    Under **Environment**, choose **Mineral upland**, **Hilly / sloping**, or **Coastal lowland**. The Health tab legend switches to the corresponding band table above.
+  </Step>
+  <Step title="Set the planting date">
+    Enter the **planting date**. The platform derives current stand age and applies the matching age band automatically. Tapping start date can be added later for over-tapping detection.
+  </Step>
+</Steps>
+
+<Tip>
+  If a single estate contains blocks across multiple environments (common where a lowland estate extends into hilly reserve), set the environment at the **block** level rather than at the estate level so each block gets the correct band.
+</Tip>
+
+## Cross-environment tips
+
+- **Wintering is the single biggest source of false stress alerts on rubber.** Always compare a suspected drop against the same block in previous years before acting.
+- NDVI saturates on closed rubber canopies from year 5 – 6 onward. Switch to **NDRE** or **EVI** for stress detection on mature blocks regardless of environment.
+- Use **Anomaly** view once one full year of history exists. It adapts to your specific environment, clone, and wintering cycle.
+- **Over-tapping / tapping panel dryness (TPD)** shows as a slow, block-wide NDVI decline over 1 – 3 years, not a sharp drop. NDRE picks it up earlier than NDVI.
+- **White root disease** (_Rigidoporus microporus_) shows as slow, localized NDVI decline in expanding clusters, often starting near old stumps. The most economically important root disease in Malaysian rubber. Cross-check with high-resolution imagery or ground scouting.
+- **Corynespora Leaf Fall (CLF)** (_Corynespora cassiicola_) is a major economic disease in Malaysia, especially on susceptible RRIM 2000-series clones. It causes secondary leaf fall **outside** the normal wintering window, so a Feb – Apr dip that fails to fully recover, or an unexpected NDVI drop in mid-year, is a strong CLF signal.
+- **Pestalotiopsis / Neopestalotiopsis leaf fall** has emerged as a serious threat across Malaysia, Indonesia, and Thailand since ~2017. Symptoms mimic CLF on satellite (out-of-season leaf fall and delayed recovery). Ground confirmation is required for species-level diagnosis.
+- **Powdery mildew** (_Oidium heveae_) attacks refoliation and prolongs the wintering dip by 2 – 4 weeks. A slow recovery after leaf fall is the key signal, most pronounced in northern states (Kedah, Perlis, Perak).
+- **Water stress** shows first on **NDWI** and **CWSI**, not NDVI, on closed-canopy blocks. NDVI dips lag water stress by 2 – 4 weeks. Relevant in prolonged dry spells during El Niño years.

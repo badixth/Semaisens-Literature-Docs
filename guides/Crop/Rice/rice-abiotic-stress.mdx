@@ -1,0 +1,218 @@
+---
+title: "Rice Diagnosis: Decide What an Alert Means and What to Do"
+sidebarTitle: "Rice Diagnosis"
+description: "The starting point for interpreting rice field alerts. Covers abiotic stress today (drought, salinity, poor soil, submergence), with room for biotic stress and nutrient deficiency next."
+---
+
+When an alert fires on a rice field, the platform tells you _something changed_. This guide helps you decide _what changed and what to do_. Use it as the bridge between a triggered [alert](/guides/alerts-notifications) and a field action.
+
+## What this guide covers
+
+Rice diagnosis is organized around three pillars, matching the decision tree a scout actually uses in the field.
+
+<CardGroup cols={3}>
+  <Card title="Abiotic Stress" icon="sun" href="/guides/Crop/Rice/rice-abiotic-stress/rice-drought">
+    Environmental causes: drought, salinity, poor soil, submergence. Best-detected group by satellite.
+  </Card>
+
+  <Card title="Nutrient Deficiency" icon="flask" href="/guides/Crop/Rice/nutrient/nitrogen">
+    N, P, K, Zn, S, and iron toxicity. Highest platform value: NDRE is designed for this.
+  </Card>
+
+  <Card title="Biotic Stress" icon="bug" href="/guides/Crop/Rice/biotic/diseases/blast">
+    Diseases, insect pests, and weeds. Imagery narrows _where_ to scout; a scout confirms _what_.
+  </Card>
+</CardGroup>
+
+## How to use the three pillars
+
+Use the pattern in the imagery to decide which pillar to open first:
+
+| What you see | Start with |
+| --- | --- |
+| Whole field or whole zones stressed after weather event | Abiotic stress |
+| Uniform yellowing without a clear environment cause | Nutrient deficiency |
+| Patchy, spreading, or symptoms concentrated on individual plants | Biotic stress |
+| A field that never green-fills despite adequate inputs | Check all three - overlapping causes are common |
+
+## Growth-stage vulnerability
+
+Different stresses hurt rice at different growth stages. Match the stage to the likely cause before opening a specific stress page.
+
+| Growth stage | Most damaging causes |
+| --- | --- |
+| Seedling / transplanting | Salinity, submergence, zinc deficiency, bakanae, tungro |
+| Tillering | Drought, poor soil, N and P deficiency, gall midge, sheath blight |
+| Booting to flowering | Drought (highest yield impact), salinity, K deficiency, blast, stem borer, false smut |
+| Grain filling | Drought, submergence, brown planthopper, rice bug, sheath blight |
+
+## The three pillars
+
+### Abiotic stress
+
+Environmental causes account for the majority of yield loss worldwide and show clearly in satellite imagery. Start here when the pattern follows topography, water flow, or a weather event.
+
+<CardGroup cols={2}>
+  <Card title="Drought" icon="sun" href="/guides/Crop/Rice/rice-abiotic-stress/rice-drought">
+    NDWI drops before NDVI. Leaf rolling, stunted growth, burning leaf tips, whiteheads at flowering.
+  </Card>
+
+  <Card title="Salinity" icon="droplet" href="/guides/Crop/Rice/rice-abiotic-stress/rice-salinity">
+    Patchy NDVI in low-lying or coastal zones. Brown leaf tips, chlorotic patches, white panicle branches.
+  </Card>
+
+  <Card title="Poor soil / low fertility" icon="layer-group" href="/guides/Crop/Rice/rice-abiotic-stress/rice-poor-soil">
+    Persistently low NDVI and NDRE across the whole field or repeatable weak zones season after season.
+  </Card>
+
+  <Card title="Submergence" icon="water" href="/guides/Crop/Rice/rice-abiotic-stress/rice-submergence">
+    Sudden NDVI collapse in flood-prone zones after heavy rain. Full or partial disappearance of canopy.
+  </Card>
+</CardGroup>
+
+### Nutrient deficiency
+
+Nutrient limitation looks similar to abiotic stress but responds to fertilizer, not to weather or drainage. NDRE is the leading spectral indicator - use it from tillering onward.
+
+<CardGroup cols={3}>
+  <Card title="Nitrogen" icon="leaf" href="/guides/Crop/Rice/nutrient/nitrogen">
+    Uniform pale-green canopy, older leaves first. Low NDRE.
+  </Card>
+
+  <Card title="Phosphorus" icon="seedling" href="/guides/Crop/Rice/nutrient/phosphorus">
+    Dark-green stunted plants, reddish-purple older leaves.
+  </Card>
+
+  <Card title="Potassium" icon="wheat-awn" href="/guides/Crop/Rice/nutrient/potassium">
+    Yellow-brown scorching along older leaf margins. Increased lodging.
+  </Card>
+
+  <Card title="Zinc" icon="hexagon" href="/guides/Crop/Rice/nutrient/zinc">
+    Patchy dusty-brown blotches at early tillering on high-pH soils.
+  </Card>
+
+  <Card title="Sulfur" icon="atom" href="/guides/Crop/Rice/nutrient/sulfur">
+    Pale-yellow young leaves (opposite of N). Field does not respond to N top-dressing.
+  </Card>
+
+  <Card title="Iron toxicity" icon="triangle-exclamation" href="/guides/Crop/Rice/nutrient/iron-toxicity">
+    Bronze-orange stippling on lower leaves in acid, waterlogged zones.
+  </Card>
+</CardGroup>
+
+### Biotic stress
+
+Living causes: diseases, insect pests, and weeds. Satellites narrow _where_ to scout, but ground confirmation is essential before treatment.
+
+<Warning>
+  Satellites are excellent at abiotic and good at nutrient. Biotic detection needs ground truth. Always confirm the identification with a scout before applying pesticides.
+</Warning>
+
+**Diseases**
+
+<CardGroup cols={2}>
+  <Card title="Blast" icon="virus" href="/guides/Crop/Rice/biotic/diseases/blast">
+    Diamond-shaped lesions; neck blast causes whiteheads.
+  </Card>
+
+  <Card title="Bacterial leaf blight" icon="bacterium" href="/guides/Crop/Rice/biotic/diseases/bacterial-leaf-blight">
+    Yellow wavy lesions from leaf tips; bacterial ooze in morning.
+  </Card>
+
+  <Card title="Sheath blight" icon="mound" href="/guides/Crop/Rice/biotic/diseases/sheath-blight">
+    Greenish-grey lesions on lower sheaths in dense high-N canopies.
+  </Card>
+
+  <Card title="Tungro" icon="virus-covid" href="/guides/Crop/Rice/biotic/diseases/tungro">
+    Yellow-orange stunted plants; transmitted by green leafhopper.
+  </Card>
+
+  <Card title="Sheath rot" icon="ban" href="/guides/Crop/Rice/biotic/diseases/sheath-rot">
+    Discolored flag-leaf sheath; panicle fails to emerge properly.
+  </Card>
+
+  <Card title="False smut" icon="circle-dot" href="/guides/Crop/Rice/biotic/diseases/false-smut">
+    Yellow-green fungal balls replacing grains. Preventive fungicide at booting only.
+  </Card>
+
+  <Card title="Bakanae" icon="up-long" href="/guides/Crop/Rice/biotic/diseases/bakanae">
+    Abnormally tall, pale, thin seedlings. Seed-borne.
+  </Card>
+</CardGroup>
+
+**Insect pests**
+
+<CardGroup cols={2}>
+  <Card title="Brown planthopper" icon="bug" href="/guides/Crop/Rice/biotic/insects/brown-planthopper">
+    Circular hopperburn patches; honeydew at plant base.
+  </Card>
+
+  <Card title="Stem borers" icon="worm" href="/guides/Crop/Rice/biotic/insects/stem-borers">
+    Deadhearts at vegetative stage; whiteheads at heading.
+  </Card>
+
+  <Card title="Leaffolder" icon="scroll" href="/guides/Crop/Rice/biotic/insects/leaffolder">
+    Folded leaves with white longitudinal streaks.
+  </Card>
+
+  <Card title="Rice bug" icon="mosquito" href="/guides/Crop/Rice/biotic/insects/rice-bug">
+    Empty, spotted grains at milk stage; strong bug odor.
+  </Card>
+
+  <Card title="Gall midge" icon="grip-lines-vertical" href="/guides/Crop/Rice/biotic/insects/gall-midge">
+    Silver shoots (onion leaves) replacing normal leaves. No panicle on affected tillers.
+  </Card>
+
+  <Card title="Armyworms" icon="locust" href="/guides/Crop/Rice/biotic/insects/armyworms">
+    Sudden defoliation moving in waves; nocturnal.
+  </Card>
+</CardGroup>
+
+**Weeds**
+
+<CardGroup cols={3}>
+  <Card title="Grasses" icon="wheat-awn-circle-exclamation" href="/guides/Crop/Rice/biotic/weeds/grasses">
+    Barnyardgrass; mimics rice early. Highest weed-driven yield loss.
+  </Card>
+
+  <Card title="Sedges" icon="grip-lines" href="/guides/Crop/Rice/biotic/weeds/sedges">
+    Triangular stems; nutsedge tubers persist across seasons.
+  </Card>
+
+  <Card title="Broadleaf" icon="leaf" href="/guides/Crop/Rice/biotic/weeds/broadleaf">
+    Wide leaves and showy flowers. Suppressed by shallow flooding.
+  </Card>
+</CardGroup>
+
+## Decision flow
+
+<Steps>
+  <Step title="Note the growth stage of the crop">
+    Check the season record for the field. Match the stage to the vulnerability table above.
+  </Step>
+  <Step title="Look at which index moved and how">
+    - NDWI drops first, NDVI follows: think **drought**.
+    - NDVI collapses suddenly after rain: think **submergence**.
+    - NDVI patchy and stable-low, coastal / low-lying: think **salinity**.
+    - Field-scale low NDRE, uniform yellowing: think **N deficiency** (or S if N top-dressing did not help).
+    - Circular expanding pale patches: think **hopperburn** (BPH).
+    - Rapid, large drop between passes: think **armyworm** or **BLB after a storm**.
+  </Step>
+  <Step title="Confirm with field symptoms">
+    Open the matching stress page and compare the symptom list to what a scout sees on the ground. Symptoms rule stresses in or out faster than imagery alone.
+  </Step>
+  <Step title="Act, then set an early-warning alert">
+    Apply the recommended action. Then use the [Alerts](/guides/alerts-notifications) page to configure a follow-up alert so the same stress is caught earlier next time.
+  </Step>
+</Steps>
+
+## Related
+
+- [Healthy NDVI ranges for paddy across rice ecosystems](/guides/Crop/rice-ecosystems) - baseline values to compare an alert against.
+- [Set up automated crop alerts](/guides/alerts-notifications) - configure the triggers that surface these stresses.
+- [Monitor crop health across fields](/guides/crop-health-monitoring) - view the imagery that alerts are derived from.
+- [Analyze crop performance across a full season](/guides/seasonal-analysis) - the right tool for chronic zone problems.
+
+<Note>
+  This diagnosis covers the three major stress groups in rice. Rare stresses (cold, heat, herbicide phytotoxicity, mechanical damage) are not yet documented and can be added as separate short pages when needed.
+</Note>
