@@ -113,14 +113,15 @@
                         ]
                       }
                     ]
-                  }
+                  },
+                  "guides/Crop/Rice/field-walk-protocol"
                 ]
               },
               {
                 "group": "Oil Palm",
                 "icon": "tree",
                 "pages": [
-                  "guides/Crop/oil-palm-ecosystems",
+                  "guides/Crop/Oil-Palm/oil-palm-ecosystems",
                   "guides/Crop/Oil-Palm/oil-palm-diagnosis",
                   "guides/Crop/Oil-Palm/field-walk-protocol",
                   {
