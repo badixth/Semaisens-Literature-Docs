@@ -1,0 +1,76 @@
+---
+title: "Corynespora Leaf Fall (CLF) in Rubber"
+sidebarTitle: "Corynespora Leaf Fall"
+description: "Corynespora cassiicola: the major economic leaf disease of Malaysian rubber, especially on susceptible RRIM 2000 clones. Recognition, out-of-season detection, and fungicide protocols."
+---
+
+**Corynespora Leaf Fall (CLF)** caused by _Corynespora cassiicola_ is the major economic leaf disease of Malaysian rubber. It has caused replanting decisions on entire estates due to clonal susceptibility (particularly RRIM 2005, RRIM 2020 series, and some PB clones). It causes **out-of-season leaf fall** that satellite systems can detect as a delayed or failed wintering recovery.
+
+## Cause
+
+- **Susceptible clones**: RRIM 2005, RRIM 2020 series (some), some PB clones
+- **High humidity and warm temperature** (\> 25 C, RH \> 80%)
+- **Continuous rain** especially during refoliation window
+- **Weakened trees** from drought, TPD, or over-tapping
+- **Adjacent infected blocks** (windborne spore spread)
+
+## Effect
+
+| Stage | Symptom |
+| --- | --- |
+| Early | Small brown-black spots (2 to 5 mm) with yellow halo on leaves |
+| Mid | Spots expand, coalesce; large brown lesions with characteristic "fishbone" or "railway track" veinal pattern |
+| Late | Whole-leaf blight, defoliation |
+| Terminal | Repeated leaf fall in the same season (secondary leaf fall), depleted photosynthesis, latex flow drop |
+
+On susceptible clones, CLF causes 2 to 4 waves of leaf fall per year outside the normal wintering window, seriously depleting tree reserves.
+
+## Satellite signals
+
+| Index | What to watch | Threshold |
+| --- | --- | --- |
+| NDVI | Drop **outside** normal wintering window (Feb-Apr) | -0.10 sustained |
+| Anomaly view | Delayed or failed refoliation | Compare vs prior year |
+| Repeated dips | Multiple NDVI drops in same year on same block | Multiple crossings |
+
+CLF is one of the strongest use-cases for satellite monitoring because it manifests as out-of-season canopy loss visible from space.
+
+## Action
+
+<Steps>
+  <Step title="Confirm in the canopy">
+    Look for brown-black spots with yellow halo, and the diagnostic railway-track pattern on lesions. Send samples to MRB for confirmation.
+  </Step>
+  <Step title="Identify the clone">
+    Confirm clone from block records. RRIM 2005 and known-susceptible clones require aggressive spray program; tolerant clones may only need monitoring.
+  </Step>
+  <Step title="Fungicide spray program">
+    For young immature trees where spraying is feasible:
+
+    - **Mancozeb** or **propiconazole**, 2 to 3 sprays at 14-day intervals during refoliation
+
+    For mature trees, spraying is generally not economic; management shifts to clone replacement at replanting.
+  </Step>
+  <Step title="Reduce tapping intensity">
+    During heavy CLF episodes, cut tapping frequency to allow refoliation. Continued heavy tapping accelerates canopy exhaustion.
+  </Step>
+  <Step title="Long-term: clone replacement">
+    At replanting, avoid known-susceptible clones on high-CLF sites. Consult current MRB planting recommendations.
+  </Step>
+</Steps>
+
+## Recommended alert settings
+
+| Trigger | Condition | Severity |
+| --- | --- | --- |
+| Out-of-season NDVI drop | -0.10 sustained 14 days outside Feb-Apr window | High |
+| Delayed refoliation | NDVI failed to recover by 10 weeks after wintering | High |
+| Susceptible-clone alert | Any NDVI dip on flagged clone block | Medium |
+| Weather trigger | RH \> 80% \+ rain \> 100 mm/week during refoliation | Medium |
+
+## Related
+
+- [Pestalotiopsis leaf fall](/guides/Crop/Rubber/biotic/diseases/pestalotiopsis)
+- [Powdery mildew](/guides/Crop/Rubber/biotic/diseases/powdery-mildew)
+- [Rubber ecosystems (wintering baselines)](/guides/Crop/Rubber/rubber-ecosystems)
+- [Rubber Diagnosis](/guides/Crop/Rubber/rubber-diagnosis)

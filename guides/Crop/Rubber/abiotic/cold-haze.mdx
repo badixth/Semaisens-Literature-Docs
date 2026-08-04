@@ -1,0 +1,70 @@
+---
+title: "Cold Snap and Haze Stress in Rubber"
+sidebarTitle: "Cold & Haze"
+description: "How cool nights and prolonged transboundary haze suppress rubber growth and latex flow, and how to interpret the satellite signal during haze episodes."
+---
+
+Malaysian rubber rarely faces temperature stress but is affected by two atypical events: cool highland nights (Cameron Highlands, some Sarawak upland blocks) and prolonged **transboundary haze** from Sumatra/Kalimantan peat fires (typically Aug to Oct in El Nino years). Haze cuts solar radiation, suppresses photosynthesis, and reduces latex flow across whole regions.
+
+## Cause
+
+- **Cool nights** (\< 18 C sustained) at highland sites (\> 400 m elevation)
+- **Transboundary haze** with API/PSI \> 150 for 2\+ weeks
+- **Reduced solar radiation** during prolonged overcast periods
+
+## Effect
+
+| Event | Effect |
+| --- | --- |
+| Cold nights | Latex flow reduction (10 to 20%), delayed refoliation |
+| Moderate haze (API 100-200) | Solar radiation reduced 10 to 20%, latex flow -5 to -10% |
+| Severe haze (API \> 200) | Solar radiation reduced 30 to 50%, latex flow -15 to -30%, delayed wintering recovery |
+| Prolonged haze (\> 3 weeks) | Canopy thinning, elevated CLF risk (weakened trees) |
+
+Field signs:
+
+- Latex flow drop across the whole estate (not localized)
+- Grey ash deposit on canopy after major haze episodes
+- Delayed refoliation in the following season
+- Reduced DRC (dry rubber content)
+
+## Satellite signals
+
+| Index | What to watch | Notes |
+| --- | --- | --- |
+| NDVI | Slight dip during haze | Small, region-wide |
+| PAR (photosynthetically active radiation) | Direct drop | Best indicator; use ERA5 or MODIS |
+| Aerosol optical depth (AOD) | Direct haze measure | Confirms cause |
+| LST | Suppressed daytime temperature | Confirms overcast |
+
+## Action
+
+<Steps>
+  <Step title="Confirm the cause">
+    Check API/PSI readings and satellite AOD. Haze is region-wide, not block-specific, so if only one block is affected, look elsewhere (drought, disease).
+  </Step>
+  <Step title="Reduce tapping intensity">
+    During prolonged haze, switch from d/2 to d/3 to conserve tree reserves and prevent TPD.
+  </Step>
+  <Step title="Postpone stimulation">
+    Do not apply ethephon during haze; trees cannot recover the stored photosynthates.
+  </Step>
+  <Step title="Monitor for CLF post-haze">
+    Weakened trees are more susceptible to [Corynespora leaf fall](/guides/Crop/Rubber/biotic/diseases/corynespora) in the refoliation window following haze.
+  </Step>
+</Steps>
+
+## Recommended alert settings
+
+| Trigger | Condition | Severity |
+| --- | --- | --- |
+| Haze | API \> 150 for 7\+ days | Medium |
+| Severe haze | API \> 200 for 7\+ days | High |
+| Solar radiation | PAR \< 70% of baseline for 14\+ days | Medium |
+| Cold night (highland only) | \< 18 C for 5\+ consecutive nights | Low |
+
+## Related
+
+- [Corynespora leaf fall](/guides/Crop/Rubber/biotic/diseases/corynespora)
+- [Tapping Panel Dryness](/guides/Crop/Rubber/biotic/tpd)
+- [Rubber Diagnosis](/guides/Crop/Rubber/rubber-diagnosis)

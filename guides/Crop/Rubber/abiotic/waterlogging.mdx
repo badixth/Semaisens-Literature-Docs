@@ -1,0 +1,78 @@
+---
+title: "Waterlogging Stress in Rubber"
+sidebarTitle: "Waterlogging"
+description: "How prolonged waterlogging damages rubber roots, elevates root-disease risk, and the drainage and monitoring actions to take on coastal lowland and poorly-drained blocks."
+---
+
+Rubber tolerates short-term flooding but is highly sensitive to prolonged waterlogging (\> 3 days). Roots suffocate, feeder roots die, and the tree becomes highly susceptible to root diseases. Coastal lowland blocks on alluvial clay (Kedah, Bagan Datuk, coastal Selangor) and inland blocks with blocked drainage are the highest risk.
+
+## Cause
+
+- **Prolonged monsoon rain** (northeast monsoon Nov-Feb) on flat blocks
+- **Blocked or silted drainage** in mature stands (drains not maintained)
+- **Clay subsoil** creating a perched water table
+- **Low-lying blocks** near rivers or in coastal reclaimed land
+- **Compaction** from heavy machinery (harvester tractors, replanting equipment)
+
+## Effect
+
+| Duration | Effect |
+| --- | --- |
+| \< 3 days | Recoverable; temporary NDVI dip only |
+| 3 to 7 days | Feeder root death, yellowing older leaves, latex flow reduction |
+| 1 to 3 weeks | Significant root loss, canopy thinning, elevated white/red root risk |
+| \> 3 weeks | Tree death likely, block-scale mortality in low spots |
+
+Field signs:
+
+- Standing water in furrows and inter-rows 24\+ hours after rain
+- Yellowing older leaves progressing to whole canopy
+- Reduced latex flow, watery latex
+- Root collar rot (soft, black, foul-smelling)
+- Elevated incidence of [white root](/guides/Crop/Rubber/biotic/diseases/white-root) and [red root](/guides/Crop/Rubber/biotic/diseases/red-root) 3 to 6 months after waterlogging events
+
+## Satellite signals
+
+| Index | What to watch | Threshold |
+| --- | --- | --- |
+| NDWI | Sharp rise (indicates surface water) | \+0.08 vs baseline |
+| NDVI | Delayed dip 2 to 4 weeks after waterlogging | -0.05 sustained |
+| NDRE | Sensitive to canopy stress before NDVI | -0.03 sustained |
+| Sentinel-1 SAR | Surface water detection under cloud | Direct backscatter signal |
+
+Waterlogging often coincides with heavy cloud cover, so radar (Sentinel-1) is more reliable than optical during monsoon.
+
+## Action
+
+<Steps>
+  <Step title="Clear the drains first">
+    Before diagnosing anything else, walk the block boundary and inspect the main drains. Silted or blocked drains cause 80% of waterlogging events on mature blocks.
+  </Step>
+  <Step title="Inspect low spots and map the extent">
+    Use the [Field Walk Protocol](/guides/Crop/Rubber/field-walk-protocol). Record standing-water depth and duration, and mark trees showing yellowing.
+  </Step>
+  <Step title="Root-disease sweep 2 months later">
+    Waterlogged blocks have elevated root-disease risk. Schedule a targeted [white root](/guides/Crop/Rubber/biotic/diseases/white-root) sweep 8 to 12 weeks after the event, focused on the affected zones.
+  </Step>
+  <Step title="Long-term drainage">
+    On chronic blocks, cut secondary drains or install subsurface drainage. In replanting, install a proper drainage grid before planting.
+  </Step>
+  <Step title="Suspend tapping on severely affected trees">
+    Trees with confirmed root collar rot should not be tapped. Rest the panel and consider felling if canopy loss exceeds 50%.
+  </Step>
+</Steps>
+
+## Recommended alert settings
+
+| Trigger | Condition | Severity |
+| --- | --- | --- |
+| Rainfall | \> 150 mm in 48 hours on flat/coastal block | Medium |
+| Sentinel-1 SAR | Surface-water detection on coastal block | High |
+| NDVI post-event | -0.05 sustained 14 days after rain event | Medium |
+| Root-disease follow-up | Automatic 8-week reminder after any waterlogging alert | Medium |
+
+## Related
+
+- [White root disease](/guides/Crop/Rubber/biotic/diseases/white-root)
+- [Red root disease](/guides/Crop/Rubber/biotic/diseases/red-root)
+- [Rubber Diagnosis](/guides/Crop/Rubber/rubber-diagnosis)

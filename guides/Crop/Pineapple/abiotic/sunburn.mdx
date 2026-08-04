@@ -1,0 +1,57 @@
+---
+title: "Diagnose and Respond to Sunburn in Pineapple"
+sidebarTitle: "Sunburn"
+description: "Identify sunburn in pineapple from bleached leaf tissue and sun-scalded fruit shoulders on exposed rows, and reduce damage with fruit covering, shading, and row orientation."
+---
+
+Sunburn damages both leaves and fruit on pineapple when high radiation combines with drought, low humidity, or reduced canopy cover. Fruit sunburn is the yield-critical form: it downgrades fresh-market fruit and creates entry points for rots. Sunburn is not a disease but is often mistaken for one.
+
+**Regional priority:** High on exposed sites, thin canopies, ratoon blocks (uneven cover), and any block with fruit exposed to direct afternoon sun.
+
+## When pineapple is most vulnerable
+
+Most damaging during **fruit development and ripening (months 14 to 22)**, especially the west-facing rows and outer rows. Also affects immature plants during establishment on BRIS or open sites.
+
+## How sunburn shows in satellite data
+
+- Not directly detectable at Sentinel scale in most cases; damage is on individual fruit shoulders.
+- On drone or very-high-resolution imagery, bleached leaves show as brighter reflectance on west-facing rows.
+- **Indirect indicator**: sustained high solar radiation \+ low NDWI over the block during fruit development is a sunburn risk signal.
+- Confirm on the ground.
+
+## Field symptoms
+
+- **Bleached, papery patches** on leaves exposed to the sun (west or south side)
+- **Sun-scalded fruit shoulders** - the upper, sun-facing side of the fruit turns pale, then brown, then leathery
+- **Cracked fruit skin** on the scalded area, often followed by [black rot](/guides/Crop/Pineapple/biotic/diseases/black-rot)
+- **Corky, tough flesh** below the scalded skin
+- Damage concentrated on **west-facing rows and outer rows**
+
+## Reduce the damage by
+
+- **Cover fruit with dried leaves** tied over the fruit shoulders (traditional method, effective and cheap).
+- **Use paper or fabric fruit covers** on export-quality MD2 and Josapine.
+- **Plant rows north-south** where possible; east-west rows expose fruit to direct afternoon sun.
+- **Maintain full canopy** - avoid excessive N late in the cycle that causes older leaves to lean out and expose fruit.
+- **Kaolin-clay spray** on fruit shoulders reduces radiation load on high-value blocks.
+- **Time forcing** so fruit development avoids the hottest, driest weeks of the year where possible.
+- **Irrigate during heat spells** - well-watered plants transpire and cool the fruit; dry plants overheat.
+
+## Set an alert for early warning
+
+<Tip>
+  Turn the diagnosis into a trigger. Sunburn risk correlates with radiation and evaporation, not NDVI, so use weather and canopy-cover signals.
+</Tip>
+
+Recommended settings for sunburn on pineapple:
+
+- **Weather alert** - 3 or more consecutive days with maximum air temperature above 34 C and solar radiation above 25 MJ/m2/day during fruit development.
+- **Canopy-cover alert** - trigger on blocks with NDVI below the mid-fruit-development baseline (indicates exposed fruit).
+- **Fruit-cover reminder** - schedule a walk-through 2 weeks after forcing to install fruit covers on all west-facing rows.
+
+## Related
+
+- [Pineapple Diagnosis](/guides/Crop/Pineapple/pineapple-diagnosis)
+- [Drought](/guides/Crop/Pineapple/abiotic/drought) - drought raises sunburn risk.
+- [Black rot](/guides/Crop/Pineapple/biotic/diseases/black-rot) - often follows sunburn cracks.
+- [Set up automated crop alerts](/guides/alerts-notifications)

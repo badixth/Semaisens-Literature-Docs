@@ -1,0 +1,78 @@
+---
+title: "Wind and Lightning Damage in Rubber"
+sidebarTitle: "Wind & Lightning"
+description: "How storms, squall lines, and lightning strikes damage rubber stands, how to detect the pattern, and the post-storm inspection and salvage decisions."
+---
+
+Mature rubber trees (15 to 25 m tall) are the tallest structures in many landscapes and are highly vulnerable to strong winds and lightning strikes. Sumatran squalls (Aug to Nov) and thunderstorms during the monsoon transitions cause the most damage. Losses are highly localized (line or cluster) but can wipe out large fractions of a block in a single event.
+
+## Cause
+
+- **Sumatran squalls** (Aug-Nov, sudden 60\+ km/h winds from the west)
+- **Thunderstorm downdrafts** during monsoon transitions (Apr-May, Oct-Nov)
+- **Lightning strikes** direct on tall trees, often propagating to 5 to 15 neighbors via root grafts
+- **Shallow root systems** on compacted or waterlogged soil (uprooting)
+- **Over-tapped trees** with weakened trunks (snapping at the panel)
+- **Panel-utilized trees** near replanting age (structural weakness)
+
+## Effect
+
+| Damage type | Symptom | Recovery |
+| --- | --- | --- |
+| Windthrow (uprooting) | Whole tree on the ground, roots exposed | Not recoverable; fell and replant |
+| Snapping at panel | Trunk broken at the tapping cut | Not recoverable; fell |
+| Snapping at fork | Upper canopy lost, trunk intact | Partial recovery over 2 to 3 years, reduced yield |
+| Branch loss | Lateral branches broken | Full recovery, temporary yield loss |
+| Lightning strike | Circular cluster of 5 to 15 dead trees, bark scorched | Not recoverable; fell and replant |
+
+Field signs:
+
+- Line of snapped or leaning trees along the wind direction
+- Circular cluster of dead trees with no visible pathogen (lightning signature)
+- Bark scorching on the strike tree
+- Latex flow zero on affected trees within days
+
+## Satellite signals
+
+| Index | What to watch | Threshold |
+| --- | --- | --- |
+| NDVI | Sharp localized drop (line or circle) | -0.15 sudden |
+| High-res imagery | Visible gaps in canopy | Direct observation |
+| Sentinel-1 SAR | Canopy texture change | Direct backscatter drop |
+
+Wind damage is best detected by comparing before/after high-res imagery. NDVI drops are localized and easy to miss at block-scale averages.
+
+## Action
+
+<Steps>
+  <Step title="Inspect within 48 hours of a storm">
+    Run the [Field Walk Protocol](/guides/Crop/Rubber/field-walk-protocol) on any block with a wind/lightning alert. Walk boundaries and high-exposure lines first.
+  </Step>
+  <Step title="Salvage the tappable panel">
+    On snapped trees where the trunk is intact below the panel, complete the last few taps to salvage latex before the tree dries out.
+  </Step>
+  <Step title="Fell and remove">
+    Fell dead and severely damaged trees. Remove wood from the block within 30 days to prevent it becoming a [white root](/guides/Crop/Rubber/biotic/diseases/white-root) reservoir.
+  </Step>
+  <Step title="Mark lightning circles">
+    Lightning kills a circular cluster (5 to 15 trees) via root grafts. Mark the whole circle for felling, not just the strike tree.
+  </Step>
+  <Step title="Replant gaps">
+    Small gaps can be under-planted with the same clone if the block is \< 15 years old. Larger gaps wait for the next replanting cycle.
+  </Step>
+</Steps>
+
+## Recommended alert settings
+
+| Trigger | Condition | Severity |
+| --- | --- | --- |
+| Wind gust | \> 60 km/h recorded within 20 km | High |
+| Lightning strike | Detected within block boundary (from lightning-detection network) | High |
+| NDVI sudden drop | -0.15 localized after storm event | High |
+| Post-storm reminder | 48-hour scout dispatch after any wind/lightning alert | Automatic |
+
+## Related
+
+- [White root disease](/guides/Crop/Rubber/biotic/diseases/white-root) (post-storm risk from broken stumps)
+- [Rubber Diagnosis](/guides/Crop/Rubber/rubber-diagnosis)
+- [Field Walk Protocol](/guides/Crop/Rubber/field-walk-protocol)

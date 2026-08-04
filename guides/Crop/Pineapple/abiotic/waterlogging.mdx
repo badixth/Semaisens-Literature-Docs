@@ -1,0 +1,62 @@
+---
+title: "Diagnose and Respond to Waterlogging in Pineapple"
+sidebarTitle: "Waterlogging"
+description: "Identify waterlogging in pineapple from wet-spot yellowing, root asphyxiation, and secondary Phytophthora heart rot, and reduce damage with drainage, raised beds, and mulch management."
+---
+
+Pineapple is intolerant of standing water at the root zone. Its shallow fibrous root system asphyxiates within 24 to 48 hours of saturation, and prolonged wet feet is the single biggest predisposing factor for **Phytophthora heart rot** and **root rot**. Waterlogging damage is usually clustered in visible wet spots and along low ground.
+
+**Regional priority:** High on flat blocks with poor lateral drainage, coastal alluvial, peat with clogged canals, and any block after cyclonic rain.
+
+## When pineapple is most vulnerable
+
+At all phases, but the worst yield loss is at **establishment** (slip and sucker rot) and during **late vegetative to fruit development** when heart rot outbreaks kill mature plants. Waterlogging after forcing is particularly damaging because plants cannot recover before harvest.
+
+## How waterlogging shows in satellite data
+
+- **Sudden localized NDVI drop** in visible depressions and wet spots after heavy rain.
+- **NDWI stays high** in the same zones while surrounding beds dry.
+- Pattern **follows topography and drainage lines**, not soil type or crop age.
+- Recovery is slow (weeks) if the water drains within 48 hours; permanent if not.
+
+<Warning>
+  Any pineapple wet-spot cluster should be treated as a heart rot risk within 48 hours. Do not wait for satellite confirmation; walk the block and heart-pull.
+</Warning>
+
+## Field symptoms
+
+- **Standing water in furrows** 24 hours after rain
+- **Yellowing older leaves** in the low-lying zone, older plants first
+- **Wilted rosettes despite wet soil** - classic root asphyxiation
+- **Collapsed plants** with black, mushy roots or basal rot
+- **Heart rot cluster** developing 3 to 7 days after the wet event
+- **Silt or scum layer** on the plastic mulch after floodwater recedes
+
+## Reduce the damage by
+
+- **Design drainage first** - lateral drains every 30 to 50 m on flat land, main drains sized for peak rainfall.
+- **Plant on raised beds** at least 20 to 30 cm above the furrow.
+- **Keep canals clear** on peat and coastal blocks; block them and Phytophthora will follow.
+- **Avoid compaction traffic** on wet blocks; compacted layers hold water at the root zone.
+- **Contour cross-drains** on gentle slopes prevent runoff pooling.
+- **Apply preventive fosetyl-Al or metalaxyl** on high-risk blocks before the wet season.
+- After a flood event: **walk the block within 48 hours**, mark and destroy any heart-rot plants, and improve drainage before replanting the gaps.
+
+## Set an alert for early warning
+
+<Tip>
+  Turn the diagnosis into a trigger. Waterlogging is fast; the useful alert combines rainfall and NDWI so you can dispatch a scout within 24 to 48 hours.
+</Tip>
+
+Recommended settings for waterlogging on pineapple:
+
+- **Weather alert** - rainfall greater than 50 mm in 24 hours, or greater than 100 mm in 72 hours.
+- **NDWI alert** - trigger when zone-level NDWI rises 0.10 or more above the block average and stays elevated for 2 passes.
+- **NDVI drop follow-up** - trigger on a 0.08 or greater NDVI drop in a specific zone within 2 weeks of a rainfall event.
+
+## Related
+
+- [Pineapple Diagnosis](/guides/Crop/Pineapple/pineapple-diagnosis)
+- [Heart rot](/guides/Crop/Pineapple/biotic/diseases/heart-rot) - the fastest killer that follows waterlogging.
+- [Root rot](/guides/Crop/Pineapple/biotic/diseases/root-rot) - chronic consequence of poor drainage.
+- [Set up automated crop alerts](/guides/alerts-notifications)

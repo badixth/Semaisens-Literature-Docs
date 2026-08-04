@@ -1,0 +1,80 @@
+---
+title: "Drought Stress in Rubber"
+sidebarTitle: "Drought"
+description: "How drought manifests on Hevea rubber, why NDWI and CWSI lead NDVI on closed canopies, and the field actions to take on immature and mature stands."
+---
+
+Rubber (_Hevea brasiliensis_) tolerates a defined dry season (2 to 4 months) but suffers on prolonged drought, especially during El Nino years. Immature blocks (year 1 to 3) die outright; mature tapped blocks show reduced latex flow, delayed refoliation, and higher TPD incidence in the following season.
+
+## Cause
+
+- **El Nino dry spells** in Malaysia (2015-16, 2019, 2023) with rainfall below 100 mm/month for 3\+ months.
+- **Sandy or shallow soils** with poor water-holding capacity.
+- **Slope aspect** on hilly blocks (west and south faces dry faster).
+- **Immature blocks** (year 0 to 3) with shallow root systems and open canopy.
+- **Over-tapping** compounds drought stress by depleting stored photosynthates.
+
+## Effect
+
+| Stand age | Effect |
+| --- | --- |
+| 0 to 1 year | Seedling wilt and death; establishment failure |
+| 1 to 3 years | Growth arrest, defoliation, dieback of tender shoots |
+| 3 to 5 years (pre-tapping) | Delayed canopy closure, reduced girth increment |
+| 5\+ years (tapped) | Latex flow drop (10 to 40%), lower DRC, delayed wintering recovery, higher TPD next season |
+
+Field signs:
+
+- Wilting of young leaves in immature blocks
+- Premature leaf yellowing and drop out of wintering window
+- Latex "pre-coagulation" in the tapping cup (latex clots before collection)
+- Reduced latex flow duration (drying up within 1 to 2 hours instead of 3 to 4)
+- Bark shrinkage and cracking on the tapping panel
+
+## Satellite signals
+
+**NDWI and CWSI lead NDVI by 2 to 4 weeks on closed rubber canopies.** NDVI saturates on mature rubber; use it only for immature blocks or catastrophic drought.
+
+| Index | What to watch | Threshold |
+| --- | --- | --- |
+| NDWI | Drop below block baseline | -0.05 vs same block year-over-year |
+| CWSI | Rise above baseline | \> 0.4 sustained for 2 weeks |
+| NDRE | Decline on tapped blocks | -0.03 vs baseline |
+| NDVI | Immature-block collapse | -0.10 sustained |
+| LST (land surface temp) | Canopy warming | \> 3 C above block baseline |
+
+## Action
+
+<Steps>
+  <Step title="Confirm the pattern">
+    Cross-check NDWI/CWSI with local rainfall records. Walk the block using the [Field Walk Protocol](/guides/Crop/Rubber/field-walk-protocol) and look for wilting, pre-coagulation, and panel cracking.
+  </Step>
+  <Step title="Immature blocks: irrigate or mulch">
+    Ring-mulch young trees with legume cuttings or EFB. If irrigation is available, prioritize year 1 to 2 blocks. Expect 20 to 40% mortality on unwatered year-1 blocks after 3 months of severe drought.
+  </Step>
+  <Step title="Tapped blocks: reduce tapping intensity">
+    Switch from d/2 (every 2 days) to d/3 or d/4 during severe drought. Suspend stimulation (ethephon) until refoliation. Continued heavy tapping under drought is the top cause of TPD in the following season.
+  </Step>
+  <Step title="Cover the ground">
+    Maintain legume cover crops on immature blocks. On mature blocks, leaf litter is the main mulch; do not rake or burn.
+  </Step>
+  <Step title="Monitor recovery">
+    After rain returns, expect 4 to 8 weeks for NDWI/NDRE to recover. Latex flow recovers within 2 weeks. If flow does not recover on individual trees, suspect [TPD](/guides/Crop/Rubber/biotic/tpd).
+  </Step>
+</Steps>
+
+## Recommended alert settings
+
+| Trigger | Condition | Severity |
+| --- | --- | --- |
+| NDWI drop | -0.05 vs baseline sustained 14 days | Medium |
+| CWSI rise | \> 0.4 sustained 14 days | Medium |
+| Rainfall deficit | \< 100 mm/month for 2\+ consecutive months | Medium |
+| Rainfall deficit | \< 100 mm/month for 3\+ consecutive months | High |
+| Immature-block NDVI | -0.10 sustained 21 days on year 0-3 block | High |
+
+## Related
+
+- [Rubber Diagnosis](/guides/Crop/Rubber/rubber-diagnosis)
+- [Tapping Panel Dryness](/guides/Crop/Rubber/biotic/tpd)
+- [Rubber ecosystems (NDVI baselines)](/guides/Crop/Rubber/rubber-ecosystems)

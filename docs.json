@@ -175,8 +175,120 @@
                   }
                 ]
               },
-              "guides/Crop/pineapple-ecosystems",
-              "guides/Crop/rubber-ecosystems",
+              {
+                "group": "Pineapple",
+                "icon": "apple-whole",
+                "pages": [
+                  "guides/Crop/Pineapple/pineapple-ecosystems",
+                  "guides/Crop/Pineapple/pineapple-diagnosis",
+                  "guides/Crop/Pineapple/field-walk-protocol",
+                  {
+                    "group": "Biotic Stress",
+                    "pages": [
+                      {
+                        "group": "Diseases",
+                        "pages": [
+                          "guides/Crop/Pineapple/biotic/diseases/heart-rot",
+                          "guides/Crop/Pineapple/biotic/diseases/root-rot",
+                          "guides/Crop/Pineapple/biotic/diseases/fusariosis",
+                          "guides/Crop/Pineapple/biotic/diseases/black-rot",
+                          "guides/Crop/Pineapple/biotic/diseases/mealybug-wilt",
+                          "guides/Crop/Pineapple/biotic/diseases/nematodes"
+                        ]
+                      },
+                      {
+                        "group": "Insect Pests",
+                        "pages": [
+                          "guides/Crop/Pineapple/biotic/insects/mealybugs",
+                          "guides/Crop/Pineapple/biotic/insects/thrips",
+                          "guides/Crop/Pineapple/biotic/insects/mites",
+                          "guides/Crop/Pineapple/biotic/insects/symphylids",
+                          "guides/Crop/Pineapple/biotic/insects/scale"
+                        ]
+                      },
+                      "guides/Crop/Pineapple/biotic/weeds"
+                    ]
+                  },
+                  {
+                    "group": "Abiotic Stress",
+                    "pages": [
+                      "guides/Crop/Pineapple/abiotic/drought",
+                      "guides/Crop/Pineapple/abiotic/waterlogging",
+                      "guides/Crop/Pineapple/abiotic/sunburn",
+                      "guides/Crop/Pineapple/abiotic/chilling",
+                      "guides/Crop/Pineapple/abiotic/wind-lodging",
+                      "guides/Crop/Pineapple/abiotic/salinity"
+                    ]
+                  },
+                  {
+                    "group": "Nutrient Disorders",
+                    "pages": [
+                      "guides/Crop/Pineapple/nutrient/nitrogen",
+                      "guides/Crop/Pineapple/nutrient/potassium",
+                      "guides/Crop/Pineapple/nutrient/magnesium",
+                      "guides/Crop/Pineapple/nutrient/iron",
+                      "guides/Crop/Pineapple/nutrient/zinc",
+                      "guides/Crop/Pineapple/nutrient/calcium",
+                      "guides/Crop/Pineapple/nutrient/boron"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Rubber",
+                "icon": "tree",
+                "pages": [
+                  "guides/Crop/Rubber/rubber-ecosystems",
+                  "guides/Crop/Rubber/rubber-diagnosis",
+                  "guides/Crop/Rubber/field-walk-protocol",
+                  {
+                    "group": "Biotic Stress",
+                    "pages": [
+                      {
+                        "group": "Diseases",
+                        "pages": [
+                          "guides/Crop/Rubber/biotic/diseases/white-root",
+                          "guides/Crop/Rubber/biotic/diseases/red-root",
+                          "guides/Crop/Rubber/biotic/diseases/brown-root",
+                          "guides/Crop/Rubber/biotic/diseases/corynespora",
+                          "guides/Crop/Rubber/biotic/diseases/pestalotiopsis",
+                          "guides/Crop/Rubber/biotic/diseases/powdery-mildew",
+                          "guides/Crop/Rubber/biotic/diseases/black-stripe",
+                          "guides/Crop/Rubber/biotic/diseases/pink-disease"
+                        ]
+                      },
+                      {
+                        "group": "Insect Pests",
+                        "pages": [
+                          "guides/Crop/Rubber/biotic/insects/termites",
+                          "guides/Crop/Rubber/biotic/insects/bark-scale"
+                        ]
+                      },
+                      "guides/Crop/Rubber/biotic/tpd",
+                      "guides/Crop/Rubber/biotic/weeds"
+                    ]
+                  },
+                  {
+                    "group": "Abiotic Stress",
+                    "pages": [
+                      "guides/Crop/Rubber/abiotic/drought",
+                      "guides/Crop/Rubber/abiotic/waterlogging",
+                      "guides/Crop/Rubber/abiotic/wind",
+                      "guides/Crop/Rubber/abiotic/cold-haze"
+                    ]
+                  },
+                  {
+                    "group": "Nutrient Disorders",
+                    "pages": [
+                      "guides/Crop/Rubber/nutrient/nitrogen",
+                      "guides/Crop/Rubber/nutrient/phosphorus",
+                      "guides/Crop/Rubber/nutrient/potassium",
+                      "guides/Crop/Rubber/nutrient/magnesium",
+                      "guides/Crop/Rubber/nutrient/calcium"
+                    ]
+                  }
+                ]
+              },
               "guides/field-scouting",
               "guides/prescription-maps",
               "guides/seasonal-analysis",

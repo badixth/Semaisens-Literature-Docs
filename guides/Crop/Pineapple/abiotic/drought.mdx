@@ -1,0 +1,63 @@
+---
+title: "Diagnose and Respond to Drought Stress in Pineapple"
+sidebarTitle: "Drought"
+description: "Identify drought stress in pineapple from leaf tip die-back, reduced D-leaf length, and delayed forcing response, and reduce damage with mulching, irrigation, and cycle timing."
+---
+
+Pineapple is a CAM crop with a shallow, fibrous root system and a thick waxy cuticle. It tolerates short dry spells better than most tropical crops but suffers hidden yield loss under prolonged water deficit, especially between late vegetative growth and fruit development. Drought symptoms appear on the leaves before satellite NDVI reacts because CAM physiology closes stomata and slows growth without changing chlorophyll rapidly.
+
+**Regional priority:** High on sandy coastal and BRIS soils, moderate on mineral upland, low on well-drained peat with a stable water table.
+
+## When pineapple is most vulnerable
+
+Most damaging from **late vegetative (month 8) through fruit development (month 18)**. Water deficit at forcing causes small, misshapen fruit; water deficit during fruit filling reduces fruit weight and sugar. Establishment drought (first 3 months) causes patchy stands and slip failure.
+
+## How drought shows in satellite data
+
+- **NDWI drops first**, typically 2 to 4 weeks before NDVI moves. Use NDWI as the primary drought signal on pineapple.
+- **CWSI rises** as canopy temperature climbs above air temperature.
+- **NDVI decline is delayed and shallow** because CAM plants keep leaves green under moderate stress. A visible NDVI drop means severe or prolonged deficit.
+- Pattern is typically block-wide, matches rainfall records, and is more severe on sandy or shallow soils.
+
+<Warning>
+  Do not wait for NDVI to drop before acting on drought in pineapple. NDVI is a lagging indicator. Trigger irrigation and shade decisions on NDWI, CWSI, or soil moisture.
+</Warning>
+
+## Field symptoms
+
+- **Leaf tip die-back** on older leaves, progressing inward
+- **Reduced D-leaf length** compared with same-age plants on irrigated blocks
+- **Red-purple flush** on exposed leaves in prolonged dry weather
+- **Delayed response to forcing** chemicals; uneven flowering
+- **Small, tapered fruit** with poor shoulder fill
+- **Sunburn risk rises** as leaf cover reduces
+- Roots stay shallow and few new feeder roots form
+
+## Reduce the damage by
+
+- **Plastic mulch on all beds** - the single largest water conservation tool on pineapple.
+- **Drip irrigation under the mulch** where infrastructure allows; broadcast overhead irrigation is inefficient on plastic mulch.
+- **Time forcing to a wet-season window** so fruit development coincides with reliable rainfall.
+- **Increase K in late vegetative fertilization** - K improves stomatal control and drought tolerance.
+- **Avoid N top-dressing during dry spells** - N without water pushes soft growth that burns.
+- **Delay planting** on BRIS or shallow soils if the season starts dry.
+- **Windbreaks** on exposed BRIS sites reduce leaf transpiration.
+
+## Set an alert for early warning
+
+<Tip>
+  Turn the diagnosis into a trigger. Because NDVI lags, build the drought alert on NDWI and rainfall.
+</Tip>
+
+Recommended settings for drought on pineapple:
+
+- **NDWI threshold alert** - trigger when block NDWI drops 0.10 or more below the phase baseline for 2 consecutive passes.
+- **Weather alert** - 14 or more consecutive days below 50% of long-term rainfall during months 8 to 18.
+- **CWSI trend alert** - trigger when the block's CWSI rises above 0.4 on any pass during fruit development.
+
+## Related
+
+- [Pineapple Diagnosis](/guides/Crop/Pineapple/pineapple-diagnosis)
+- [Healthy NDVI ranges for pineapple](/guides/Crop/Pineapple/pineapple-ecosystems) - phase baselines to compare against.
+- [Sunburn](/guides/Crop/Pineapple/abiotic/sunburn) - drought raises sunburn risk.
+- [Set up automated crop alerts](/guides/alerts-notifications)
