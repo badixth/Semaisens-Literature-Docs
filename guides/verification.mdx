@@ -137,6 +137,18 @@ Estate managers can verify many events at once. Under **Verifications → Bulk**
 
 Each event still carries its own verification line and hash inside the bundle; the bulk wrapper just handles the transmission.
 
+## Bundle cadence by cycle model
+
+The natural boundary for a verification bundle depends on the crop's `cycle_model`. See [Crop Cycle Models](/concepts/crop-cycle-models) for the full family definitions.
+
+| Cycle model | Bundle boundary | Typical trigger |
+| --- | --- | --- |
+| **Cyclical** (rice, corn, groundnut) | One Season = one bundle | Harvest complete; subsidy or takaful window opens. Bundle spans planting to harvest. |
+| **Perennial** (oil palm, rubber, coconut) | One month or one quarter = one bundle | Estate book-close. Bundle covers all FFB tally sheets, tapping logs, and applied maps within the period. |
+| **Rolling continuous** (pineapple, banana) | One Planting Batch = one bundle | Batch harvest complete. Each Batch is its own claim unit, independent of other batches on the same Field. |
+
+The platform picks the default cadence from `cycle_model` when the bundle is created; estate admins can override under **Verifications \> Settings \> Bundle Cadence**. Overriding a cyclical crop to monthly (or a perennial to per-season) is supported but flagged with a warning because it can misalign with the receiving agency's expected schedule.
+
 ## Related
 
 - [Verification Model](/concepts/verification-model) - the cross-check math, hashing, and bundle schema.
@@ -145,3 +157,4 @@ Each event still carries its own verification line and hash inside the bundle; t
 - [Activity & Alerts](/guides/activity-and-alerts) - the source feed for every verifiable event.
 - [Activity Log](/guides/activity-log) - export a full-season Gantt view for agency audit trails.
 - [Estate Group](/guides/estate-group) - set default preset bundles once per estate so field-level exports pick the right format automatically.
+- [Crop Cycle Models](/concepts/crop-cycle-models) - the source of truth for bundle cadence per crop.

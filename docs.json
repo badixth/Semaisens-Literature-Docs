@@ -45,6 +45,7 @@
               "concepts/remote-sensing",
               "concepts/indices",
               "concepts/field-data-model",
+              "concepts/crop-cycle-models",
               "concepts/imagery-sources",
               "concepts/risk-model",
               "concepts/verification-model",
@@ -55,6 +56,14 @@
             "group": "Guides",
             "pages": [
               "guides/crop-health-monitoring",
+              {
+                "group": "Fields Workspace",
+                "icon": "chart-line",
+                "pages": [
+                  "guides/fields-workspace/overview",
+                  "guides/fields-workspace/analytics-tabs"
+                ]
+              },
               {
                 "group": "Rice",
                 "icon": "wheat-awn",

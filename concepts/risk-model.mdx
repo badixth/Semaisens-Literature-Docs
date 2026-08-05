@@ -115,6 +115,10 @@ rule_card:
     - booting
     - heading
 
+  season_type_filter:               # optional. cyclical crops only. Fire only in
+    include:                        # matching Season Types; omit to fire in any.
+      - "Off Season"                # e.g., BLB pressure is higher in Off Season.
+
   drivers:                          # inputs the engine evaluates
     - name: leaf_wetness_hours_7d
       op: ">"
@@ -211,6 +215,7 @@ rule_card:
 | `id` | Stable identifier used by the engine, API, and advisor. |
 | `crop`, `category` | Route the rule to the right crop and section of the literature. |
 | `stage_window` | Gates evaluation to the phenology stages where the rule is meaningful. A booting-stage rule should not fire at emergence. |
+| `season_type_filter` | Optional. Cyclical crops only. Fires only inside matching Season Types (e.g., `Off Season` for hazards concentrated in that cycle). Omit to fire in any Season Type. See [Crop Cycle Models](/concepts/crop-cycle-models). |
 | `drivers` | Machine-readable version of the "How it shows in satellite data" and "When rice is most vulnerable" sections. Each driver names a signal, comparison operator, threshold, and weight. |
 | `severity` | Converts driver hits into a normalized score and severity band (low / medium / high) surfaced on the Risk Monitoring card. |
 | `yield_impact` | Layered per-stage loss table. Used to compute "yield at risk %" and "estimated loss (t)" once field area and expected yield are known. See [Yield-impact layers](#yield-impact-layers) below. |
@@ -363,3 +368,5 @@ This structure is what makes the advisor useful in the field: the operator never
 - [Alerts](/guides/alerts-notifications) - user-facing alert types and delivery.
 - [Rice Blast](/guides/Crop/Rice/biotic/diseases/blast) - reference page with a fully populated `rule_card:` example.
 - [Aggregation Model](/concepts/aggregation-model) - how rule card counts and areas roll up to estate, regional, and national dashboards.
+- [Fields Workspace](/guides/fields-workspace/overview) - the operator view where rule-card findings are read and acted on.
+- [Crop Cycle Models](/concepts/crop-cycle-models) - Season Type vocabulary that `season_type_filter` gates on.

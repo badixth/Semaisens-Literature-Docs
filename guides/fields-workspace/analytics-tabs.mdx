@@ -1,0 +1,179 @@
+---
+title: "Analytics Tabs Reference: Trend, Distribution, Findings, Captures, Compare, Actions"
+sidebarTitle: "Analytics Tabs"
+description: "Deep reference for the six analytics tabs under the Fields Workspace map: what each tab shows, how to read it, and when to use it."
+---
+
+Every analytics tab in the [Fields Workspace](/guides/fields-workspace/overview) is a projection over the same selected Field, Season, Block scope, index, and pass date. Nothing here is a new data source. Use this page as the reference for what each tab shows, how to read it, and which decisions it supports.
+
+<Note>
+  Every tab respects the current scope: Field, Season, Block filter, active index, and pass date from the time scrubber. Change any of them and the tab redraws.
+</Note>
+
+## Trend
+
+The seasonal time series for the current Field or Block scope, plotted with phenology bands.
+
+**What it shows**
+
+- One line per active index (default: the index selected in the layer switcher, plus NDMI as a companion when available).
+- Confidence band (P10 to P90) around each line. Wider band means fewer clear passes in that window.
+- Vertical phenology bands (emergence, tillering, booting, heading, ripening) from the [Risk Model](/concepts/risk-model) phenology clock.
+- Dots for satellite passes; hollow dots for cloud-blocked passes.
+- Markers for scout completions and applied VRA maps overlaid on the timeline.
+
+**How to read it**
+
+| Pattern | Likely meaning |
+| --- | --- |
+| Smooth rise then plateau | Healthy canopy development matching the phenology model |
+| Sharp local dip | Weather event or biotic incident. Cross-reference **Findings** and **Actions**. |
+| Persistent under-band | Chronic stress. Check `ecosystem` and `variety_group` on the [Field record](/concepts/field-data-model#fields). |
+| Widening confidence band mid-season | Cloud debt. Consider adding drone captures. |
+
+**Best for**: retrospective review, season-over-season comparison (pair with **Compare** tab), yield-projection sanity checks.
+
+## Distribution
+
+The per-pixel histogram of the selected index for the currently selected pass.
+
+**What it shows**
+
+- X axis: index value (e.g., NDVI `-1` to `+1`).
+- Y axis: pixel count within the current Field or Block scope.
+- Colored bands aligned with the map legend so a color on the map maps to a bucket on the histogram.
+- Optional overlay: the same distribution from the previous pass (dashed line), so you can see the shift.
+
+**How to read it**
+
+| Shape | Likely meaning |
+| --- | --- |
+| Narrow, tall peak | Uniform canopy. Uniform stress or uniform health. |
+| Wide, low, flat | High within-Field variability. Good candidate for a [VRA map](/guides/prescription-maps). |
+| Two peaks | Bimodal condition. Often two distinct Blocks are behaving differently; scope the workspace to each Block to isolate. |
+| Shift left pass-over-pass | Broad decline. Check weather and rule cards at the season stage. |
+
+**Best for**: deciding whether an issue is field-wide (weather / uniform stress) or patchy (biotic / infrastructure), and sizing the case for variable-rate application.
+
+## Findings
+
+All rule-card matches (active and resolved) for the current Field and Season, ranked by severity and recency.
+
+**What it shows**
+
+- One row per finding, with:
+  - Rule card id and human name (e.g., `rice_blast` — "Blast")
+  - Severity band (Info / Low / Medium / High / Critical)
+  - Affected Blocks (chips)
+  - Yield-at-risk % and estimated loss (t), resolved through the [layered yield-impact](/concepts/risk-model#yield-impact-layers)
+  - Days-to-mitigate countdown or resolution timestamp
+  - Top action from `mitigation.actions`
+- Filter chips for status (active / resolved / dismissed), severity, and rule-card category.
+- Sort by severity, by countdown, or by first-fired timestamp.
+
+**How to read it**
+
+- **Rows with a red countdown chip** are the day's must-do items.
+- **Rows with `raise_contradiction` badges** are cases where a scout report disagreed with the signal; they need a supervisor look, not just a scout follow-up. Contradictions come from `activity_bindings` on the rule card.
+- **Rows marked `map.applied`** show that mitigation was executed; the countdown stops and severity is reset per the rule card.
+
+**Best for**: the operator's task list. Every row is a decision, and the FAB above the map creates the corresponding scout task or VRA map with context pre-filled.
+
+## Captures
+
+Every image and upload attached to this Field this Season.
+
+**What it shows**
+
+- Chronological grid of thumbnails:
+  - Satellite passes (source labeled: Sentinel-2, Sentinel-1, Landsat, Planet, custom drone)
+  - Scout uploads (photos with GPS)
+  - Drone survey outputs (orthomosaic, per-pass NDVI)
+  - Verification bundles (satellite pre / post pair when applicable)
+- Each thumbnail carries source, date, cloud cover (if satellite), and uploader (if human).
+- Click a capture to load it as the active pass on the map and scrubber.
+
+**Filters**
+
+| Filter | Options |
+| --- | --- |
+| **Source** | Satellite, scout, drone, verification |
+| **Cloud cover** | Any, `< 20%`, `< 50%`, `< 80%` |
+| **Actor** | Any teammate, or all |
+| **Time window** | Same as workspace filter |
+
+**Best for**: media archive, audit prep, and validating a suspicious pass against a scout photo taken the same day.
+
+## Compare
+
+Side-by-side comparison of the current view against another Field, Block, cycle, or index. The **cycle** comparison respects [Crop Cycle Models](/concepts/crop-cycle-models): rice compares Main-to-Main aligned by phenology week; oil palm compares Production Year at the same Tree Age Cohort; pineapple compares Batches at the same age from planting. See [Cycle Analysis](/guides/seasonal-analysis) for the full mode reference.
+
+**What it shows**
+
+<CardGroup cols={2}>
+  <Card title="Same Field, another cycle" icon="clock-rotate-left">
+    Two Trend curves overlaid, aligned by phenology week (cyclical), calendar month (perennial), or age from planting (rolling continuous). The picker only offers cycles that are comparable (same `season_type` for cyclical, same Tree Age Cohort for perennial).
+  </Card>
+
+  <Card title="Same cycle, another Field or Block" icon="grip">
+    Two curves plus two Distribution histograms. Best for peer comparison across an Estate (e.g., is Field F1 running behind Field F2?).
+  </Card>
+
+  <Card title="Same Field, another index" icon="layer-group">
+    NDVI vs NDMI on the same axis. Best for diagnosing whether canopy stress and water stress are correlated or independent.
+  </Card>
+
+  <Card title="Rule-card level" icon="file-code">
+    All Fields in the Estate that fired the same rule card this cycle. Best for seeing whether a hazard is field-specific or Estate-wide.
+  </Card>
+</CardGroup>
+
+**How to read it**
+
+- Diverging curves after a specific event: check that event in the **Actions** tab.
+- Curves that converge at harvest despite different mid-season shapes: the field self-corrected. Useful for validating that mitigation actions actually worked.
+- Curves that stay apart: consistent variety or ecosystem effect. Consider updating `variety_group` or `ecosystem` on the field record so the [Risk Model](/concepts/risk-model#yield-impact-layers) uses the right multiplier next season.
+
+**Best for**: retrospective analysis, agronomist reviews, and calibrating operator expectations before running a similar season again.
+
+## Actions
+
+The Field-scoped slice of [Activity Log](/guides/activity-log): everything that was done, is being done, or is scheduled here.
+
+**What it shows**
+
+- One condensed timeline row per event: alerts, scout tasks, VRA lifecycle, verifications, phenology transitions, imagery ticks.
+- Bar length equals event duration or countdown window.
+- Color equals severity for alerts and status for tasks.
+- Assignee avatars for scout tasks and VRA reviews.
+- Dependency arrows: `risk → scout → VRA → verification` chains rendered when spawning relations exist.
+
+**How it differs from Activity Log**
+
+| Aspect | Activity Log | Actions tab |
+| --- | --- | --- |
+| Scope | Any Field, Estate, or assignee | Only this Field |
+| Rows | Grouped by activity type, field, or assignee | Single condensed row per event, ordered by time |
+| Edit | Drag to reschedule, reassign, cancel | Read-only in the workspace; deep-links to Activity Log to edit |
+| Export | Full PDF / PNG / CSV / iCal | Included in the workspace PDF export |
+
+**Best for**: at-a-glance answer to "what has happened on this Field this Season, and did we respond?", without leaving the workspace.
+
+## Tab decision guide
+
+| I want to know... | Open... |
+| --- | --- |
+| How this Field is doing right now | **Trend** |
+| Whether stress is uniform or patchy | **Distribution** |
+| What needs a decision today | **Findings** |
+| Which image or photo confirmed something | **Captures** |
+| How this Field stacks up against another or last season | **Compare** |
+| What we already did about it | **Actions** |
+
+## Related
+
+- [Fields Workspace Overview](/guides/fields-workspace/overview) - the workspace this reference documents.
+- [Field Data Model](/concepts/field-data-model) - Field, Block, Zone, Season, Observation.
+- [Risk Model](/concepts/risk-model) - the rule cards behind the Findings tab.
+- [Activity Log](/guides/activity-log) - full timeline, of which the Actions tab is a Field slice.
+- [Vegetation Indices](/concepts/indices) - the metrics behind Trend and Distribution.

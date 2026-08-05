@@ -1,10 +1,28 @@
 ---
-title: "Fields, Zones & Seasons: The Google Agriculture Data Model"
+title: "Fields, Blocks, Zones & Seasons: The Google Agriculture Data Model"
 sidebarTitle: "Data Model"
-description: "Understand how the platform organizes your agricultural data across Organizations, Fields, Zones, Seasons, and Observations for accurate analysis."
+description: "Understand how the platform organizes your agricultural data across Organizations, Estates, Fields, Blocks, Zones, Seasons, and Observations for accurate analysis."
 ---
 
-Everything in the platform is organized around a clear hierarchy designed to mirror how farms are actually structured and managed. At the top level, an **Organization** represents your farm, company, or team and holds all your data. Within an organization, you create **Fields** — the spatial units that anchor all imagery and analysis. Fields are subdivided into **Zones** for variable-rate management, grouped into **Seasons** to track crop cycles, and generate **Observations** that power time-series analysis. Understanding this hierarchy helps you navigate the API, interpret results, and build integrations correctly.
+Everything in the platform is organized around a clear hierarchy designed to mirror how farms are actually structured and managed. At the top level, an **Organization** represents your farm, company, or team and holds all your data. Within an organization, an **Estate** groups the fields under one operating unit. Each Estate contains **Fields**, the spatial units that anchor all imagery and analysis. Fields can be sub-divided into named **Blocks** (fixed sub-parcels the operator manages) and further partitioned into computed **Zones** for variable-rate management. Every field-and-block belongs to one or more **Seasons** that track crop cycles, and each satellite pass produces **Observations** that power time-series analysis.
+
+## Terminology at a glance
+
+Use this table when reading any other page in the docs. These terms are strict; do not use them interchangeably.
+
+| Term | Definition | Persistence | Who creates it |
+| --- | --- | --- | --- |
+| **Organization** | The billing and access root. Holds every Estate, Field, and user. | Permanent | Signup |
+| **Estate** | A named operating unit (an estate group, a cooperative branch, a smallholder collective). Rolls up in the [Aggregation Model](/concepts/aggregation-model). | Permanent until archived | Estate admin |
+| **Field** | A named managed parcel with one crop cycle at a time. The primary unit for imagery, alerts, rule cards, and scout tasks. | Permanent until archived | Estate admin or agronomist |
+| **Block** | A named, fixed sub-division of a Field. Operators manage blocks as agronomic units (spray blocks, harvest blocks, replant blocks). Every block inherits its Field's crop and season by default and can override them. | Persistent; edited manually | Agronomist or field manager |
+| **Zone** | A computed cluster of pixels inside a Field or Block, produced automatically by index-based segmentation (k-means over NDVI, NDRE, or NDMI). Used for variable-rate application and anomaly ranking. | Recomputed per analysis; optionally saved with a name | The platform (auto) or user (draw) |
+| **Season** | A crop cycle bound to a Field (and inherited by its Blocks). Provides planting date, expected harvest, and phenology clock. Cycle boundaries follow one of three models: **cyclical** (rice, corn), **perennial** (oil palm, rubber), or **rolling continuous** (pineapple). See [Crop Cycle Models](/concepts/crop-cycle-models). | Persistent per cycle | Agronomist |
+| **Observation** | One index value at one time for one Field, Block, or Zone from one satellite pass. | Permanent | The platform |
+
+<Warning>
+  **Block vs Zone is the pair that trips people up.** Blocks are what the operator draws and names (they persist across seasons). Zones are what the analytics engine computes from imagery (they refresh with each new pass). If you can rename it and it stays put, it is a Block. If it moves when the index moves, it is a Zone.
+</Warning>
 
 ## Fields
 
@@ -13,10 +31,13 @@ A field is the core spatial unit in the platform. Every imagery layer, index cal
 **Field properties**
 
 | Property | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `id` | string | Unique field identifier (prefix `fld_`) |
+| `estate_id` | string | The Estate this field belongs to |
 | `name` | string | Human-readable field name |
-| `crop_type` | string | Current or planned crop (e.g., `corn`, `wheat`) |
+| `crop_type` | string | Current or planned crop (e.g., `rice`, `oil_palm`) |
+| `ecosystem` | string | Optional ecosystem tag used by the [Risk Model](/concepts/risk-model#yield-impact-layers) (e.g., `irrigated_lowland`, `rainfed_upland`) |
+| `variety_group` | string | Optional variety tag used by rule-card multipliers |
 | `planting_date` | date | ISO 8601 date of planting |
 | `harvest_date` | date | ISO 8601 date of harvest or expected harvest |
 | `area_hectares` | number | Calculated area of the boundary polygon |
@@ -28,10 +49,13 @@ A field is the core spatial unit in the platform. Every imagery layer, index cal
 ```json
 {
   "id": "fld_01j8xyz",
-  "name": "North Corn Field",
-  "crop_type": "corn",
-  "planting_date": "2024-05-01",
-  "harvest_date": "2024-10-15",
+  "estate_id": "est_badixth",
+  "name": "F1",
+  "crop_type": "rice",
+  "ecosystem": "irrigated_lowland",
+  "variety_group": "moderately_resistant",
+  "planting_date": "2026-02-06",
+  "harvest_date": "2026-07-30",
   "area_hectares": 42.3,
   "status": "active",
   "boundary": {
@@ -50,70 +74,144 @@ A field is the core spatial unit in the platform. Every imagery layer, index cal
 ```
 
 <Note>
-  All coordinates in the platform use **WGS84 (EPSG:4326)** — longitude first, then latitude. If your boundaries are in a projected coordinate system such as UTM, reproject them to WGS84 before uploading. The platform will reject boundaries provided in any other CRS.
+  All coordinates in the platform use **WGS84 (EPSG:4326)** - longitude first, then latitude. If your boundaries are in a projected coordinate system such as UTM, reproject them to WGS84 before uploading. The platform will reject boundaries provided in any other CRS.
 </Note>
+
+## Blocks
+
+A **Block** is a named, persistent sub-division of a Field that the operator manages as one agronomic unit. Blocks are the polygons an operator draws for spray blocks, harvest blocks, or replant blocks. They persist across seasons; a Block's identity does not change when the crop cycle rolls over.
+
+Fields with no explicit blocks are treated as a single implicit block covering the entire field boundary.
+
+**Block properties**
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `id` | string | Unique block identifier (prefix `blk_`) |
+| `field_id` | string | The parent Field |
+| `name` | string | Human-readable block name (e.g., `A2`, `North Ridge`) |
+| `crop_type` | string | Optional override; defaults to the field's `crop_type` |
+| `ecosystem` | string | Optional override |
+| `variety_group` | string | Optional override |
+| `area_hectares` | number | Calculated area of the block polygon |
+| `boundary` | GeoJSON | The spatial boundary of the block, must be contained within the parent field |
+
+<Tip>
+  Use Blocks when your field has real operational subdivisions (different varieties, different planting windows, different irrigation infrastructure). Skip Blocks and stay at Field level when the field is managed uniformly. You can always add Blocks later.
+</Tip>
 
 ## Zones
 
-Zones are sub-regions within a field used for variable-rate management and targeted analysis. Rather than treating an entire field as a uniform unit, zones let you differentiate management recommendations based on soil type, historical yield, terrain, or index-derived clusters.
+Zones are **computed** sub-regions inside a Field or Block, produced by index-based clustering (typically k-means over NDVI, NDRE, or NDMI). They are used for variable-rate management and anomaly-ranked scouting. Zones refresh with each analysis run; they are not permanent by default.
+
+Two ways zones are created:
+
+<CardGroup cols={2}>
+  <Card title="Auto-Generated Zones" icon="wand-magic-sparkles">
+    The platform's cluster analysis tool partitions a Field or Block into zones from historical or current index patterns. Used by [VRA Maps](/guides/prescription-maps) and by [Field Scouting](/guides/field-scouting) for anomaly ranking.
+  </Card>
+
+  <Card title="Manually Drawn Zones" icon="pen-to-square">
+    Draw zone boundaries directly on the map. Useful when you already know where a management unit is (soil survey boundary, drainage tile, isolated stress patch). A named saved zone is functionally a lightweight Block; promote it to a Block if it will persist across seasons.
+  </Card>
+</CardGroup>
 
 **Zone properties**
 
 | Property | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `id` | string | Unique zone identifier (prefix `zon_`) |
-| `field_id` | string | The parent field this zone belongs to |
+| `field_id` | string | The parent field |
+| `block_id` | string | Optional; set when the zone is inside a specific Block |
 | `name` | string | Zone label (e.g., "Zone A", "High Productivity") |
+| `source` | enum | `computed` (k-means / index cluster) or `drawn` (manual) |
 | `area_hectares` | number | Calculated area of the zone polygon |
 | `boundary` | GeoJSON | The spatial boundary of the zone |
 
-**How zones are created**
-
-<CardGroup cols={2}>
-  <Card title="Auto-Generated Zones" icon="wand-magic-sparkles">
-    Use the platform's cluster analysis tool to automatically partition a field into zones based on historical NDVI patterns, soil data, or elevation. Navigate to **Field > Zones > Generate** and select your clustering inputs and the desired number of zones.
-  </Card>
-  <Card title="Manually Drawn Zones" icon="pen-to-square">
-    Draw zone boundaries directly on the field map using the polygon editor. This is useful when you already know where management units are — such as soil survey boundaries or drainage tile layouts.
-  </Card>
-</CardGroup>
-
 ## Seasons
 
-A season ties a specific crop cycle to a field, providing the temporal context that makes index trends meaningful. Without a defined season, the platform cannot correctly calibrate growth stage models, generate emergence alerts, or compare this year's canopy development to previous years.
+A Season ties a specific crop cycle to a Field (and by inheritance to its Blocks), providing the temporal context that makes index trends meaningful. Without a defined Season, the platform cannot correctly calibrate growth stage models, generate emergence alerts, or compare this year's canopy development to previous years.
+
+**What "one cycle" means depends on the crop.** Rice runs two short cycles per year (Main Season, Off Season). Oil palm runs one continuous 25-year producing life. Pineapple runs rolling planting batches that never share a boundary. The `cycle_model` field on each Season records which family the crop belongs to; the [Crop Cycle Models](/concepts/crop-cycle-models) page is the canonical reference for the vocabulary.
 
 **Season properties**
 
 | Property | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `id` | string | Unique season identifier (prefix `ssn_`) |
 | `field_id` | string | The field this season belongs to |
 | `crop_type` | string | The crop planted during this season |
-| `planting_date` | date | ISO 8601 planting date |
-| `harvest_date` | date | ISO 8601 actual or projected harvest date |
+| `cycle_model` | enum | `cyclical`, `perennial`, or `rolling_continuous`. Inherited from the crop; determines which Season Type vocabulary applies. See [Crop Cycle Models](/concepts/crop-cycle-models). |
+| `season_type` | string | Crop-appropriate cycle label. Rice: `Main Season`, `Off Season`, `Ratoon`. Oil palm and rubber: `Production Year`. Pineapple: `Planting Batch`. |
+| `season_label` | string | Human-readable label shown in the UI (e.g., `Main Season 1 . 2026`, `Production Year 2026 . Panel B . d/3`, `Batch 2026-A . Plant Crop`). Free text; sensible defaults auto-generated from `season_type` and planting date. |
+| `parent_season_id` | string | Optional. For perennial sub-cycles (e.g., a flowering cohort belongs to a Production Year). Null for standalone cycles. |
+| `planting_date` | date | ISO 8601 planting date. For perennials, the planting date of the block, not the current year. |
+| `harvest_date` | date | ISO 8601 actual or projected harvest date. For perennials, the year-end boundary. |
+
+**Example: rice Main Season**
+
+```json
+{
+  "id": "ssn_01j9rice",
+  "field_id": "fld_01j8xyz",
+  "crop_type": "rice",
+  "cycle_model": "cyclical",
+  "season_type": "Main Season",
+  "season_label": "Main Season 1 . 2026",
+  "planting_date": "2026-02-06",
+  "harvest_date": "2026-07-30"
+}
+```
+
+**Example: oil palm Production Year**
+
+```json
+{
+  "id": "ssn_01j9palm",
+  "field_id": "fld_01j8palm",
+  "crop_type": "oil_palm",
+  "cycle_model": "perennial",
+  "season_type": "Production Year",
+  "season_label": "Production Year 2026 . Age 8",
+  "planting_date": "2018-04-15",
+  "harvest_date": "2026-12-31"
+}
+```
 
 <Tip>
-  Create a new season as soon as you plant. The platform uses the planting date to calculate growing degree days (GDD), align crop growth models, and identify anomalies relative to expected canopy development at each growth stage.
+  Create a new Season as soon as you plant a cyclical crop, or as soon as you close the books on the previous Production Year for a perennial. The platform uses the planting date to calculate growing degree days (GDD), align crop growth models, and identify anomalies relative to expected canopy development at each phenology stage.
 </Tip>
+
+<Warning>
+  **Do not compare across Season Types.** Rice Main Season yields are structurally higher than Off Season yields; comparing them tells you nothing about whether a Field is trending. [Cycle Analysis](/guides/seasonal-analysis) enforces like-for-like comparison automatically. For the full comparison rules per crop, see [Crop Cycle Models](/concepts/crop-cycle-models).
+</Warning>
 
 ## Observations
 
-An observation is a single data point representing the value of a specific vegetation index (or other derived metric) for a field or zone at a specific point in time. Observations are generated automatically each time new imagery is processed, and they are the building blocks of all time-series analysis in the platform.
+An observation is a single data point representing the value of a specific vegetation index (or other derived metric) for a Field, Block, or Zone at a specific point in time. Observations are generated automatically each time new imagery is processed, and they are the building blocks of all time-series analysis in the platform.
 
 **Observation properties**
 
 | Property | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `id` | string | Unique observation identifier (prefix `obs_`) |
 | `field_id` | string | The field this observation belongs to |
-| `zone_id` | string | The zone this observation belongs to (if zone-level) |
+| `block_id` | string | Optional; set when the observation is scoped to a Block |
+| `zone_id` | string | Optional; set when the observation is scoped to a Zone |
 | `index` | string | The index type (e.g., `ndvi`, `ndre`, `ndwi`) |
 | `value` | number | The computed mean index value for the area |
 | `acquired_at` | datetime | ISO 8601 timestamp of image acquisition |
 | `source` | string | Imagery source (e.g., `sentinel-2`, `planet`) |
 
-You can retrieve observation time series via the API to build custom charts, trigger external workflows, or export historical data for agronomic modeling. Each observation also carries pixel-level statistics — minimum, maximum, and standard deviation — so you can assess within-field variability alongside the field-wide mean.
+You can retrieve observation time series via the API to build custom charts, trigger external workflows, or export historical data for agronomic modeling. Each observation also carries pixel-level statistics (minimum, maximum, and standard deviation) so you can assess within-field variability alongside the field-wide mean.
 
 <Info>
-  Field-level observations represent the area-weighted mean index value across all non-cloudy pixels within the field boundary. Zone-level observations are computed independently for each zone's pixel subset and may differ from the field mean.
+  Field-level observations represent the area-weighted mean index value across all non-cloudy pixels within the field boundary. Block-level and Zone-level observations are computed independently for each subset's pixels and may differ from the field mean. This is the same area-weighting rule the [Aggregation Model](/concepts/aggregation-model#rollup-categories) uses for Estate, Regional, and National rollups.
 </Info>
+
+## Related
+
+- [Crop Cycle Models](/concepts/crop-cycle-models) - cyclical, perennial, and rolling continuous families; the per-crop Season Type vocabulary.
+- [Aggregation Model](/concepts/aggregation-model) - how Field-level and Block-level observations roll up to Estate, Regional, and National views.
+- [Risk Model](/concepts/risk-model) - rule cards fire per Field or Block and use `ecosystem`, `variety_group`, and phenology.
+- [Vegetation Indices](/concepts/indices) - the metrics that produce Observations.

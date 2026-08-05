@@ -1,71 +1,128 @@
 ---
-title: "Analyze and Compare Crop Performance Across a Full Season"
-sidebarTitle: "Seasonal Analysis"
-description: "Review how crop health evolved from emergence to harvest, compare seasons, and correlate NDVI patterns with yield data for smarter planning."
+title: "Cycle Analysis: Compare Seasons, Production Years, and Planting Batches"
+sidebarTitle: "Cycle Analysis"
+description: "Compare crop performance across cycles the honest way: rice Main-to-Main across years, oil palm Production Year against tree age cohorts, pineapple batches at the same age. Backed by the Crop Cycle Models vocabulary."
 ---
 
-Seasonal analysis gives you a complete field performance retrospective — a continuous record of how crop health evolved from emergence through harvest. By reviewing the full arc of a season in one place, including vegetation indices, growing degree days, and rainfall, you gain the context needed to explain yield outcomes and make better input and management decisions before the next season begins.
+Cycle Analysis is where you review how a Field performed across one or more crop cycles, and compare cycles the honest way. It is the retrospective counterpart to the live [Fields Workspace](/guides/fields-workspace/overview): the Workspace shows what is happening now; Cycle Analysis shows how this cycle compares to prior ones.
 
-## Accessing Seasonal Analysis
+**Cycle Analysis runs in one of three modes**, chosen automatically based on the Field's crop and its `cycle_model`:
 
-Navigate to **Fields** and select the field you want to review. Click the **Seasons** tab, then select the season from the dropdown. Google loads all imagery acquisitions captured within the season's defined start and end dates, along with any linked weather and yield data.
+| Mode | Cycle model | Compares | Aligned by |
+| --- | --- | --- | --- |
+| **Season-to-Season** | `cyclical` | Prior Seasons of the same `season_type` | Phenology week (days since planting) |
+| **Production Year** | `perennial` | Prior Production Years, same Tree Age Cohort | Calendar month |
+| **Batch-to-Batch** | `rolling_continuous` | Prior Planting Batches | Age from planting |
+
+<Warning>
+  **Comparison is always like-for-like.** The tool refuses to overlay a rice Main Season on a rice Off Season, a Panel B tapping year on a Panel C year, or a Batch A plant crop on a Batch B ratoon crop. These are structurally different regimes; the delta is not agronomic signal. See [Crop Cycle Models](/concepts/crop-cycle-models) for the full comparability rules per crop.
+</Warning>
+
+## Accessing Cycle Analysis
+
+Navigate to **Fields**, select a Field, and open the **Cycle Analysis** tab. The mode is preset to match the crop; the picker offers only cycles that are valid to compare with the current one.
 
 <Info>
-Season dates are configured per field under **Field Settings > Season Boundaries**. If you haven't defined a season yet, Google defaults to a calendar year. Accurate season boundaries improve the quality of growth-stage annotations on the NDVI time-series chart.
+  Season boundaries are configured per Field under **Field Settings \> Seasons**. Each Season carries a `cycle_model`, `season_type`, and `season_label` (e.g., `Main Season 1 . 2026`). If a Field has no Seasons defined, Cycle Analysis prompts you to declare one before the tool becomes useful. See [Seasons in the Data Model](/concepts/field-data-model#seasons).
 </Info>
 
-## Key Charts and Visualizations
+## Mode 1: Season-to-Season (cyclical crops)
 
-### NDVI time-series chart
+Applies to rice, corn, groundnut, most vegetables. Compares two or more prior Seasons of the **same `season_type`** on the same Field, aligned by **phenology week** (days since planting expressed in weeks).
 
-The primary chart plots NDVI on the vertical axis against acquisition date on the horizontal axis, with one data point per imagery pass. Key growth stages — emergence, tillering, heading, grain fill, and senescence — are annotated automatically based on GDD accumulation and crop type. Hover over any data point to see the exact NDVI value, acquisition date, and cloud cover percentage for that image.
+### Why phenology week, not calendar week
 
-### Growing Degree Day (GDD) overlay
+Week 8 after planting is booting for rice, always. Week 8 in June and week 8 in December are the same biological moment. Comparing calendar week 24 across years compares different phenology stages and is misleading. Cycle Analysis fixes the X-axis to phenology week so curves align on biology, not on the calendar.
 
-Toggle on the **GDD overlay** to add a cumulative GDD curve to the chart. GDD data is sourced from your linked weather station or, if none is connected, from ERA5 reanalysis data interpolated to your field's centroid. Aligning GDD accumulation with NDVI trajectory helps you distinguish weather-driven development from stress-driven anomalies.
+### The charts
 
-### Rainfall overlay
+**NDVI time series, phenology-aligned.** Two or more curves overlaid, X-axis in phenology weeks (0 to harvest). Growth-stage bands (emergence, tillering, booting, heading, ripening) shaded behind the curves and driven by the crop's phenology clock in the [Risk Model](/concepts/risk-model).
 
-Toggle on the **Rainfall overlay** to display daily precipitation as a bar chart beneath the NDVI time series. Spikes in rainfall that coincide with NDVI drops can indicate waterlogging or disease pressure. Prolonged dry periods preceding NDVI decline point to drought stress.
+**GDD overlay.** Toggle a cumulative Growing Degree Days curve for each season. GDD comes from the nearest weather station, or ERA5 reanalysis interpolated to the Field centroid when no station is linked. Diverging GDD tracks explain diverging NDVI curves (a warmer season pushes phenology faster).
+
+**Rainfall overlay.** Daily precipitation as a bar chart beneath NDVI, one row per compared season. Rainfall spikes coinciding with NDVI drops usually indicate waterlogging or disease pressure; prolonged dry stretches before NDVI decline point to drought.
+
+### How to read it
+
+| Pattern | Likely meaning |
+| --- | --- |
+| Current season below prior at same phenology week | Undercutting yield potential; check Findings tab in [Fields Workspace](/guides/fields-workspace/overview) for active rule cards. |
+| Current season peak NDVI earlier than prior | Warmer season, faster phenology. Confirm with GDD overlay. |
+| Curves diverge only after a specific week | Mid-cycle event (rainfall, pest, mitigation). Cross-reference the [Activity Log](/guides/activity-log). |
+| Consistent under-band across Main Seasons | Chronic constraint (soil, drainage, variety). Not one bad year. |
 
 <Tip>
-Use the rainfall and GDD overlays together when writing your end-of-season agronomic notes. The combination of weather drivers and crop response in a single view makes it straightforward to build a narrative explanation of yield outcomes.
+  When you finish an Off Season cycle, compare against the previous Off Season, not the Main Season you just harvested. The Off vs Main delta is structural (15-25 percent lower Off yield is normal in Peninsular Malaysia). Off-to-Off is the read that tells you if the Field is improving.
 </Tip>
 
-## Comparing Seasons
+## Mode 2: Production Year (perennial crops)
 
-Click **Compare Season** in the top-right corner of the Seasons tab and select a prior season for the same field. Both NDVI time series appear on a single chart with date normalized to days after planting, so curves from different calendar years align correctly for comparison. Year-on-year divergence in peak NDVI or in the rate of canopy development often points to differences in planting date, variety, or input program.
+Applies to oil palm, rubber, coconut, cocoa. Compares Production Years on the same Field, filtered by **Tree Age Cohort** and (for rubber) **Tapping Panel** and **Tapping Cycle**.
+
+### Why Tree Age Cohort matters
+
+Perennial yield depends heavily on tree age. Oil palm yields ~15 t/ha/yr at year 5, ~28 t/ha/yr at year 10, ~20 t/ha/yr at year 22. Comparing Production Year 2025 against Production Year 2020 without accounting for age tells you "yield went up" when the trees simply matured. The honest comparison is **same age, different planting year**: a 2018-planted block at year 7 versus a 2019-planted block at year 7.
+
+### The charts
+
+**FFB (oil palm) or DRC (rubber) monthly yield.** X-axis is calendar month across the Production Year; Y-axis is t/ha/month FFB (oil palm) or kg/ha/month dry rubber (rubber). One line per compared Production Year, filtered to matching Tree Age Cohort.
+
+**Flowering cohort tracking (oil palm).** Bunches from one flowering event mature together and are harvested ~5 weeks later. The chart shows the count of active flowering cohorts across the Production Year and their expected harvest weeks; useful for labor planning.
+
+**Tapping response (rubber).** Yield curve of the currently active Panel (A/B/C/D) over its tapping life, with markers for wintering periods and stimulation rounds. Compares to the same Panel age from prior Production Years.
+
+**NDVI stability index.** Perennial NDVI does not go through the emergence-to-harvest arc; it should stay in a narrow healthy band. Cycle Analysis reports monthly NDVI variance; a widening variance is often the earliest signal of Ganoderma (oil palm) or panel dryness (rubber).
 
 <Note>
-Season comparison requires at least two seasons with three or more imagery acquisitions each. Seasons with heavy cloud cover and fewer than three clear images display a data-density warning.
+  Perennials do not have a "planting date" in the annual sense once mature; the platform uses the block's original planting date to compute Tree Age. The Production Year `planting_date` and `harvest_date` fields on the Season object mark the year-boundary, not a biological cycle.
 </Note>
 
-## Yield Correlation
+## Mode 3: Batch-to-Batch (rolling continuous crops)
 
-If you have uploaded a yield map for the season, Google automatically correlates spatially-matched NDVI values against yield data. The correlation view shows:
+Applies to pineapple, banana, papaya, nursery operations. Compares Planting Batches at the **same age from planting**, not the same calendar date.
 
-- A **scatter plot** of NDVI (at peak vegetative growth) versus yield (in tonnes or bushels per hectare)
-- A **Pearson R² coefficient** quantifying how strongly NDVI predicted final yield in this field
-- A **spatial residual map** highlighting areas where NDVI predicted well and areas where yield departed from the NDVI-based expectation — often indicating soil constraints, pest damage, or harvest losses unrelated to crop health
+### Why same age, not same date
 
-To upload a yield map, go to **Field Settings > Data Uploads > Yield Map** and select a shapefile or CSV exported from your yield monitor.
+A pineapple field always has multiple batches at different ages coexisting. Comparing them on the same calendar day compares a batch at month 6 (vegetative growth) to a batch at month 14 (fruit development). The comparison unit for rolling crops is **age from planting**: Batch 2025-A at month 12 versus Batch 2025-B at month 12.
 
-## Exporting Season Reports
+### The charts
+
+**Batch NDVI curve, age-aligned.** X-axis is months since planting; Y-axis NDVI. One line per Batch, with phase markers (vegetative, forcing, fruit development, harvest window).
+
+**Forcing-to-harvest window.** For each Batch, the interval from Forcing event to harvest, overlaid to see whether the plant crop and ratoon crop windows are shortening or lengthening across batches.
+
+**Batch cohort yield.** When yield data is uploaded per Batch, plots yield (t/ha) against age at forcing, so you can see whether earlier or later forcing has produced better results.
+
+## Yield correlation (all modes)
+
+If a yield map is uploaded for a completed cycle, Cycle Analysis correlates spatially-matched NDVI values (from the appropriate peak-vegetative window per crop) against yield.
+
+| Output | What it shows |
+| --- | --- |
+| **Scatter plot** | NDVI at peak vegetative growth versus yield (t/ha or the crop-appropriate unit: t/ha FFB for oil palm, kg/ha DRC for rubber). |
+| **Pearson R2** | How strongly NDVI predicted final yield in this Field. Values above 0.6 indicate NDVI is a reliable proxy; below 0.4 suggests non-canopy factors (soil, harvest losses, pest) dominate. |
+| **Spatial residual map** | Areas where NDVI predicted well and areas where yield departed from expectation. Often reveals soil constraints, in-field harvest losses, or biotic damage that canopy did not show. |
+
+Upload yield maps under **Field Settings \> Data Uploads \> Yield Map** (shapefile or CSV from your yield monitor, weighbridge log, or FFB tally sheet).
+
+## Exporting cycle reports
 
 <Tabs>
   <Tab title="PDF Report">
-    Click **Export > PDF Summary** to generate a formatted report containing:
-    - Field name, crop type, and season dates
-    - NDVI time-series chart with GDD and rainfall overlays
-    - Season comparison chart (if a comparison season was selected)
+    Click **Export \> PDF Summary** to generate a formatted report containing:
+
+    - Field name, crop type, `cycle_model`, and Season labels
+    - Primary index time-series chart (mode-appropriate axis and overlays)
+    - Cycle comparison chart (if comparison cycles were selected)
     - Yield correlation scatter plot (if yield data is present)
-    - Key statistics: peak NDVI, date of peak, total GDD, total seasonal rainfall
+    - Key statistics per mode: peak NDVI and date, total GDD, seasonal rainfall (cyclical); monthly FFB or DRC totals (perennial); age-at-milestone (rolling)
+    - Reproducibility footer with data-through timestamps and rule-card versions, same format as the [Aggregation Model](/concepts/aggregation-model#reproducibility) explain-view.
   </Tab>
   <Tab title="CSV Export">
-    Click **Export > CSV** to download a flat file containing every imagery observation for the season. Each row represents one acquisition and includes date, mean NDVI, minimum NDVI, maximum NDVI, standard deviation, cloud cover percentage, and GDD at acquisition date.
+    Click **Export \> CSV** to download a flat file containing every observation for the cycle. Each row includes date, mean index value, minimum, maximum, standard deviation, cloud cover, GDD at acquisition, and Season Type context.
   </Tab>
   <Tab title="API">
-    Request a seasonal report programmatically using the reports endpoint:
+    Request a cycle report programmatically:
 
     ```http
     POST https://api.example.com/v1/fields/{id}/reports
@@ -75,14 +132,15 @@ To upload a yield map, go to **Field Settings > Data Uploads > Yield Map** and s
 
     ```json
     {
-      "type": "seasonal",
-      "season_id": "ssn_2024_corn",
+      "type": "cycle",
+      "mode": "season_to_season",
+      "season_ids": ["ssn_01j9rice_main2025", "ssn_01j9rice_main2026"],
       "index": "NDVI",
       "format": "pdf"
     }
     ```
 
-    The response returns a report object with a `download_url` valid for 24 hours:
+    Valid `mode` values are `season_to_season`, `production_year`, and `batch_to_batch`. The response returns a report object with a `download_url` valid for 24 hours:
 
     ```json
     {
@@ -93,10 +151,19 @@ To upload a yield map, go to **Field Settings > Data Uploads > Yield Map** and s
     }
     ```
 
-    Poll the `GET /reports/{report_id}` endpoint until `status` is `"ready"`, then fetch the `download_url`.
+    Poll `GET /reports/{report_id}` until `status` is `"ready"`.
   </Tab>
 </Tabs>
 
 <Tip>
-Run your seasonal analysis during the last two weeks of harvest while observations are fresh. Use the insights to inform input purchasing decisions for next season — peak NDVI shortfalls often indicate where additional phosphorus, lime, or drainage investment will pay the highest return.
+  Run Cycle Analysis in the last two weeks before harvest for cyclical crops, at the end of each calendar quarter for perennials, and at each Batch harvest for rolling continuous. Feeding the results back into the [Risk Model](/concepts/risk-model#yield-impact-layers) `farm_history` layer improves next-cycle forecasts.
 </Tip>
+
+## Related
+
+- [Crop Cycle Models](/concepts/crop-cycle-models) - the vocabulary and comparability rules per crop.
+- [Field Data Model](/concepts/field-data-model#seasons) - the Season object with `cycle_model`, `season_type`, `season_label`.
+- [Fields Workspace](/guides/fields-workspace/overview) - the live-cycle counterpart. The Workspace Compare tab uses the same three modes.
+- [Risk Model](/concepts/risk-model) - phenology clock and `farm_history` yield-impact layer.
+- [Verification](/guides/verification) - one Season = one bundle for cyclical crops; monthly bundles for perennial.
+- [Aggregation Model](/concepts/aggregation-model) - Season Type slicing in Estate, Regional, and National rollups.

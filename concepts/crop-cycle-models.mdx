@@ -1,0 +1,174 @@
+---
+title: "Crop Cycle Models: Cyclical, Perennial, and Rolling Continuous"
+sidebarTitle: "Crop Cycle Models"
+description: "The canonical vocabulary and comparison logic for how different crops cycle: rice's Main and Off Seasons, oil palm's Production Year and tree age cohorts, rubber's tapping panels, and pineapple's Planting Batches."
+---
+
+A **Season** in the platform is one crop cycle bound to a Field. But "one cycle" means different things for different crops. Rice runs two short cycles per year. Oil palm runs one continuous 25-year producing life. Pineapple runs rolling batches that never share a boundary. If we treat all of them the same way, the analytics, rule cards, and rollups produce nonsense.
+
+This page is the canonical reference for how each crop cycles, what a Season means for that crop, and which vocabulary the UI uses. Every other page that touches Season inherits from this one.
+
+## Why cycle model matters
+
+Three things depend on getting the cycle right:
+
+1. **Comparability.** [Cycle Analysis](/guides/seasonal-analysis) can only compare like-for-like. Rice Main Season vs Rice Off Season is apples to oranges (different water regime, different pest pressure, different yield ceiling). Same crop, same Season Type, aligned by phenology week is the honest comparison.
+2. **Rule cards.** The [Risk Model](/concepts/risk-model) phenology clock only makes sense inside a cycle. A rule card with `stage_window: booting` needs a defined planting date to know when booting is. Some rules are also Season-Type specific; bacterial leaf blight pressure is higher in the Off Season, and a rule card can filter for that.
+3. **Verification and rollups.** One Season is usually one [Verification bundle](/guides/verification) boundary for cyclical crops. For perennials the bundle boundary is a calendar period (month or quarter). [Aggregation](/concepts/aggregation-model) rollups can slice by Season Type so estate managers can compare Main to Main across years.
+
+## The three cycle families
+
+Every supported crop maps to exactly one of these families.
+
+<CardGroup cols={3}>
+  <Card title="Cyclical" icon="rotate">
+    Discrete cycles with a planting date and a harvest date. Multiple cycles can happen per calendar year. Each cycle is one Season.
+
+    **Examples**: rice, corn, groundnut, most vegetables.
+  </Card>
+
+  <Card title="Perennial" icon="tree">
+    One long producing life (years to decades). No planting-to-harvest cycle in the annual sense. Instead, the year is the container, and shorter internal cycles (flowering cohorts, tapping panels) live inside it.
+
+    **Examples**: oil palm, rubber, coconut, cocoa.
+  </Card>
+
+  <Card title="Rolling continuous" icon="repeat">
+    Planting happens continuously through the year. Each batch has its own multi-month cycle. Batches at different ages coexist on the same Field or Estate.
+
+    **Examples**: pineapple, banana, papaya, nursery operations.
+  </Card>
+</CardGroup>
+
+The cycle family is set at the crop level and inherited by every Field of that crop. It drives the Season Type vocabulary the UI offers, the default comparison mode in Cycle Analysis, and the Verification cadence.
+
+## Cycle vocabulary by crop
+
+The **Season Type** dropdown in the Fields Workspace changes by crop. Use these tables as the source of truth for what each term means.
+
+### Rice (cyclical)
+
+Malaysian rice runs on a two-season calendar dictated by the monsoon and by irrigation authority schedules (MADA in Kedah, KADA in Kelantan). A single Field runs two Seasons per year in most granaries.
+
+| Season Type | Local term | Typical window (Peninsular Malaysia) | Notes |
+| --- | --- | --- | --- |
+| **Main Season** | Musim Utama | Plant Aug-Oct, harvest Jan-Mar | Primary cycle. Higher yields, reliable water, cooler nights. |
+| **Off Season** | Musim Luar | Plant Feb-Apr, harvest Jun-Aug | Secondary cycle. 15-25% lower yields are normal, higher pest pressure, tighter water. |
+| **Dry Sowing** | - | Sub-type of either | Seeds broadcast on dry ground before flooding. |
+| **Wet Sowing** | - | Sub-type of either | Pre-germinated seeds broadcast onto puddled paddy. |
+| **Ratoon** | - | 60-90 d after main harvest | Second harvest from the same crop stubble. Uncommon in Malaysia but supported. |
+
+**Comparison rule**: compare Main to Main and Off to Off across years. Never compare Main to Off directly; the yield delta is structural, not agronomic.
+
+**Season label pattern**: `Main Season 1 · 2026`, `Off Season 2 · 2026`. The number represents the cycle index within the year (1 = first, 2 = second), which matters when an unusual year has three cycles.
+
+### Oil Palm (perennial)
+
+Oil palm has no traditional season. A single planting yields for 20-25 years, harvested every 10-14 days on a rotation. Fresh Fruit Bunches (FFB) are the harvested unit; downstream mills convert FFB to CPO (crude palm oil) at 20-23% Oil Extraction Rate (OER).
+
+| Season Type | Meaning | Notes |
+| --- | --- | --- |
+| **Production Year** | Calendar or fiscal year of FFB output | The primary Season boundary. Compare Production Year to Production Year. |
+| **Immature Phase** | Year 0-3 from planting | No harvest. Growth-only phase. |
+| **Young Mature** | Year 4-7 | 15-22 t/ha/yr, yield climbing. |
+| **Prime** | Year 8-18 | 25-30 t/ha/yr, peak production. |
+| **Declining** | Year 19-25 | 18-22 t/ha/yr, yield falling. |
+| **Replant** | Year 25\+ | Fell and replant. Field returns to Immature Phase. |
+| **Flowering Cohort** | ~5-week cycle of bunches from one flowering event | Sub-cycle within Production Year. Used for short-window analytics. |
+
+**Comparison rule**: compare Production Year to Production Year at the same **Tree Age Cohort**. A 2018-planted block at year 7 compares to a 2019-planted block at year 7, not to itself last year (age differs by one year, which materially changes yield potential).
+
+**Season label pattern**: `Production Year 2026`, with a Tree Age Cohort chip like `Planted 2018 · Age 8` for context.
+
+### Rubber (perennial)
+
+Rubber is tapped daily or every-other-day; a shallow spiral cut in the bark releases latex overnight into a cup. Bark is organized into panels (A, B, C, D); each panel is tapped for ~5 years then rotated so the tree can regenerate.
+
+| Season Type | Meaning | Notes |
+| --- | --- | --- |
+| **Production Year** | Calendar year of dry rubber output | Primary Season boundary. Measured in kg/ha/yr DRC (Dry Rubber Content). |
+| **Immature Phase** | Year 0-6 | No tapping. Trees grow to tappable girth. |
+| **Tapping Panel** | A, B, C, or D | The bark section currently being tapped. Rotated ~every 5 years. |
+| **Tapping Cycle** | d/2, d/3, d/4 | Tap every 2, 3, or 4 days. d/2 is intensive, d/4 conservative. |
+| **Wintering** | Feb-Apr in Malaysia | Annual leaf fall. Tapping paused; yield drops to near zero. |
+| **Stimulation Round** | Ethephon application cycle | Chemical stimulation to raise yield short-term. |
+
+**Comparison rule**: compare Production Year to Production Year on the **same Tapping Panel** and **same Tapping Cycle**. Comparing d/2 tapped Panel B to d/3 tapped Panel C is meaningless.
+
+**Season label pattern**: `Production Year 2026 · Panel B · d/3`.
+
+### Pineapple (rolling continuous)
+
+Pineapple is planted continuously through the year. Each Planting Batch has its own 14-24 month cycle. Multiple batches at different ages coexist on the same Field or Estate. Flowering is induced (forcing) with ethephon or calcium carbide.
+
+| Season Type | Meaning | Notes |
+| --- | --- | --- |
+| **Planting Batch** | A group planted together on one date | The primary Season boundary. Batches are the comparison unit. |
+| **Plant Crop** | First fruiting, ~14-18 months after planting | The main harvest of a batch. |
+| **Ratoon Crop** | Second (and sometimes third) fruiting from the same plant | ~10-12 months after Plant Crop. Lower yield than plant crop, common in Malaysia. |
+| **Forcing** | Induced flowering event | Marks the transition from vegetative growth to fruit development. Sets the harvest date. |
+
+**Comparison rule**: compare batches at the **same age from planting**, not the same calendar date. Batch A planted January vs Batch B planted April both at their 12-month mark tells you if the field is trending; comparing them on the same calendar day compares different growth stages.
+
+**Season label pattern**: `Batch 2026-A · Plant Crop` or `Batch 2025-B · Ratoon 1`.
+
+## How cycle model interacts with phenology
+
+Cycle model and phenology work together but describe different things.
+
+|  | **Cycle model** | **Phenology** |
+| --- | --- | --- |
+| **Scope** | The whole Season boundary | Position inside a Season |
+| **Unit** | Cyclical: cycle. Perennial: year. Rolling: batch. | Stage (emergence, tillering, booting, fruit development, ripening) |
+| **Duration** | Months to decades | Days to weeks |
+| **Who declares it** | User at planting; inherited from crop | Computed by phenology clock from planting date \+ GDD |
+| **Used for** | Grouping, comparison, verification cadence | Rule card `stage_window`, yield impact layering, mitigation window |
+
+**The X-axis fix.** When Cycle Analysis compares two Seasons, it aligns them by **phenology week** (days since planting expressed in weeks), not calendar week. Week 8 of Main 2024 is booting, and week 8 of Main 2025 is booting, always. Comparing calendar week 24 across years compares different biological stages and is misleading.
+
+## How cycle model interacts with rule cards
+
+All [Risk Model](/concepts/risk-model) rule cards run inside a Season. Three cycle-related fields matter:
+
+```yaml
+rule_card:
+  id: rice_blb
+  stage_window: [tillering, booting]        # Phenology inside the cycle.
+  season_type_filter:                        # Optional. Cyclical crops only.
+    include: ["Off Season"]                  # Only fire in Off Season.
+  cycle_model_filter:                        # Optional. Rare.
+    include: ["cyclical"]                    # Skip on perennials entirely.
+```
+
+**When to set `season_type_filter`:** the hazard behaves differently across Season Types. Bacterial leaf blight is a good example; humid warm nights of the Off Season make it substantially more likely than in Main Season, so a rule card can gate on that.
+
+**When to skip both filters:** the hazard is season-independent (most drought, most nutrient stress). Leave them unset; the rule fires wherever phenology matches.
+
+## How cycle model interacts with Verification and rollups
+
+**Verification bundle boundary:**
+
+| Cycle family | Bundle boundary | Reason |
+| --- | --- | --- |
+| Cyclical | One Season = one bundle | Subsidy and takaful claims are per-cycle. |
+| Perennial | One month or one quarter = one bundle | Continuous harvest; no cycle boundary. Estate closes books monthly. |
+| Rolling continuous | One Batch = one bundle | Each batch is its own claim unit at harvest. |
+
+See [Verification](/guides/verification) for the full evidence bundle spec.
+
+**Aggregation rollups:**
+
+- Cyclical crops roll up **per Season Type per year** (Main 2026, Off 2026 as separate slices).
+- Perennials roll up **per Production Year**, with an optional Tree Age Cohort filter.
+- Rolling continuous rolls up **per Batch cohort** (e.g., all Q1-2026 batches).
+
+See [Aggregation Model](/concepts/aggregation-model) for how confidence and k-anonymity apply to these slices.
+
+## Related
+
+- [Field Data Model](/concepts/field-data-model#seasons) - the `Season` object and the four cycle-related fields.
+- [Cycle Analysis](/guides/seasonal-analysis) - the three comparison modes that use this vocabulary.
+- [Risk Model](/concepts/risk-model) - phenology clock and `season_type_filter`.
+- [Verification](/guides/verification) - bundle boundaries per cycle family.
+- [Aggregation Model](/concepts/aggregation-model) - how Season Type slices roll up.
+- [Fields Workspace](/guides/fields-workspace/overview) - where the Season pill exposes this vocabulary to operators.
