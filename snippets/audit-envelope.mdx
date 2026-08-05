@@ -36,7 +36,7 @@ Every [Escalation](/snippets/guardrails-template) declared in a module's guardra
 | Field | Type | Required | Notes |
 | --- | --- | :-: | --- |
 | `escalation_trigger` | string | ✓ | The guardrail rule that fired, quoted verbatim from the module's Escalation row. |
-| `target_role` | string | ✓ | The role that receives the escalation. Must resolve against the platform role model. |
+| `target_role` | string | ✓ | The functional role that receives the escalation. Must be one of the eight functional roles in the [Role Model](/snippets/role-model). |
 | `target_user_id` | FK → `user` | – | Set when the target\_role has a specific holder (on-call rotation, named supervisor). |
 | `delivery_outcome` | enum | ✓ | `delivered` \| `delivery_failed` \| `acknowledged`. |
 | `acknowledged_by` | FK → `user` | – | Set when `delivery_outcome = acknowledged`. |

@@ -347,7 +347,8 @@
             ]
           },
           "snippets/guardrails-template",
-          "snippets/audit-envelope"
+          "snippets/audit-envelope",
+          "snippets/role-model"
         ]
       },
       {

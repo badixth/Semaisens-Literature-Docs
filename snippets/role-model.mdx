@@ -1,0 +1,98 @@
+---
+title: "Role Model"
+sidebarTitle: "Role Model"
+description: "The canonical role model. Every escalation target, entitlement scope, and access decision resolves against this single hierarchy."
+hidden: true
+---
+
+Every role name used in the platform — on this page, in [module guardrails](/snippets/guardrails-template), in [escalation targets](/snippets/audit-envelope), in job assignment, in delivery routing — must be one of the values defined below. No page invents role names.
+
+<Note>
+  Prior to this revision, four disjoint role vocabularies existed: org roles, group roles, VRA module roles, and free-text escalation targets ("estate manager", "on-call role", "agronomy review"). This page reconciles them. See [D-06](/) in the consolidated docs delta.
+</Note>
+
+## The three role dimensions
+
+Roles combine along three orthogonal dimensions. A user carries exactly one value on each dimension. Effective permissions are the intersection.
+
+<CardGroup cols={3}>
+  <Card title="Org role" icon="building">
+    What the user can do at the organization level: billing, team, API keys.
+  </Card>
+
+  <Card title="Functional role" icon="user-tag">
+    What kind of work the user does: scouting, agronomy, approval, oversight, read-only.
+  </Card>
+
+  <Card title="Entitlement scope" icon="map">
+    Which entities the user can see and act on: one estate, several estates, a region, or globally.
+  </Card>
+</CardGroup>
+
+## Org role
+
+Set at invite time on the Team page. Governs billing, team management, and org-wide settings only. Not used for module-level access decisions.
+
+| Org role | What they can do |
+| --- | --- |
+| `admin` | Manage billing, team, API keys, org-wide thresholds. |
+| `analyst` | Create and edit fields, run analyses, export data. No billing or team management. |
+| `viewer` | Read-only across the org. |
+
+## Functional role
+
+Set per user by an `estate_admin` or `org_admin`. Determines what kind of work the user is doing and which escalations target them.
+
+| Functional role | What they do | Escalation target for |
+| --- | --- | --- |
+| `scout` | Ground-truth work: field visits, photos, observations. Assignee on scout tasks. | Task refusal streaks (their own) |
+| `agronomist` | Diagnosis, rule-card review, VRA authoring, proposal review. | Agronomy review escalations; proposal review queue |
+| `approver` | Approves VRA maps and other confirm-first writes. May be the same person as `estate_manager`. | VRA rejection escalations |
+| `estate_manager` | Runs an estate's day-to-day operations. Owns overdue tasks, deviation escalations, on-call assignment. | Overdue tasks, deviation \> 20%, safety-floor channel disable attempts |
+| `estate_admin` | Administers estate settings: role assignment, verification presets, notification defaults, on-call windows. | Role changes, notification-preferences safety escalations, on-call assignment |
+| `regional` | Reads across estates in one or more regions. Rollup-only. | Regional forecast anomalies |
+| `org_admin` | Cross-estate oversight, org-wide governance, dispute resolution. | Locked-row override attempts (three in 7 days), verification override copies, double-rejected exports |
+| `on_call` | Time-bounded functional overlay set by an `estate_admin`. Overrides quiet hours. Only holder receives severity-critical pages. | Severity-critical tasks unaccepted within 2 hours |
+
+A user may hold **one primary functional role** plus **at most one overlay role** (`on_call` is the only overlay defined today). The overlay is time-bounded and set on the Estate Group settings page.
+
+### Rules
+
+- `on_call` is not permanent. It is assigned per estate per shift window by an `estate_admin`. If no `on_call` holder is configured for an estate at the moment an escalation fires, the escalation falls back to `estate_manager` and records `delivery_outcome: delivered_via_fallback`.
+- `agronomy_review` is a functional role held by any user with `agronomist` — it is not a distinct role. Escalations "to agronomy review" resolve to the estate's agronomist pool.
+- `estate_manager` and `approver` may be held by the same identity, but they are distinct roles for audit purposes.
+
+## Entitlement scope
+
+Set per user by an `estate_admin` (for estate-level scopes) or `org_admin` (for regional and global). Determines which entities the user can see.
+
+| Scope | Reads | Writes |
+| --- | --- | --- |
+| `estate` (one or more `estate_id`) | Fields, blocks, cycles, firings, alerts, tasks, maps, bundles within named estates | Per functional role, within named estates |
+| `region` (one or more `region_id`) | Rollups and aggregate data for named regions | None; rollup-only |
+| `global` | Everything in the organization | Per functional role, org-wide |
+
+Entitlements are read live at every write. Revocation takes effect mid-session per the [Failure Modes](/guides/semai-advisor/failure-modes) entitlements-changed contract.
+
+## Escalation target resolution
+
+Every [escalation](/snippets/guardrails-template) declared in a module's guardrails must name a functional role from this page. The audit envelope's `target_role` field carries the role name; `target_user_id` resolves to the specific holder at the moment the escalation fires.
+
+### Canonical mappings
+
+| Guardrail phrase | Functional role | Resolution rule |
+| --- | --- | --- |
+| "the estate manager" | `estate_manager` | The `estate_manager` of the target entity's estate |
+| "their supervisor" | `estate_manager` | The scout's estate's `estate_manager` |
+| "the on-call role" | `on_call` (fallback `estate_manager`) | Current `on_call` holder for the estate; fallback if unset |
+| "agronomy review" | `agronomist` | Any active `agronomist` in the target estate; round-robin if multiple |
+| "the org admin" | `org_admin` | The org's `org_admin`; if multiple, all receive |
+| "the estate admin" | `estate_admin` | The `estate_admin` of the target entity's estate |
+
+These mappings are canonical. If a new escalation is added to any module's guardrails, its `target_role` must be one of the eight functional roles above. New role names require a schema change to this page first.
+
+## Migration notes
+
+- The prior `guides/estate-group.mdx` group roles (`manager`, `agronomist`, `viewer`) map to `estate_manager`, `agronomist`, and `viewer` (org role).
+- The prior `guides/prescription-maps.mdx#roles` module roles (`operator`, `agronomist`, `approver_manager`, `read_only`) map to `scout`\+`agronomist`\+`approver`\+`viewer`.
+- `approver_manager` is split: `approver` (functional) is now distinct from `estate_manager` (functional). A single user may hold both.

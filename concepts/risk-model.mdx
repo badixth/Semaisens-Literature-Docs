@@ -107,7 +107,10 @@ Rule cards live alongside their literature page as YAML frontmatter under a `rul
 ```yaml
 rule_card:
   id: rice_blast                    # unique, snake_case
-  crop: rice                        # rice | oil_palm | pineapple | rubber
+  crop: rice                        # rice | oil_palm | pineapple | rubber | any
+                                    # or an array, e.g. [rice, oil_palm], for
+                                    # cross-crop hazards (drought, submergence)
+                                    # combined with cycle_model_filter for narrowing
   category: biotic.disease          # biotic.disease | biotic.insect | biotic.weed |
                                     # abiotic | nutrient
   stage_window:                     # phenology stages when this rule is active

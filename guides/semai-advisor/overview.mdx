@@ -133,10 +133,24 @@ High-risk modules with fully documented guardrails today:
 
 Regardless of session, personalization, or artifact type, the following are non-negotiable:
 
-- **Severity ≥ high** signals cannot be suppressed, muted beyond a bounded window, or personalized away. Only presentation is personalized, never thresholds.
+- **Severity ≥ high** signals cannot be suppressed, muted beyond the bounded window declared below, or personalized away. Only presentation is personalized, never thresholds.
 - The advisor cannot act on entities the user does not have access to under their identity and entitlements.
 - Every **Task** and **Proposal** artifact requires explicit human confirmation before commit.
 - Every write, whether by agent or human, is audited with actor, source, timestamps, and before/after values.
+
+### Mute bounds by severity
+
+The **bounded window** referenced above is a per-severity mute ceiling. Muting a rule or channel for a given severity may not exceed this window; the advisor offers this value as the "bounded alternative" when a longer mute is attempted.
+
+| Severity | Maximum mute window | Applies to |
+| --- | --- | --- |
+| `critical` | **Never** — cannot be muted | `alert_rule.mute_until`, notification channel disable |
+| `high` | **4 hours** | `alert_rule.mute_until`, notification channel disable |
+| `medium` | 7 days | `alert_rule.mute_until`, notification channel disable |
+| `low` | 30 days | `alert_rule.mute_until`, notification channel disable |
+| `info` | Unbounded | `alert_rule.mute_until`, notification channel disable |
+
+Dismissal of a `rulecard_firing` (a 14-day suppression on the same `rulecard`, `field`, `crop_cycle`) is **not** subject to the mute bound — dismissal targets a specific firing instance, not the rule that produced it. A dismissed firing whose `effective_band` is `critical` still surfaces every re-firing on the same field during the suppression window as a new activity entry; only the notification is suppressed.
 
 ## How it connects to the rest of the platform
 

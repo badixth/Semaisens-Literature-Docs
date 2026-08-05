@@ -85,7 +85,7 @@ Field Alerts are the data-driven category inside [Activity & Alerts](/guides/act
   <Tab title="Webhook">
     Enter your endpoint URL. Google sends a `POST` request to that URL with a JSON payload every time the alert fires. Webhook delivery is ideal for integrating alerts into farm management software, Slack channels, or custom dashboards.
 
-    Your endpoint must respond with HTTP `200` within 10 seconds. Failed deliveries are retried three times at 5-minute intervals before the alert is marked as delivery-failed. Review delivery logs under **Settings \> Alerts \> Webhook Logs**.
+    Your endpoint must respond with HTTP `200` within 10 seconds. Failed deliveries follow the platform-wide webhook retry policy documented in [API Webhooks](/api/webhooks#retry-policy); on terminal failure the alert transitions to `delivery_failed` and escalates per the Guardrails section below. Review delivery logs under **Settings \> Alerts \> Webhook Logs**.
 
     For full webhook integration documentation, see the [Webhooks API reference](/api/webhooks).
   </Tab>
