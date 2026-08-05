@@ -1,19 +1,96 @@
 ---
-title: "Plan and Execute Field Scouting Routes from NDVI Maps"
+title: "Field Scouting: AI-Assisted Task Assignment and Guided Routes"
 sidebarTitle: "Field Scouting"
-description: "Turn satellite anomaly detection into GPS-guided scouting routes and spend time exactly where crop stress is highest in your fields."
+description: "Turn satellite anomaly detection into GPS-guided scouting routes, and turn every alert into an AI-briefed task that tells the assignee why, what, when, and how - grounded in your crop literature."
 ---
 
-Instead of walking fields on a fixed grid or relying on intuition, Google turns satellite anomaly detection into targeted scouting routes, ranking problem zones by severity so you spend your time where it matters most. Every scouting trip is logged, geo-referenced, and compiled into a shareable report — building a ground-truth record that improves each subsequent season.
+Field Scouting is where the platform's signals become work. Every scout task is either created **from an alert or risk card** (with an AI-generated brief) or **from a scouting plan** (a route derived from anomaly-ranked zones). Both paths feed the same completion event back into the [Risk Model](/concepts/risk-model) and [Activity & Alerts](/guides/activity-and-alerts), closing the loop between satellite signals and ground truth.
 
-## Generating a Scouting Plan
+<Note>
+  Every completed scout task can escalate, demote, or reset the severity of the rule card that spawned it. See `activity_bindings` in the [Risk Model](/concepts/risk-model#activity-bindings).
+</Note>
+
+## Two paths to a scout task
+
+<CardGroup cols={2}>
+  <Card title="From a risk or alert" icon="wand-magic-sparkles">
+    Click **Open scout task** on any Risk Monitoring card or field alert. The platform pre-populates the task with an **AI brief** (why, what, when, how) drawn from the matching rule card and diagnosis page. You pick the assignee and the task is ready.
+  </Card>
+
+  <Card title="From a scouting plan" icon="route">
+    Generate a full-field route from the latest NDVI map. The system ranks anomalous zones and lays out a time-efficient walking order. Use this for periodic scouting or when no specific risk is driving the visit.
+  </Card>
+</CardGroup>
+
+## Path 1: AI-assisted assignment from an alert or risk
+
+This is the primary path for reactive scouting. It answers the four questions an assignee should never have to guess.
+
+<Steps>
+  <Step title="Open the source alert or risk">
+    From [Activity & Alerts](/guides/activity-and-alerts) or the Risk Monitoring dashboard, open the entry that needs ground confirmation. Every field alert and risk card has an **Open scout task** action.
+  </Step>
+  <Step title="Review the AI brief">
+    The task draft opens with a pre-generated brief in four fixed sections. This is the same schema the AI advisor uses, so the assignee sees a familiar structure.
+
+    | Section | Populated from |
+    | --- | --- |
+    | **Why** | The alert or risk summary, the rule card `drivers` that fired, and the current severity band. |
+    | **What** | The `mitigation.actions` from the rule card, filtered to scout-relevant steps. |
+    | **When** | `mitigation.window_days_by_severity` for the current severity, minus any elapsed time. Renders as a countdown. |
+    | **How** | The crop-specific `field-walk-protocol.mdx` and diagnosis page excerpt from `literature_ref` on the rule card. |
+  </Step>
+  <Step title="Pick the assignee">
+    Select a teammate. The platform surfaces the three teammates with the shortest recent scout-response time for the field's zone, and flags anyone already at task capacity. Change assignee at any time before completion.
+  </Step>
+  <Step title="Confirm the sample plan">
+    The AI proposes a sample size and pattern based on the rule card:
+
+    - **Sample size** - default from `drivers` confidence (e.g., 8 tillers for a blast confirmation).
+    - **GPS points** - centroids of the affected zones, ranked by severity.
+    - **What to record** - a checklist of the specific symptoms named in the diagnosis page (e.g., "diamond-shaped lesions", "collar rot", "whiteheads").
+
+    Adjust any of these before assigning.
+  </Step>
+  <Step title="Assign and notify">
+    Click **Assign**. The task appears in the assignee's mobile app queue immediately, and a `task.assigned` entry lands in their [Activity & Alerts](/guides/activity-and-alerts) feed. Delivery channel follows the assignee's Notification Preferences.
+  </Step>
+</Steps>
+
+### What the assignee sees
+
+The mobile task view mirrors the desktop brief so nothing is lost in translation:
+
+- **Header** - field, zone, severity, countdown to mitigation window close.
+- **Why** - one paragraph, plain language. No jargon unless the term is defined inline.
+- **What to do** - numbered checklist. Each item is tap-to-complete.
+- **When** - visible countdown; turns red inside the last 24 hours.
+- **How** - collapsible field-walk protocol with the specific symptoms illustrated by photos from the diagnosis page.
+- **Ask the advisor** - opens a chat grounded in the same rule card, in case the scout hits something unexpected.
+
+<Tip>
+  The AI brief is generated once when the task is created, and re-generated whenever the underlying rule card's severity changes. The assignee always sees the current window and current action list, not a stale copy.
+</Tip>
+
+### Example brief
+
+For a HIGH blast risk at booting on field A2:
+
+- **Why**: "Leaf wetness has exceeded 40 hours in the last 7 days and night temperatures are inside the 20-28 C blast window. NDRE is 0.06 below expected. Blast risk score 0.72 (HIGH). Booting stage; neck-blast window opens in 24-48 hours."
+- **What**: "Sample 8 tillers each at the 3 highest-severity zone centroids. Record: presence of diamond-shaped lesions, collar lesions, node rot. Photograph any lesion found. Flag block for preventive fungicide if lesions confirmed on 2 or more tillers per zone."
+- **When**: "3 days remaining. Complete before Fri 14 Jun."
+- **How**: The [rice field walk protocol](/guides/Crop/Rice/field-walk-protocol) and [Blast](/guides/Crop/Rice/biotic/diseases/blast) sections on symptom identification.
+
+## Path 2: Generating a full-field scouting plan
+
+Use this when there is no specific alert driving the visit. It is the same functionality that existed before AI-assisted assignment.
 
 <Steps>
   <Step title="Open the Scouting tab">
     Open any field from the **Fields** page, then click the **Scouting** tab in the field detail panel. Any previously completed scouting sessions are listed here by date.
   </Step>
   <Step title="Generate the scouting plan">
-    Click **Generate Scouting Plan**. The system analyses the latest NDVI map, identifies the 5–10 most anomalous zones ranked by severity, and places a numbered scouting point at the centroid of each zone. Points are ordered into a time-efficient route using nearest-neighbour path optimization.
+    Click **Generate Scouting Plan**. The system analyses the latest NDVI map, identifies the 5-10 most anomalous zones ranked by severity, and places a numbered scouting point at the centroid of each zone. Points are ordered into a time-efficient route using nearest-neighbour path optimization.
   </Step>
   <Step title="Review the scouting points">
     Inspect each numbered point on the map. Click a point to view its NDVI value, severity rank, zone area, and the date of the source imagery. Drag any point to a more accessible location if terrain or obstacles make the auto-placed position impractical.
@@ -23,6 +100,7 @@ Instead of walking fields on a fixed grid or relying on intuition, Google turns 
   </Step>
   <Step title="Scout in the field">
     In the mobile app, navigate to each numbered point using the built-in GPS guidance. At each point, record your observations:
+
     - Attach one or more **photos** of the crop or symptom
     - Add free-text **notes** describing what you see
     - Tag a **pest or disease flag** from the built-in lookup list
@@ -33,12 +111,26 @@ Instead of walking fields on a fixed grid or relying on intuition, Google turns 
   </Step>
 </Steps>
 
+## Completion feeds the risk model
+
+Every completed scout task emits an event the [Risk Model](/concepts/risk-model#activity-bindings) can act on:
+
+| Scout outcome | Event | Effect on the source rule card |
+| --- | --- | --- |
+| Symptom confirmed | `scout.completed` with `lesions_confirmed = true` | Severity escalates (typically to CRITICAL). |
+| No symptom found | `scout.completed` with `lesions_confirmed = false` | Contradiction alert raised; recommend re-scout or check other causes. |
+| Ambiguous / needs lab | `scout.completed` with `needs_confirmation = true` | Severity held; soil test or lab sample task suggested. |
+| Task overdue in critical stage | `task.overdue` | Severity promotes one band automatically. |
+
+This is what makes the loop closed: the AI does not just brief the scout, the scout's finding **updates the AI's model** for the next decision.
+
 ## Mobile App
 
 <CardGroup cols={2}>
   <Card title="iOS" icon="apple">
     Download the Google app from the App Store. Supports iPhone and iPad. iOS 15 or later required.
   </Card>
+
   <Card title="Android" icon="android">
     Download from the Google Play Store. Android 10 or later required. Works on phones and rugged field tablets.
   </Card>
@@ -46,10 +138,10 @@ Instead of walking fields on a fixed grid or relying on intuition, Google turns 
 
 ### Offline mode
 
-The mobile app is designed for areas with poor connectivity. When you export a scouting route, the underlying NDVI map tiles and all scouting point metadata download to your device automatically. You can navigate, record observations, take photos, and add notes with no data signal. Everything queues locally and syncs the next time the device connects to Wi-Fi or a cellular network.
+The mobile app is designed for areas with poor connectivity. When you export a scouting route or receive an AI-briefed task, the underlying NDVI map tiles, task brief, diagnosis excerpt, and photo references download to your device automatically. You can navigate, record observations, take photos, and add notes with no data signal. Everything queues locally and syncs the next time the device connects to Wi-Fi or a cellular network.
 
 <Warning>
-Do not force-close the app immediately after returning to connectivity. Allow the sync progress indicator to reach 100% before closing to ensure no observations are lost.
+  Do not force-close the app immediately after returning to connectivity. Allow the sync progress indicator to reach 100% before closing to ensure no observations are lost.
 </Warning>
 
 ## Scouting Reports
@@ -58,9 +150,14 @@ After a session syncs, Google automatically generates a PDF scouting report. Eac
 
 - **Field name** and date of scouting session
 - **NDVI context map** with scouting points overlaid
-- **Observations table** — point number, GPS coordinates, severity flag, and notes for each stop
+- **Observations table** - point number, GPS coordinates, severity flag, and notes for each stop
 - **Photo gallery** with captions tied to each scouting point
-- **Summary statistics** — number of points visited, percentage flagged as Action Required
+- **Summary statistics** - number of points visited, percentage flagged as Action Required
+- **Rule card outcome** - for AI-briefed tasks, the resulting severity change on the source rule card
+
+<Note>
+  Scouting reports are eligible source events for [Verification](/guides/verification). A completed, geo-referenced scout report attached to a satellite pass on the same date is one of the strongest ground-truth records a subsidy or takaful assessor can receive.
+</Note>
 
 ### Downloading reports
 
@@ -82,5 +179,13 @@ Authorization: Bearer <your_api_key>
 ```
 
 <Tip>
-Schedule a scouting session at least once per week during peak vegetative growth and at every critical growth stage (tillering, heading, grain fill). Regular ground-truth data makes the platform's anomaly detection significantly more accurate for your specific crop and soil conditions over time.
+  Schedule a scouting session at least once per week during peak vegetative growth and at every critical growth stage (tillering, heading, grain fill). Regular ground-truth data makes the platform's anomaly detection significantly more accurate for your specific crop and soil conditions over time.
 </Tip>
+
+## Related
+
+- [Activity & Alerts](/guides/activity-and-alerts) - the feed where every task assignment, completion, and escalation is recorded.
+- [Activity Log](/guides/activity-log) - the same events as a Gantt timeline for planning and stand-ups.
+- [Risk Model](/concepts/risk-model) - the rule cards that power AI briefs and the `activity_bindings` scout completions trigger.
+- [VRA Maps](/guides/prescription-maps) - the natural follow-up when a scout confirms a hazard and a variable-rate response is needed.
+- [Verification](/guides/verification) - turn completed scout sessions into satellite-stamped proof for subsidy, takaful, and NADMA claims.

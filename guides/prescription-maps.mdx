@@ -1,32 +1,37 @@
 ---
-title: "Create Variable-Rate Prescription Maps from Satellite Data"
-sidebarTitle: "Prescription Maps"
-description: "Build satellite-derived prescription maps for variable-rate fertilizer, seed, and irrigation to cut input costs and optimize yield."
+title: "VRA Maps: Variable-Rate Application Prescriptions"
+sidebarTitle: "VRA Maps"
+description: "Build satellite-derived Variable-Rate Application (VRA) prescription maps for fertilizer, seed, and irrigation, and track the full lifecycle from generation to applied verification."
 ---
 
-Prescription maps let you move beyond flat-rate application and put exactly the right amount of fertilizer, seed, or pesticide where the crop needs it — and nowhere else. By grounding application decisions in satellite-derived vegetation indices, you can reduce input costs, minimize environmental runoff, and push yield potential in areas of the field that have historically underperformed.
+VRA (Variable-Rate Application) maps, also called prescription maps, let you move beyond flat-rate application and put exactly the right amount of fertilizer, seed, or pesticide where the crop needs it, and nowhere else. By grounding application decisions in satellite-derived vegetation indices, you reduce input costs, minimize environmental runoff, and lift yield in areas that have historically underperformed.
+
+<Note>
+  Every VRA map has a lifecycle - **generated → reviewed → approved → exported → applied → verified**. Each step emits an event into [Activity & Alerts](/guides/activity-and-alerts) and, once applied, becomes an eligible source event for [Verification](/guides/verification).
+</Note>
 
 ## Understanding Variable-Rate Application
 
-Variable-rate application (VRA) divides a field into **management zones** — groups of pixels with similar index values that represent areas of comparable agronomic status. Each zone receives a different application rate tailored to its needs. A high-biomass zone might receive a maintenance nitrogen rate, while a consistently low-performing zone gets a corrective higher rate to close the yield gap.
+Variable-Rate Application (VRA) divides a field into **management zones** - groups of pixels with similar index values that represent areas of comparable agronomic status. Each zone receives a different application rate tailored to its needs. A high-biomass zone might receive a maintenance nitrogen rate, while a consistently low-performing zone gets a corrective higher rate to close the yield gap.
 
 Google automates zone delineation using the vegetation index of your choice, then lets you assign and fine-tune rates per zone before exporting a file your equipment can execute directly.
 
 <Info>
-Management zones derived from multi-date imagery composites are more reliable than zones from a single image. Google automatically uses a seasonal composite when more than three imagery dates are available for the selected season.
+  Management zones derived from multi-date imagery composites are more reliable than zones from a single image. Google automatically uses a seasonal composite when more than three imagery dates are available for the selected season.
 </Info>
 
-## Creating a Prescription Map
+## Creating a VRA Map
 
 <Steps>
-  <Step title="Open the Prescriptions tab">
-    Navigate to **Fields**, select your field, and click the **Prescriptions** tab. Any previously created prescriptions for this field are listed here.
+  <Step title="Open the VRA tab">
+    Navigate to **Fields**, select your field, and click the **VRA** tab. Any previously created VRA maps for this field are listed here.
   </Step>
-  <Step title="Start a new prescription">
-    Click **New Prescription**. A setup panel opens on the right side of the screen.
+  <Step title="Start a new VRA map">
+    Click **New VRA Map**. A setup panel opens on the right side of the screen. If you arrived here from a scout completion or risk card, the base index and target hazard are pre-filled.
   </Step>
   <Step title="Choose your base index">
     Select the vegetation index that best matches your application goal:
+
     - **NDVI** — use for variable seeding rates and general biomass-based zoning
     - **NDRE** — use for variable nitrogen application; more sensitive to chlorophyll at high biomass
     - **NDWI** — use for variable irrigation scheduling or fungicide timing by canopy water status
@@ -38,27 +43,58 @@ Management zones derived from multi-date imagery composites are more reliable th
     The system assigns default relative rates scaled to your base application rate. Edit the rate for each zone to match your agronomic targets. For example:
 
     | Zone | Index range | Suggested use case | Example rate |
-    |------|-------------|-------------------|--------------|
-    | Zone 1 (low) | NDRE < 0.2 | Corrective high nitrogen | 150 kg/ha |
+    | --- | --- | --- | --- |
+    | Zone 1 (low) | NDRE \< 0.2 | Corrective high nitrogen | 150 kg/ha |
     | Zone 2 (medium) | NDRE 0.2–0.35 | Maintenance rate | 120 kg/ha |
-    | Zone 3 (high) | NDRE > 0.35 | Reduced maintenance | 90 kg/ha |
+    | Zone 3 (high) | NDRE \> 0.35 | Reduced maintenance | 90 kg/ha |
+  </Step>
+  <Step title="Submit for review or export">
+    A VRA map moves through a review lifecycle before it is applied. Click **Submit for Review** to hand it to an approver, or **Export** directly if you have export permission. See [VRA lifecycle](#vra-lifecycle) below.
   </Step>
   <Step title="Export in your equipment's format">
-    Click **Export Prescription**, choose your equipment format (see table below), and download the file. Load the file onto your display or precision ag platform before heading to the field.
+    Once approved, click **Export**, choose your equipment format (see table below), and download the file. Load the file onto your display or precision ag platform before heading to the field.
   </Step>
 </Steps>
+
+## VRA lifecycle
+
+Every VRA map moves through a defined lifecycle. Each step emits an event into [Activity & Alerts](/guides/activity-and-alerts) so operators, agronomists, and (later) verifiers can trace the full history.
+
+| Stage | Event | Who acts | Effect |
+| --- | --- | --- | --- |
+| **Generated** | `map.generated` | System or agronomist | New map appears in the field's VRA tab. Info-level entry in the feed. |
+| **Reviewed** | `map.reviewed` | Agronomist / supervisor | Map opened, zones and rates confirmed. Comments attached. |
+| **Approved** | `map.approved` | Approver role | Map is locked and export-enabled. |
+| **Exported** | `map.exported` | Operator | Machine-format file downloaded. Timestamp and target device recorded. |
+| **Applied** | `map.applied` | Operator (via as-applied upload) or machinery webhook | Actual application recorded. Triggers `activity_bindings.map.applied` on any rule card the map targets, which typically **resets severity** on that hazard. |
+| **Verified** | `map.verified` | System | Cross-checked against the satellite record for the field and date. Becomes an eligible event for [Verification](/guides/verification) submissions. |
+
+<Tip>
+  A VRA map that stays in **Generated** or **Approved** for more than 5 days on a field entering a critical growth stage is promoted to a MEDIUM alert in the Activity & Alerts feed. Rule cards can declare stricter windows via `activity_bindings`.
+</Tip>
+
+### Roles
+
+| Role | Generate | Review | Approve | Export | Upload as-applied |
+| --- | :-: | :-: | :-: | :-: | :-: |
+| Operator | ✓ |  |  | ✓ (post-approval) | ✓ |
+| Agronomist | ✓ | ✓ |  | ✓ | ✓ |
+| Approver / Manager | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Read-only |  | ✓ |  |  |  |
+
+Defaults above; role permissions are configurable at the org level.
 
 ## Export Formats
 
 | Format | Compatible platform | File extension |
-|---|---|---|
+| --- | --- | --- |
 | ISO-XML | John Deere Operations Center, ISOBUS-compliant displays | `.xml` |
 | Shapefile | AGCO Fuse, CNH AFS, ISOBUS generic | `.shp / .dbf / .prj` |
 | GeoJSON | Universal — any GIS-capable platform or custom system | `.geojson` |
 | As-applied CSV | Data analysis, record-keeping, agronomic reporting | `.csv` |
 
 <Note>
-Variable-rate application may be subject to local regulations around maximum nutrient application rates, buffer zones near waterways, and record-keeping requirements. Check with your local agricultural authority or agronomist before executing a prescription map, particularly for nitrogen and pesticide applications.
+  Variable-rate application may be subject to local regulations around maximum nutrient application rates, buffer zones near waterways, and record-keeping requirements. Check with your local agricultural authority or agronomist before executing a prescription map, particularly for nitrogen and pesticide applications.
 </Note>
 
 ## Reviewing Results After Application
@@ -67,8 +103,18 @@ Close the loop by uploading your as-applied data after the application pass is c
 
 To upload as-applied data:
 
-1. Go to the field's **Prescriptions** tab and open the completed prescription.
+1. Go to the field's **VRA** tab and open the completed map.
 2. Click **Upload As-Applied Data** and select your file.
 3. Google overlays the target prescription and the as-applied data side by side, highlighting areas where applied rates deviated from the prescription by more than 10%.
 
-Use this comparison to identify equipment calibration issues, coverage gaps, or overlaps — and carry the findings into your next application planning session.
+The upload emits `map.applied` into [Activity & Alerts](/guides/activity-and-alerts) with the deviation summary, and starts the cross-check against the next satellite pass. Once the cross-check passes, the entry becomes eligible for [Verification](/guides/verification).
+
+Use the deviation comparison to identify equipment calibration issues, coverage gaps, or overlaps, and carry the findings into your next application planning session.
+
+## Related
+
+- [Field Scouting](/guides/field-scouting) - a scout completion often triggers a new VRA map, especially for confirmed disease or nutrient hazards.
+- [Activity & Alerts](/guides/activity-and-alerts) - every lifecycle event lands in the feed with severity and countdown.
+- [Activity Log](/guides/activity-log) - VRA lifecycle rendered as Gantt bars across the season.
+- [Risk Model](/concepts/risk-model#activity-bindings) - `map.applied` events reset severity on the targeted rule card.
+- [Verification](/guides/verification) - turn applied VRA maps into satellite-stamped proof for subsidy, takaful, and NADMA claims.

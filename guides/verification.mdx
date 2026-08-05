@@ -1,0 +1,147 @@
+---
+title: "Verification: Satellite-Stamped Proof for Subsidies, Takaful, and NADMA"
+sidebarTitle: "Verification"
+description: "Turn every logged field operation into tamper-evident, satellite-stamped proof formatted for subsidy applications, crop-takaful claims, and NADMA flood-relief submissions. No site visit required."
+---
+
+Verification turns activity on the platform into **evidence agencies accept**. Every logged field operation - a spray, a scout, a VRA application, a harvest, a flood event - is cross-checked against the satellite record for that parcel and date, then issued as a tamper-evident verification line. Agencies release subsidies faster and settle takaful or disaster claims with evidence instead of paperwork and field audits.
+
+<Note>
+  Verification is the presentation layer. The mechanics of the cross-check, hashing, and evidence bundle are documented in [Verification Model](/concepts/verification-model).
+</Note>
+
+## Why this matters
+
+Today, most agri-payments in Malaysia require a physical site visit. That means weeks or months of delay, uneven coverage across smallholders, and disputes that come down to a photograph and a signature. Verification replaces that with:
+
+- **A satellite record** that captured the parcel on or near the operation date, independent of the farmer.
+- **A tamper-evident hash** over the event, the imagery, and the surrounding context.
+- **A formatted bundle** an assessor can read in minutes without leaving their desk.
+
+The farmer submits. The agency approves. The record is auditable years later.
+
+## What can be verified
+
+A verification is always tied to an **event** already recorded on the platform. Verification cannot invent activity; it can only stamp what was logged.
+
+| Event source | Example | Typical use |
+| --- | --- | --- |
+| [Field Scouting](/guides/field-scouting) | Scout confirmed blast lesions on A2, 3 of 8 tillers, 12 Jun | Takaful pest-loss claim; disease-outbreak reporting. |
+| [VRA Maps](/guides/prescription-maps) | Nitrogen VRA applied to A2 on 15 Jun, 4.2 ha coverage | Fertilizer-subsidy disbursement; audit trail. |
+| [Field Alerts](/guides/alerts-notifications) | Flood alert on A2 from Sentinel-1 backscatter, 3-5 Jun | NADMA flood-relief submission. |
+| Crop Health snapshot | End-of-season NDVI \+ yield estimate on A2 | Yield-shortfall takaful claim. |
+| Manual field log | Harvest completed on A2, 18 Sep | Harvest declaration for subsidy closure. |
+
+<Warning>
+  Verification does not create evidence. It certifies that what you logged is consistent with the independent satellite record. If an operation was not logged on the platform (or was logged much later than it happened), it cannot be verified against the pass captured on that date.
+</Warning>
+
+## The verification line
+
+Every verified event produces a short, human-readable line plus a machine-readable payload. Agencies see the line; auditors can request the payload.
+
+> **VRF-2026-06-15-A2-VRA-NITROGEN**  ·  Field A2 (Kedah, 4.2 ha)  ·  Nitrogen VRA applied 15 Jun 2026, 09:14 MYT  ·  Confirmed against Sentinel-2 pass 16 Jun 2026 (NDRE \+0.04 vs pre-application)  ·  Hash `sha256:9f2a…c81b`  ·  Verified 17 Jun 2026
+
+The line always contains:
+
+- **Verification ID** with a stable prefix (`VRF-YYYY-MM-DD-<field>-<event>`)
+- **Parcel identity** (field, region, area)
+- **Event and timestamp** as logged
+- **Cross-check** that passed (imagery, date, delta metric)
+- **Tamper-evident hash** over the full evidence bundle
+- **Verification timestamp**
+
+## Submission formats
+
+Agencies do not all want the same thing. The platform ships three preset bundles.
+
+<CardGroup cols={3}>
+  <Card title="Subsidy application" icon="file-invoice-dollar">
+    Formatted PDF \+ machine-readable JSON. Includes parcel identity, operation log, satellite cross-check summary, and hash. Layout matches common MOA subsidy templates.
+  </Card>
+
+  <Card title="Crop takaful claim" icon="shield-halved">
+    Formatted PDF \+ JSON with an explicit **loss narrative** (event, yield-at-risk %, estimated loss in tonnes and MYR). Includes pre-event and post-event imagery thumbnails.
+  </Card>
+
+  <Card title="NADMA flood relief" icon="house-flood-water">
+    Formatted PDF \+ GeoJSON of the flood footprint. Includes Sentinel-1 backscatter evidence, water-extent polygon, and the affected area calculation.
+  </Card>
+</CardGroup>
+
+All three formats share the same underlying evidence bundle. The presentation layer differs by agency. See [Verification Model](/concepts/verification-model#submission-formats) for the exact field lists.
+
+## Creating a verification
+
+<Steps>
+  <Step title="Open the source event">
+    From [Activity & Alerts](/guides/activity-and-alerts), open the completed event you want to verify - a scout report, a VRA application, a flood alert, or a season-end yield snapshot.
+  </Step>
+  <Step title="Click Verify">
+    Every event that is eligible for verification carries a **Verify** action. The platform pulls the surrounding satellite passes, runs the cross-check, and shows the result.
+  </Step>
+  <Step title="Review the cross-check">
+    You will see:
+
+    - The event as logged (date, coordinates, actor, quantities)
+    - The satellite pass(es) used for the cross-check (source, date, cloud cover, indices measured)
+    - The delta metric that confirms the operation (e.g., NDRE \+0.04 after N application; water-extent polygon after flood alert)
+    - Any anomalies (missing imagery, cloud gap, unexpected delta) called out explicitly
+
+    Cross-checks either **pass**, **pass with note**, or **fail**. Failed checks cannot be submitted; the platform explains why and suggests what to do (re-scout, wait for the next pass, or dispute with a manual field record).
+  </Step>
+  <Step title="Choose the submission format">
+    Pick Subsidy, Takaful, or NADMA. The platform assembles the bundle and displays the verification line for final review.
+  </Step>
+  <Step title="Submit">
+    Submit directly to the agency (for integrated agencies) or download the bundle to attach to an external portal. Submission emits a `verification.submitted` event into the feed with a receipt.
+  </Step>
+</Steps>
+
+<Tip>
+  Verify events **as soon as they happen**, not at the end of the season. A verification requested weeks later may fall outside the imagery window that best confirms it, and the cross-check will be weaker.
+</Tip>
+
+## What agencies see
+
+Agencies with integrated access see a queue of incoming verifications. Each row shows:
+
+- Verification line
+- Parcel identity \+ smallholder / estate identity
+- Cross-check strength (strong / moderate / weak, with the driver)
+- Attached evidence bundle
+- Assessor actions: **Approve**, **Request more info**, **Reject with reason**
+
+Approval triggers the agency's own disbursement or claims workflow. The verification hash is stored on the agency side for later audit.
+
+## Handling disputes
+
+Some operations cannot be cleanly cross-checked. Common cases:
+
+| Situation | What the platform does | What the submitter can do |
+| --- | --- | --- |
+| Cloud cover blocks the satellite pass | Cross-check flagged **weak**, with imagery gap called out | Attach ground photos with GPS \+ timestamp; re-verify on the next clear pass |
+| Operation logged days late | Cross-check compares against the wrong pass window | Log operations same-day whenever possible; late logs are marked in the bundle |
+| Satellite record contradicts the log | Cross-check **fails** | Review with agronomist; a scout task is auto-suggested |
+| Sensor or feed disruption | Verification is held until the feed recovers | The event stays in the queue; no submission is lost |
+
+Disputes never delete the underlying event or verification attempt. The audit trail is preserved.
+
+## Bulk verification
+
+Estate managers can verify many events at once. Under **Verifications → Bulk**, filter by field, event type, date range, or claim type, then submit the whole set as one bundle. This is the recommended path for:
+
+- Season-end subsidy closure across an estate
+- Region-wide flood-relief submissions after a NADMA-declared event
+- Cooperative-level takaful renewals
+
+Each event still carries its own verification line and hash inside the bundle; the bulk wrapper just handles the transmission.
+
+## Related
+
+- [Verification Model](/concepts/verification-model) - the cross-check math, hashing, and bundle schema.
+- [Field Scouting](/guides/field-scouting) - completed scout sessions are one of the strongest verification sources.
+- [VRA Maps](/guides/prescription-maps) - as-applied uploads become verifiable operations.
+- [Activity & Alerts](/guides/activity-and-alerts) - the source feed for every verifiable event.
+- [Activity Log](/guides/activity-log) - export a full-season Gantt view for agency audit trails.
+- [Estate Group](/guides/estate-group) - set default preset bundles once per estate so field-level exports pick the right format automatically.

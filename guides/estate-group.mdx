@@ -1,0 +1,105 @@
+---
+title: "Estate Group: Roll Up Fields Into One Manager Dashboard"
+sidebarTitle: "Estate Group"
+description: "Group fields under a single manager and see one dashboard for the whole operation: area monitored, alerts by severity, production forecast, and team capacity."
+---
+
+An **Estate Group** is a named collection of fields under one owner or operator. It gives estate managers a single dashboard for the entire operation without losing the field-level detail agronomists work from.
+
+Everything you see on the Estate dashboard is a rollup of field data. The aggregation rules are defined in the [Aggregation Model](/concepts/aggregation-model) and every number is drillable back to the fields that produced it.
+
+## What the dashboard shows
+
+<CardGroup cols={2}>
+  <Card title="Coverage" icon="map-location-dot">
+    Total hectares monitored, count of fields, crop mix by area, and the most recent satellite pass date across the estate.
+  </Card>
+
+  <Card title="Health distribution" icon="chart-pie">
+    Area-weighted health buckets (healthy / stressed / critical) as a percentage of total estate area. See the [Aggregation Model](/concepts/aggregation-model#rollup-categories) for the exact calculation.
+  </Card>
+
+  <Card title="Alerts by severity" icon="triangle-exclamation">
+    Active alerts across the estate grouped into Critical, High, Medium, Low, Info. Click any bucket to drill into the field-level feed.
+  </Card>
+
+  <Card title="Production forecast" icon="chart-line">
+    Estate-wide yield projection with P10 to P90 confidence band. Central estimate is the area-weighted sum of per-field yield projections.
+  </Card>
+
+  <Card title="Team capacity" icon="users">
+    Scout tasks in flight per assignee, overdue count, and the next 7 days of scheduled work. Same data as [Activity Log](/guides/activity-log) by-assignee view.
+  </Card>
+
+  <Card title="Verification status" icon="stamp">
+    Count of verifications issued this season, acceptance rate by agency (Subsidy / Takaful / NADMA), and any disputed bundles awaiting response.
+  </Card>
+</CardGroup>
+
+## Setting up an estate group
+
+<Steps>
+  <Step title="Create the group">
+    Fields → **Groups** → **New group**. Name it after the operating unit, not the legal entity (e.g., "Kedah North Estate", not "XYZ Sdn Bhd").
+  </Step>
+  <Step title="Add fields">
+    Add fields by search, by drawing a bounding polygon on the map, or by uploading a CSV of field IDs. A field can belong to more than one group (e.g., a research plot inside a commercial estate).
+  </Step>
+  <Step title="Assign roles">
+    Grant each teammate a role at the group level: **Manager** (full read/write), **Agronomist** (per-field read/write), **Viewer** (read-only rollups, no per-field drilldown). Roles inherit down to every field in the group.
+  </Step>
+  <Step title="Set the crop calendar">
+    Estate-level default calendar (planting window, expected harvest). Individual fields can override. The calendar drives phenology bands in [Activity Log](/guides/activity-log) and the yield projection window.
+  </Step>
+  <Step title="Configure verification presets">
+    Estate defaults for [Verification](/guides/verification) preset bundles (Subsidy / Takaful / NADMA), so any field-level operation exports with the right formatting without re-picking each time.
+  </Step>
+</Steps>
+
+## Common workflows
+
+<AccordionGroup>
+  <Accordion title="Morning triage across the estate">
+    Open the Alerts card. Sort by severity. Every Critical or High row is a field that needs a decision today. Click through to the field, review the [rule card](/concepts/risk-model) driver, and assign a scout task from there.
+  </Accordion>
+
+  <Accordion title="Weekly capacity check">
+    Open the Team Capacity card. Any assignee with more than 5 overlapping bars in the next 7 days is flagged. Rebalance from [Activity Log](/guides/activity-log) by-assignee view.
+  </Accordion>
+
+  <Accordion title="Monthly board update">
+    Export the estate dashboard as PDF. It includes coverage, health distribution, production forecast with confidence, verification acceptance rate, and top 5 hazards by area affected. Every number is reproducible via the [Aggregation Model](/concepts/aggregation-model#reproducibility) explain view.
+  </Accordion>
+
+  <Accordion title="End-of-season yield reconciliation">
+    Compare the final production forecast (issued 4 weeks before harvest) against actual harvest yield. Deviation is broken down by field so you can trace which rule cards under- or over-called. Feeds the `farm_history` layer in the [Risk Model](/concepts/risk-model#layered-yield-impact) for next season.
+  </Accordion>
+</AccordionGroup>
+
+## What stays at field level
+
+The Estate dashboard **never** merges field-level items that would lose meaning:
+
+- Rule card severity is not averaged. Instead you see "12 fields at HIGH blast risk".
+- VRA prescriptions are not merged. Each field's map is generated and applied independently.
+- Scout tasks are not summarized into estate-wide tasks. Every task is still tied to a field, an assignee, and (usually) a rule card.
+
+See [Aggregation Model - What rolls up cleanly, and what does not](/concepts/aggregation-model#what-rolls-up-cleanly-and-what-does-not) for the full list.
+
+## Data freshness
+
+Estate rollups refresh **daily at 06:00 local time**. Each card shows `Last updated` (job run time) and `Data through` (newest field observation included). Cards with `Data through` more than one cycle behind expected render a **Stale** badge with the reason.
+
+Common reasons a card goes stale:
+
+- Persistent cloud cover on a share of the estate area
+- Fields with paused monitoring
+- A recent rule card version upgrade that is still propagating
+
+## Related
+
+- [Aggregation Model](/concepts/aggregation-model) - defines every rollup rule this dashboard uses.
+- [Activity Log](/guides/activity-log) - the Gantt timeline for planning and stand-ups.
+- [Activity & Alerts](/guides/activity-and-alerts) - severity-ranked feed of everything happening across the estate.
+- [Verification](/guides/verification) - export estate-wide bundles for agency submission.
+- [Regional Forecast](/guides/regional-forecast) - the next layer up.

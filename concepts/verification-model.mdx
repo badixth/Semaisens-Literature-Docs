@@ -1,0 +1,175 @@
+---
+title: "Verification Model: Cross-Check Logic, Hashing, and Evidence Bundles"
+sidebarTitle: "Verification Model"
+description: "The mechanics behind satellite-stamped proof: how logged events are cross-checked against imagery, how the tamper-evident hash is built, and what agencies actually receive in a submission bundle."
+---
+
+Verification is the mechanism that lets an agency accept a platform-issued line instead of a physical site visit. This page documents the model. For the operator-facing workflow, see [Verification](/guides/verification).
+
+The model has four parts: **source events**, the **cross-check**, the **tamper-evident hash**, and the **submission bundle**. Each part has a defined schema so the system is auditable end-to-end.
+
+## Source events
+
+A verification is always anchored to a source event that already exists on the platform. The event must carry a minimum set of fields for it to be verifiable.
+
+| Required field | Purpose |
+| --- | --- |
+| `event_id` | Stable identifier used across the audit trail. |
+| `event_type` | `scout.completed`, `map.applied`, `alert.flood`, `harvest.declared`, `yield.snapshot`, ... |
+| `field_id` and `geometry` | The parcel the event applies to, as GeoJSON. |
+| `occurred_at` | ISO 8601 timestamp of the event as reported by the actor. |
+| `logged_at` | Timestamp when the event landed on the platform. |
+| `actor` | Who reported it (user id, device id, or system). |
+| `payload` | Event-specific measurements (e.g., `nitrogen_kg_per_ha`, `lesions_confirmed`, `water_extent_ha`). |
+
+If `occurred_at` and `logged_at` differ by more than **72 hours**, the event is still eligible but the cross-check is marked with a **late-log** flag. Assessors decide whether to accept.
+
+## The cross-check
+
+Each event type has a defined cross-check that compares the reported event against the independent satellite record.
+
+| Event type | Satellite source | Cross-check |
+| --- | --- | --- |
+| `map.applied` (nitrogen VRA) | Sentinel-2, next clear pass within 14 days | NDRE delta ≥ \+0.02 in treated zones vs pre-application baseline. |
+| `scout.completed` (disease confirmed) | Sentinel-2, pass ±2 days | NDVI/NDRE anomaly present in the reported zones on or near the scout date. |
+| `alert.flood` | Sentinel-1 SAR backscatter, pass ±3 days | Backscatter drop consistent with standing water; water-extent polygon derived. |
+| `harvest.declared` | Sentinel-2, pass within 21 days | NDVI decline from peak of at least the crop-specific senescence delta. |
+| `yield.snapshot` (season-end) | Multi-date Sentinel-2 composite across the full season | Season-integrated NDVI/NDRE consistent with the reported yield within the crop-specific tolerance. |
+
+Each cross-check produces a **strength grade**:
+
+| Grade | Criteria |
+| --- | --- |
+| **Strong** | Satellite pass within the ideal window, low cloud cover, delta metric clearly outside noise. |
+| **Moderate** | Pass within the acceptable window OR partial cloud cover OR delta near threshold. |
+| **Weak** | Pass outside ideal window, significant cloud cover, or metric close to noise floor. Submission allowed with explicit flag. |
+| **Fail** | No usable pass in the window, or metric contradicts the reported event. Submission blocked. |
+
+The grade, the pass metadata, and the delta values all enter the evidence bundle. Nothing is hidden.
+
+## Tamper-evident hash
+
+Each verification produces a **SHA-256 hash** over the canonical serialization of:
+
+1. The source event (all fields above).
+2. The satellite pass metadata used for the cross-check (source, tile id, acquisition time, cloud mask).
+3. The measured delta values.
+4. The cross-check grade and any flags.
+5. The verification timestamp and platform version.
+
+```text
+hash = sha256(canonical_json({
+  event:      { ... },
+  imagery:    [ { source, tile_id, acquired_at, cloud_pct }, ... ],
+  crosscheck: { metric, baseline, observed, delta, grade, flags },
+  meta:       { verified_at, platform_version }
+}))
+```
+
+The hash is:
+
+- **Deterministic** - any party with the raw inputs can recompute it and confirm.
+- **Bound to a specific imagery pass** - swapping the satellite source or date changes the hash.
+- **Recorded on submission** - the agency stores the hash; auditors can request the raw inputs and recompute.
+
+<Note>
+  The hash is not a blockchain. It does not need to be. It is a portable, reproducible fingerprint that any third party can validate given the raw evidence bundle. Blockchain anchoring is optional and available for agencies that require it.
+</Note>
+
+## Evidence bundle
+
+The bundle is what the agency actually receives. It is the same underlying content across all three submission formats; only the presentation differs.
+
+```yaml
+verification:
+  id: VRF-2026-06-15-A2-VRA-NITROGEN
+  issued_at: 2026-06-17T04:22:00Z
+  platform_version: 2026.06.1
+  hash: sha256:9f2a...c81b
+
+subject:
+  field_id: fld_01j8xyz
+  field_name: A2
+  region: MY-Kedah
+  smallholder_id: sh_00021
+  area_ha: 4.2
+  geometry: { ... GeoJSON ... }
+
+event:
+  event_id: evt_01j9vra
+  event_type: map.applied
+  occurred_at: 2026-06-15T09:14:00+08:00
+  logged_at:   2026-06-15T09:47:00+08:00
+  actor: { user_id: usr_operator_maria }
+  payload:
+    map_id: map_01j9ghi
+    input: nitrogen
+    zones: [{ zone: low, rate_kg_ha: 150 }, ...]
+    coverage_ha: 4.2
+
+crosscheck:
+  metric: ndre_delta
+  baseline: { source: sentinel-2, acquired_at: 2026-06-14T03:41:00Z, ndre: 0.22 }
+  observed: { source: sentinel-2, acquired_at: 2026-06-16T03:39:00Z, ndre: 0.26, cloud_pct: 4 }
+  delta: +0.04
+  threshold: +0.02
+  grade: strong
+  flags: []
+
+narrative: >
+  Nitrogen VRA (map_01j9ghi) applied to field A2 (4.2 ha) on 15 Jun 2026.
+  Sentinel-2 pass on 16 Jun 2026 confirmed a +0.04 NDRE lift over pre-application
+  baseline of 14 Jun 2026, exceeding the +0.02 threshold. Cloud cover 4%.
+
+chain_of_custody:
+  - stage: event.logged        at: 2026-06-15T09:47:00+08:00
+  - stage: imagery.acquired    at: 2026-06-16T03:39:00Z
+  - stage: crosscheck.computed at: 2026-06-16T05:12:00Z
+  - stage: verification.issued at: 2026-06-17T04:22:00Z
+```
+
+### Submission formats
+
+All three preset submission formats are projections over this bundle. They differ in layout and in which optional sections are included.
+
+| Section | Subsidy | Takaful | NADMA |
+| --- | :-: | :-: | :-: |
+| Verification header (id, hash, timestamps) | ✓ | ✓ | ✓ |
+| Subject (parcel, area, smallholder) | ✓ | ✓ | ✓ |
+| Event log | ✓ | ✓ | ✓ |
+| Cross-check summary | ✓ | ✓ | ✓ |
+| Pre / post imagery thumbnails | optional | ✓ | ✓ |
+| Loss narrative \+ yield-at-risk |  | ✓ | ✓ |
+| Flood-extent GeoJSON polygon |  |  | ✓ |
+| Chain of custody | ✓ | ✓ | ✓ |
+| Agency-specific form fields | ✓ | ✓ | ✓ |
+
+Agency-specific form fields are provided by each agency and mapped once by the platform. New agencies onboard by supplying the field mapping; the underlying bundle does not change.
+
+## Confidence, not certainty
+
+A verification confirms consistency between two independent records: what the platform user logged, and what the satellite captured. It does not, and cannot, prove intent or interior quality.
+
+- **What it proves**: an operation of the reported type occurred on the reported parcel within the imagery window.
+- **What it does not prove**: the identity of the operator, the specific product used, or off-parcel activity.
+
+Assessors retain discretion. Verification is designed to move the default from "prove it with a site visit" to "accept unless flagged", with the flags surfaced honestly in the bundle.
+
+## Auditing an existing verification
+
+Any party with the verification id and the raw evidence bundle can:
+
+1. Retrieve the referenced imagery from the named source (Sentinel-2, Sentinel-1) using the tile id and acquisition timestamp.
+2. Recompute the cross-check metric against the reported geometry.
+3. Recompute the SHA-256 hash over the canonical serialization.
+4. Confirm the recomputed hash matches the one stored by the agency.
+
+If any step fails, the verification is invalid and the agency has grounds to reject the submission even after initial approval. This is what makes it tamper-evident: falsification requires forging an independent satellite record.
+
+## Related
+
+- [Verification](/guides/verification) - the operator-facing workflow.
+- [Risk Model](/concepts/risk-model) - source of many verifiable events.
+- [Field Data Model](/concepts/field-data-model) - the parcel identity used in every bundle.
+- [Imagery Sources](/concepts/imagery-sources) - the satellite feeds the cross-check draws on.
+- [Aggregation Model](/concepts/aggregation-model) - how verifiable field-level evidence supports estate, regional, and national rollups.

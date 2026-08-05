@@ -1,16 +1,20 @@
 ---
-title: "Set Up Automated Crop Alerts and Field Notifications"
-sidebarTitle: "Alerts"
-description: "Configure threshold, drop, imagery, and weather alerts so you're notified the moment new satellite data reveals a stress event in your fields."
+title: "Field Alerts: Threshold, Drop, Imagery, and Weather"
+sidebarTitle: "Field Alerts"
+description: "Configure the four data-driven alert types - threshold, NDVI drop, new imagery, and weather - that make up the Field Alerts category inside Activity & Alerts."
 ---
 
-Alerts let Google do the monitoring so you don't have to. Rather than manually checking the dashboard after every imagery pass, you define the conditions that matter to your operation and choose how you want to be notified. The moment new satellite imagery arrives and a threshold is crossed, an alert fires — giving you hours or days of lead time over purely ground-based observation.
+Field Alerts are the data-driven category inside [Activity & Alerts](/guides/activity-and-alerts). They fire automatically when satellite indices, imagery availability, or weather forecasts cross conditions you define, giving you hours or days of lead time over ground observation. Every field alert is produced by a [rule card](/concepts/risk-model) and flows into the same feed as task, map, scout, and system activity.
+
+<Note>
+  This page covers the four data-driven alert types and their configuration. For the full picture - task activity, scout escalations, delivery matrix, digests, and the unified feed - see [Activity & Alerts](/guides/activity-and-alerts).
+</Note>
 
 <Tip>
   **Not sure what triggered your alert?** Alerts tell you _something changed_. To decide _what changed and what to do_ on a rice field, see [Rice Diagnosis](/guides/Crop/rice-abiotic-stress) - a decision guide covering the three pillars of rice stress: abiotic (drought, salinity, poor soil, submergence), nutrient deficiency (N, P, K, Zn, S, iron toxicity), and biotic (diseases, insect pests, weeds).
 </Tip>
 
-## Alert Types
+## Field Alert Types
 
 <CardGroup cols={2}>
   <Card title="NDVI Drop Alert" icon="arrow-trend-down">
@@ -121,3 +125,9 @@ Access all alerts across every field from **Settings \> Alerts** in the left sid
 <Note>
   Alert notifications are typically delivered within **30 minutes** of a new imagery acquisition completing validation and ingestion. Weather alerts fire as soon as the underlying forecast data updates, which occurs every six hours. During periods of high imagery volume across the platform, delivery may occasionally extend to 60 minutes.
 </Note>
+
+## Related
+
+- [Activity & Alerts](/guides/activity-and-alerts) - the umbrella module. Covers task, scout, map, imagery, and system activity in addition to field alerts, plus the delivery matrix, digests, and AI escalation.
+- [Risk Model](/concepts/risk-model) - the rule card schema that defines the thresholds behind every field alert.
+- [Field Scouting](/guides/field-scouting) - turn alerts into GPS-routed scout tasks.

@@ -1,0 +1,160 @@
+---
+title: "Activity Log: Gantt Timeline of the Full Crop Cycle"
+sidebarTitle: "Activity Log"
+description: "See the entire season on one Gantt timeline: completed work, scheduled activities, alerts, VRA applications, scout tasks, verifications, and who is assigned to what."
+---
+
+Activity Log is the **timeline view** of everything that happens on a field or across a farm. Where [Activity & Alerts](/guides/activity-and-alerts) shows a severity-ranked feed of what needs attention now, Activity Log shows the same events on a Gantt chart across the full crop cycle: what is completed, what is scheduled, when it happened, who is assigned, and what is coming next.
+
+It is a **lens**, not a new data source. Every bar on the chart comes from an event you can already see elsewhere on the platform.
+
+<Note>
+  Activity Log renders the same event stream that powers [Activity & Alerts](/guides/activity-and-alerts). If you want severity and countdowns, use the feed. If you want history, planning, and assignment overview, use the timeline.
+</Note>
+
+## What appears on the timeline
+
+Every event with a timestamp and a duration (or a defined completion point) is drawn as a Gantt bar. Events with no duration render as milestones (diamonds or dots on the row).
+
+<CardGroup cols={2}>
+  <Card title="Phenology phases" icon="seedling">
+    Emergence, tillering, booting, heading, ripening, harvest. Drawn as the background band so every other event has stage context.
+  </Card>
+
+  <Card title="Alerts and risks" icon="triangle-exclamation">
+    Field alerts and risk-card windows. Bar length equals `mitigation.window_days` from the [rule card](/concepts/risk-model). Color-coded by severity.
+  </Card>
+
+  <Card title="Scout tasks" icon="clipboard-check">
+    Bar from `task.assigned` to `task.completed`. Assignee shown on the row label. Overdue tasks render in red past the due date.
+  </Card>
+
+  <Card title="VRA maps" icon="map">
+    Bar covers the full [VRA lifecycle](/guides/prescription-maps#vra-lifecycle) from `map.generated` to `map.applied`. Milestones mark each lifecycle step.
+  </Card>
+
+  <Card title="Verifications" icon="stamp">
+    Milestones on the day each verification was issued. Click a milestone to jump to the [Verification](/guides/verification) bundle.
+  </Card>
+
+  <Card title="Imagery passes" icon="satellite">
+    Small tick marks along the top axis showing every satellite acquisition. Cloud-blocked passes are hollow ticks.
+  </Card>
+</CardGroup>
+
+## Views
+
+The same underlying timeline can be pivoted to answer different questions.
+
+| View | Rows are grouped by | Answers |
+| --- | --- | --- |
+| **By activity type** | Alerts, scout, VRA, verification, phenology | "What kind of work happened this season?" |
+| **By field** | Field name | "How is each field's schedule laid out across the estate?" |
+| **By assignee** | Teammate | "Who is doing what, and when? Is anyone at capacity?" |
+| **By rule card** | Rule card id (e.g., `rice_blast`) | "How many times did this hazard fire, and how did we respond each time?" |
+
+Switch views from the segmented control in the top-right of the chart. The active view is remembered per user.
+
+## Reading the chart
+
+### Bar anatomy
+
+```text
+│   Scout: Blast confirmation → Maria │           │ assigned  6 Jun
+│  ████████████████████████████████ (HIGH)         │ due       9 Jun
+│  │            │            │                    │ completed 8 Jun
+│ assigned    due          completed
+```
+
+Each bar carries:
+
+- **Title** - human-readable summary drawn from the underlying event's `summary` field.
+- **Assignee** - avatar and name on the bar's row label for scout tasks and VRA reviews.
+- **Severity color** - matches the [severity ladder](/guides/activity-and-alerts#unified-severity-ladder): Critical (red), High (orange), Medium (yellow), Low (blue), Info (gray).
+- **Status marker** - solid bar for completed, striped for in-progress, dashed for scheduled/future.
+
+### Dependencies and links
+
+When an event was **spawned by** another event, the chart draws a thin arrow between them. Common linkages:
+
+- Risk card → scout task ("blast risk HIGH spawned this scout task")
+- Scout task → VRA map ("scout confirmed lesions, VRA map targeted at the hazard")
+- VRA `map.applied` → Verification ("applied event became a verification")
+
+Hover any bar to highlight its full chain in both directions. This is the fastest way to trace "why did we do this, and did it work?" across the season.
+
+## Common workflows
+
+<AccordionGroup>
+  <Accordion title="Weekly planning stand-up">
+    Switch to **By assignee** view, scope to the next 7 days. Every teammate's upcoming bars are visible. Reassign by dragging a bar to a different row. Assignments update in [Activity & Alerts](/guides/activity-and-alerts) immediately.
+  </Accordion>
+
+  <Accordion title="Season retrospective">
+    Switch to **By activity type**, scope to the full season. Count completed scout tasks vs. issued risk alerts to see response rate. Overlay yield outcome on the phenology band to correlate stress windows with final yield.
+  </Accordion>
+
+  <Accordion title="Audit trail for an agency assessor">
+    Filter by field, scope to the claim window, export as PDF. The exported timeline includes every alert, scout, VRA, and verification with the same evidence bundle references used in [Verification](/guides/verification).
+  </Accordion>
+
+  <Accordion title="Capacity check before an incoming storm">
+    Switch to **By assignee**, scope to the next 3 days. Any teammate with 5 or more overlapping bars is flagged over-capacity. Reassign before the weather-driven alert volume hits.
+  </Accordion>
+</AccordionGroup>
+
+## Scheduling future work
+
+Activity Log is not read-only. Scheduled work (tasks with a future `assigned` date, VRA maps in **Approved** status waiting for a window, planned harvest declarations) can be dragged, extended, or reassigned directly on the chart.
+
+Editing a bar emits the same event you would emit from the underlying module:
+
+| Chart action | Emitted event | Effect |
+| --- | --- | --- |
+| Drag bar to new date | `task.rescheduled` | Assignee re-notified via their Notification Preferences. |
+| Extend a bar's end date | `task.due_extended` | Countdown in Activity & Alerts updates. Rule card severity may re-evaluate if extension crosses a stage boundary. |
+| Drag bar to another row (by assignee view) | `task.reassigned` | Old and new assignees both notified. |
+| Delete a scheduled bar | `task.cancelled` | Recorded with actor \+ reason. |
+
+Completed work cannot be edited from the chart; only future or in-progress work is mutable. Completed events are the source of [Verification](/guides/verification) and must remain immutable.
+
+## Filters and scope
+
+| Filter | Options |
+| --- | --- |
+| **Time window** | Last 7 days, current season, custom range, full history |
+| **Field / estate** | Any field, group, or the whole estate |
+| **Event types** | Any combination of alerts, scout, VRA, verification, phenology, imagery |
+| **Severity** | Show/hide Info and Low to reduce visual noise |
+| **Assignee** | One teammate, a role, or all |
+| **Rule card** | Any specific hazard (e.g., `rice_blast`) |
+
+Saved views are per-user and can be shared by URL.
+
+## Export
+
+Export the current view as:
+
+- **PDF** - for printed reports or agency submissions
+- **PNG** - for slides and stand-ups
+- **CSV** - one row per bar with all event fields, for spreadsheet analysis
+- **iCal** - scheduled and in-progress bars as calendar events, so future work shows up in your team's calendar
+
+## Relationship to other views
+
+| View | Best for | Sorted by |
+| --- | --- | --- |
+| [Activity & Alerts](/guides/activity-and-alerts) | "What needs my attention now?" | Severity, then recency |
+| [Seasonal Analysis](/guides/seasonal-analysis) | "How did the crop perform, phase by phase?" | Phenology, then indices |
+| **Activity Log** | "What happened when, and who did it?" | Time, grouped by rows |
+
+All three read the same event stream. Choose the view that matches the question.
+
+## Related
+
+- [Activity & Alerts](/guides/activity-and-alerts) - the severity-ranked feed of the same events.
+- [Field Scouting](/guides/field-scouting) - the origin of scout-task bars.
+- [VRA Maps](/guides/prescription-maps) - the origin of VRA lifecycle bars.
+- [Verification](/guides/verification) - the origin of verification milestones.
+- [Risk Model](/concepts/risk-model) - defines the mitigation-window durations used to draw risk bars.
+- [Estate Group](/guides/estate-group) - roll multiple fields' timelines into one manager view.

@@ -1,0 +1,217 @@
+---
+title: "Activity & Alerts: One Feed for Every Signal on Your Farm"
+sidebarTitle: "Activity & Alerts"
+description: "Unify satellite alerts, weather events, scout reports, task updates, prescription maps, and team activity into a single severity-ranked feed - with per-category delivery and AI escalation."
+---
+
+An alert should never be limited to "NDVI dropped". A working farm generates signals from many sources: satellites, weather, sensors, scouts, teammates, and the platform itself. **Activity & Alerts** is the single feed that unifies them, ranks them by severity, and routes each one to the right channel and person.
+
+The module has one job: make sure nothing important is missed and nothing unimportant is escalated.
+
+<Note>
+  Activity & Alerts is the view layer of the [Risk Model](/concepts/risk-model). Every field alert is produced by a rule card, and team activity can escalate a rule card's severity. The two are not separate systems.
+</Note>
+
+## Alerts vs notifications
+
+Before the feature list, the split that keeps the inbox useful:
+
+|  | **Alert** | **Notification** |
+| --- | --- | --- |
+| Purpose | Something in the **field** needs attention | Something on the **platform** needs your attention |
+| Source | Data (satellite, weather, sensors, forecast) | Humans (teammates, workflow, system) |
+| Urgency | Time-critical, tied to a mitigation window | Informational or workflow-driven |
+| Lifecycle | Fires → severity → mitigate → resolve | Sent → seen → acknowledged |
+| Tied to | Rule cards, risk model, fields | Users, tasks, resources |
+| Example | "A2 NDMI below threshold" | "Maria assigned you a scout task in A2" |
+
+Both appear in the same feed. Both use the same severity ladder. But delivery, retention, and escalation behavior differ, and separating them keeps the operator focused.
+
+## The six activity categories
+
+<CardGroup cols={2}>
+  <Card title="1. Field Alerts" icon="satellite-dish" href="/guides/alerts-notifications">
+    Auto-generated from data. Tied to a rule card. Includes NDVI drop, threshold, new imagery, weather, and risk-forecast alerts. See the dedicated [Field Alerts](/guides/alerts-notifications) guide for setup.
+  </Card>
+
+  <Card title="2. Task Activity" icon="list-check">
+    Scout task assigned, overdue, completed, reassigned, or commented on. Every completed task can update the confidence score of the rule card that spawned it.
+  </Card>
+
+  <Card title="3. Map & Prescription Activity" icon="map">
+    New VRA / prescription map generated, approved, rejected, exported to machinery, or confirmed applied in the field. See [Prescription Maps](/guides/prescription-maps).
+  </Card>
+
+  <Card title="4. Field & Scouting Activity" icon="clipboard-check">
+    Scout report uploaded with photos and findings, soil sample results, field boundary edits, new season started. See [Field Scouting](/guides/field-scouting).
+  </Card>
+
+  <Card title="5. Imagery & Data Activity" icon="cloud-arrow-down">
+    New cloud-free imagery available, pass skipped due to clouds, sensor offline, weather-feed disruption. Operational signals from the data pipeline.
+  </Card>
+
+  <Card title="6. System & Account Activity" icon="users-gear">
+    Teammate invited or joined, role changed, alert rule created or muted by a teammate, billing or quota updates.
+  </Card>
+</CardGroup>
+
+## Unified severity ladder
+
+Every entry in the feed carries the same five-level severity, whether it comes from a satellite or a teammate. This gives operators one mental model.
+
+| Severity | Meaning | Example |
+| --- | --- | --- |
+| **Critical** | Immediate action; mitigation window is hours to a day. | Scout confirmed blast at heading; risk card promoted to HIGH. |
+| **High** | Action within the same day. | NDMI below band with dry forecast; water-stress risk high. |
+| **Medium** | Action within days. | Blast risk medium; scout task auto-created. |
+| **Low** | Awareness; no action required yet. | Growth tracking a few days behind season curve. |
+| **Info** | Log only, no interruption. | New imagery available; teammate applied a VRA map. |
+
+The feed sorts by severity first, then recency. Info-level entries are collapsible so they never crowd out real work.
+
+## Escalation: how activity promotes alerts
+
+The most important feature of a unified feed is not the feed itself but the **cross-category logic**. Passive activity can promote passive risk into active alerts.
+
+<AccordionGroup>
+  <Accordion title="Scout confirmation strengthens or weakens a risk">
+    A scout task completes with "lesions confirmed on 3 of 8 tillers". The rule card's confidence score rises. Severity moves from MEDIUM to HIGH. A CRITICAL alert fires with the recommended fungicide window.
+
+    Conversely, if the scout finds no lesions but NDVI is still dropping, the feed raises a "scout finding contradicts satellite signal" alert and recommends a second scouting round rather than a spray.
+  </Accordion>
+
+  <Accordion title="Overdue task in a vulnerable stage">
+    A booting-stage scout task for field A2 is 2 days overdue. The blast risk window opens in 24 hours. The task notification (originally MEDIUM) escalates to HIGH.
+  </Accordion>
+
+  <Accordion title="Prescription map generated but not applied">
+    A nitrogen VRA map for A2 was generated 5 days ago and never exported. The growth window is closing. The feed promotes the map notification to a MEDIUM alert with a "3 days remaining" tag.
+  </Accordion>
+
+  <Accordion title="Sensor offline during a critical window">
+    An in-field sensor drops offline while the field is in a high-risk phenology stage. A system notification (normally LOW) escalates to MEDIUM because the risk engine has lost an input.
+  </Accordion>
+</AccordionGroup>
+
+Escalation rules are declared on the rule card via `activity_bindings`. See [Risk Model](/concepts/risk-model#activity-bindings) for the schema.
+
+## Delivery matrix
+
+Delivery is configured **per category, per user**, not per individual alert. The user sets this once under **Notification Preferences**.
+
+| Category | In-app | Email | SMS | Webhook | Mobile push |
+| --- | :-: | :-: | :-: | :-: | :-: |
+| Field alerts (Critical / High) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Field alerts (Medium) | ✓ | ✓ |  | ✓ | ✓ |
+| Field alerts (Low / Info) | ✓ |  |  | ✓ |  |
+| Task assigned to me | ✓ | ✓ |  |  | ✓ |
+| Task completed by team | ✓ |  |  | ✓ |  |
+| Map / prescription ready | ✓ | ✓ |  | ✓ |  |
+| Scout contradicts sensor | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Imagery & data pipeline | ✓ |  |  | ✓ |  |
+| System & account | ✓ |  |  |  |  |
+
+Defaults above are our recommendation. Every row is user-overridable. Role-based defaults (agronomist, operator, admin) can be set at the org level.
+
+## Anatomy of a feed entry
+
+Every entry, regardless of category, carries a consistent shape:
+
+| Field | Purpose |
+| --- | --- |
+| `type` | `field_alert`, `task`, `map`, `scout`, `imagery`, `system`, `team` |
+| `severity` | `critical` / `high` / `medium` / `low` / `info` |
+| `entity` | Field, zone, task id, map id, or user id the entry is about |
+| `actor` | System, rule card id, or user id that produced the entry |
+| `related` | Linked rule card, risk card, task, or map for context |
+| `summary` | One-line "what happened and why it matters" |
+| `actions` | Acknowledge, snooze, assign, open in field view, ask the advisor |
+| `timestamp` | ISO 8601 |
+
+The `summary` is deliberately opinionated. Raw event dumps ("Task updated") are not acceptable. Every entry answers **what happened, on what, and why the operator should care.**
+
+<CodeGroup>
+
+```json Field alert
+{
+  "type": "field_alert",
+  "severity": "high",
+  "entity": { "field": "A2" },
+  "actor": { "rule_card": "rice_water_stress" },
+  "related": { "risk_card": "risk_01j9abc" },
+  "summary": "A2 NDMI at 0.19 is below the 0.30 healthy band for booting; water stress risk HIGH with 5 days to mitigate.",
+  "actions": ["open_field", "open_scout_task", "ask_advisor"],
+  "timestamp": "2026-06-12T08:34:00Z"
+}
+```
+
+```json Escalated task
+{
+  "type": "task",
+  "severity": "critical",
+  "entity": { "task": "tsk_01j8xyz", "field": "A2" },
+  "actor": { "user": "usr_maria" },
+  "related": { "rule_card": "rice_blast", "risk_card": "risk_01j9def" },
+  "summary": "Maria completed scouting in A2. Blast lesions confirmed on 3 of 8 tillers. Blast risk promoted to HIGH; preventive spray window closes in 24 hours.",
+  "actions": ["acknowledge", "open_task", "ask_advisor"],
+  "timestamp": "2026-06-12T14:02:00Z"
+}
+```
+
+```json Map ready
+{
+  "type": "map",
+  "severity": "medium",
+  "entity": { "map": "map_01j9ghi", "field": "A2" },
+  "actor": { "user": "usr_agro" },
+  "related": null,
+  "summary": "Nitrogen VRA map for A2 is ready for review. Growth window closes in 8 days.",
+  "actions": ["open_map", "approve", "assign"],
+  "timestamp": "2026-06-12T09:15:00Z"
+}
+```
+
+</CodeGroup>
+
+## Inbound webhooks
+
+Anything with an API can post to the feed via **webhook-in** (the inverse of the outbound webhook covered in [Field Alerts](/guides/alerts-notifications#delivery-channels)). Use inbound webhooks to bring external activity into the same feed:
+
+- Slack channel message referencing a field
+- Farm management system confirming a spray was applied
+- Drone survey uploaded from a third-party pilot
+- IoT gateway forwarding sensor events
+
+See the [Webhooks API reference](/api/webhooks) for the inbound payload schema.
+
+## Daily and weekly digest
+
+High-signal feeds still generate volume. Two digest options reduce interruption without hiding anything:
+
+- **Daily digest** - one email per morning summarizing everything below HIGH severity from the last 24 hours, generated by the AI advisor and grouped by field.
+- **Weekly digest** - a Friday summary of scout completions, map applications, and trend changes; useful for supervisors who do not manage day-to-day operations.
+
+CRITICAL and HIGH alerts always deliver immediately; they never wait for a digest.
+
+## Managing the feed
+
+The **Activity & Alerts** view lives in the left sidebar. From it you can:
+
+- **Filter by category, severity, field, or actor**
+- **Snooze** an entry until a set time or condition
+- **Acknowledge** an entry to remove it from your feed without deleting it for the team
+- **Assign** an entry to a teammate (turns it into a task)
+- **Ask the advisor** - opens the AI advisor grounded on the entry's rule card and risk card
+
+<Tip>
+  Bulk-acknowledge Info-level entries at the end of the week to keep the feed focused on Low and above. The feed shows an acknowledgment ratio per user, which helps supervisors spot people who are drowning in noise vs. those who are ignoring signals.
+</Tip>
+
+## Related
+
+- [Field Alerts](/guides/alerts-notifications) - detailed setup for the satellite, weather, and threshold alert types.
+- [Activity Log](/guides/activity-log) - the same events as a Gantt timeline across the full crop cycle.
+- [Risk Model](/concepts/risk-model) - the rule card schema, including `activity_bindings` for escalation.
+- [Field Scouting](/guides/field-scouting) - how scout completions feed back into rule card confidence.
+- [Prescription Maps](/guides/prescription-maps) - VRA map lifecycle events surfaced in the feed.
+- [Estate Group](/guides/estate-group) - roll the feed up to a manager view across many fields.

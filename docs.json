@@ -46,7 +46,9 @@
               "concepts/indices",
               "concepts/field-data-model",
               "concepts/imagery-sources",
-              "concepts/risk-model"
+              "concepts/risk-model",
+              "concepts/verification-model",
+              "concepts/aggregation-model"
             ]
           },
           {
@@ -292,8 +294,20 @@
               },
               "guides/field-scouting",
               "guides/prescription-maps",
+              "guides/verification",
               "guides/seasonal-analysis",
-              "guides/alerts-notifications"
+              "guides/activity-and-alerts",
+              "guides/activity-log",
+              "guides/alerts-notifications",
+              {
+                "group": "Fleet & Rollup",
+                "icon": "sitemap",
+                "pages": [
+                  "guides/estate-group",
+                  "guides/regional-forecast",
+                  "guides/national-overview"
+                ]
+              }
             ]
           },
           {

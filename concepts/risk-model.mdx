@@ -100,14 +100,6 @@ flowchart TD
 - **The risk card is passed to the advisor as context** when the user clicks **Ask the advisor**, so the LLM sees the same numbers the operator sees.
 - **Scout observations close the loop** back into the signal layer and into `farm_history` calibration for the next season.
 
-**How to read this diagram**
-
-- **Solid arrows are data movement.** Follow them to see how a satellite pass becomes a risk card and then a grounded answer.
-- **Rule cards feed both engines, never the other way around.** The alert engine reads driver thresholds and `alert_bindings`; the risk engine reads the same cards plus `yield_impact` and `mitigation`. Cards are inputs, not outputs.
-- **Literature pages feed the RAG index at build time,** not at query time. The advisor queries the index, then references the underlying pages via `literature_ref` on the rule card.
-- **The risk card is passed to the advisor as context** when the user clicks **Ask the advisor**, so the LLM always sees the same numbers the operator sees.
-- **Scout observations close the loop back into the signal layer,** turning confirmed diagnoses into ground truth for the next season's `farm_history` calibration.
-
 ## Rule card schema
 
 Rule cards live alongside their literature page as YAML frontmatter under a `rule_card:` key, so a single `.mdx` file is both human-readable documentation and the source of truth for the engines.
@@ -192,6 +184,21 @@ rule_card:
     - weather.humidity_high
     - weather.night_temp_low
 
+  activity_bindings:                # how team activity affects this rule (see Activity & Alerts)
+    - event: scout.completed
+      when: "lesions_confirmed == true"
+      effect: promote_severity      # one band up
+      escalate_to: critical
+    - event: scout.completed
+      when: "lesions_confirmed == false"
+      effect: raise_contradiction   # signal vs ground truth disagree
+    - event: task.overdue
+      when: "stage in [booting, heading]"
+      effect: promote_severity
+    - event: map.applied
+      when: "map.type == fungicide"
+      effect: reset_severity        # mitigation applied; recompute from fresh signals
+
   literature_ref: /guides/Crop/Rice/biotic/diseases/blast
   last_reviewed: 2026-06-01
   reviewer: agronomy-team
@@ -209,7 +216,8 @@ rule_card:
 | `yield_impact` | Layered per-stage loss table. Used to compute "yield at risk %" and "estimated loss (t)" once field area and expected yield are known. See [Yield-impact layers](#yield-impact-layers) below. |
 | `mitigation.window_days_by_severity` | Powers the "days to mitigate" number on the risk card. The engine picks the row that matches the current severity band (`low`, `medium`, `high`), then applies any `window_days_stage_modifier` for the current stage. |
 | `mitigation.actions` | Ordered playbook. The top item becomes the primary CTA ("Open scout task"). |
-| `alert_bindings` | Tells the risk engine which alert types promote this rule from dormant to active for a field. |
+| `alert_bindings` | Which data-driven alert types promote this rule from dormant to active for a field. |
+| `activity_bindings` | How team activity (scout completions, overdue tasks, applied maps) changes this rule's severity. See [Activity bindings](#activity-bindings) below and [Activity & Alerts](/guides/activity-and-alerts). |
 | `literature_ref` | Path the AI advisor retrieves when the user clicks **Ask the advisor**. |
 | `last_reviewed`, `reviewer` | Governance. Cards older than 12 months are flagged for agronomist review. |
 
@@ -290,6 +298,39 @@ A HIGH-severity blast risk at heading with the schema above resolves to `3 + (-2
 
 Rules that describe slow-developing conditions (nutrient deficiencies, salinity buildup) can keep windows in the 10-30 day range. Rules for fast-moving weather-driven diseases should tighten aggressively at HIGH severity.
 
+## Activity bindings
+
+`alert_bindings` covers data-driven inputs. `activity_bindings` covers **team activity** - the human side of the platform. Together they let a rule card react to both a falling NDVI and a completed scout report in the same way.
+
+Each binding declares an `event`, an optional `when` condition, and an `effect` on the rule's current severity for a field.
+
+| Event | Fires when | Typical effect |
+| --- | --- | --- |
+| `scout.completed` | A scout task tied to this field is marked complete. | `promote_severity` if findings confirm the hazard; `raise_contradiction` if they don't. |
+| `scout.contradiction` | Scout findings disagree with the current signal reading. | Emit a `scout_contradicts_sensor` alert; freeze severity until re-scouted. |
+| `task.overdue` | A scout or mitigation task passes its due date. | `promote_severity`, especially in vulnerable stages. |
+| `map.generated` | A VRA / prescription map targeting this hazard is created. | Info only; do not change severity. |
+| `map.applied` | A map is confirmed applied in the field. | `reset_severity` and recompute from fresh signals. |
+| `sensor.offline` | An in-field sensor feeding this rule drops offline. | `promote_severity` by one band, with reduced confidence. |
+| `imagery.skipped` | Cloud cover skipped the expected imagery pass. | Extend `mitigation.window_days` by the imagery gap. |
+
+### Effect vocabulary
+
+| Effect | Meaning |
+| --- | --- |
+| `promote_severity` | Move up one band on the severity ladder (`low` → `medium` → `high` → `critical`). |
+| `demote_severity` | Move down one band. Used when a scout confirms the signal was a false positive. |
+| `escalate_to: <band>` | Force severity to a specific band regardless of computed score. |
+| `reset_severity` | Recompute severity from the current signal state, ignoring history. |
+| `raise_contradiction` | Emit a `scout_contradicts_sensor` alert without changing severity. |
+| `freeze` | Hold severity constant until a follow-up event fires. |
+
+Bindings are evaluated in order; the first match applies. All severity changes are logged with the triggering event so operators can audit why a card was promoted.
+
+<Tip>
+  Every `activity_bindings` entry becomes a row in the Activity & Alerts feed with a "why this changed" summary. This is the single mechanism that lets a human scout report tighten (or relax) an AI risk forecast.
+</Tip>
+
 ## Authoring rule cards
 
 1. Start from the existing diagnosis page (for example, [Blast](/guides/Crop/Rice/biotic/diseases/blast)).
@@ -321,3 +362,4 @@ This structure is what makes the advisor useful in the field: the operator never
 - [Field Data Model](/concepts/field-data-model) - fields, zones, seasons, observations the engines run against.
 - [Alerts](/guides/alerts-notifications) - user-facing alert types and delivery.
 - [Rice Blast](/guides/Crop/Rice/biotic/diseases/blast) - reference page with a fully populated `rule_card:` example.
+- [Aggregation Model](/concepts/aggregation-model) - how rule card counts and areas roll up to estate, regional, and national dashboards.

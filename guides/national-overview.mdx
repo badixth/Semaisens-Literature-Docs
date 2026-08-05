@@ -1,0 +1,113 @@
+---
+title: "National Overview: Country-Wide Production and Risk"
+sidebarTitle: "National Overview"
+description: "One country-wide dashboard for ministries and national planners. Aggregates every monitored estate into headline metrics for area, production forecast, value, and health, with full drilldown to region."
+---
+
+National Overview is the top layer of the aggregation stack. It presents one country-wide dashboard designed for **ministries, national agencies, and policy planners** who need reliable headline numbers, not per-field workflow.
+
+Every number here is a rollup of the layers below it. It is defined by the [Aggregation Model](/concepts/aggregation-model), refreshed on a fixed cadence, and reproducible via the same explain-view that powers [Verification](/guides/verification).
+
+## Headline metrics
+
+The top of the dashboard is a single strip of headline cards. These are the numbers cited in ministerial briefings.
+
+| Card | Category | Aggregation |
+| --- | --- | --- |
+| **Hectares monitored** | Extensive | Sum of monitored area across all regions |
+| **NDVI (national)** | Intensive | Area-weighted mean NDVI |
+| **Production forecast** | Extensive | Area-weighted sum of yield-per-ha × area |
+| **Value forecast (RM)** | Extensive | Production × reference price per crop |
+| **Healthy area share** | Distribution | Sum(healthy area) / Sum(total area) |
+| **Active High/Critical alerts** | Extensive | Sum of alerts at HIGH or CRITICAL severity |
+
+Each card carries a **confidence chip** (High / Medium / Low), a **Last updated** timestamp, and a **Data through** timestamp. See [Aggregation Model - Confidence degradation](/concepts/aggregation-model#confidence-degradation) for how confidence is computed.
+
+## Panels below the headline
+
+<CardGroup cols={2}>
+  <Card title="Regional heat map" icon="map">
+    Choropleth of the country by area-weighted health score. Click a region to drill into its [Regional Forecast](/guides/regional-forecast). Regions with fewer than 5 estates collapse until the k-anonymity threshold is met.
+  </Card>
+
+  <Card title="Production forecast by crop" icon="chart-column">
+    Stacked forecast for the current season: rice, oil palm, rubber, pineapple, and other. Central estimate with P10 to P90 band per crop.
+  </Card>
+
+  <Card title="Top national hazards" icon="triangle-exclamation">
+    Five rule cards affecting the largest area nationally this week, with week-over-week trend and the top three regions per hazard.
+  </Card>
+
+  <Card title="Weather stress outlook" icon="cloud-bolt">
+    14-day national heat and rainfall outlook. Zones flagged for drought watch or flood watch are highlighted with region coordination status.
+  </Card>
+
+  <Card title="Season-over-season" icon="chart-line">
+    National NDVI, production forecast, and healthy-area share plotted against the previous three seasons. Useful for trend statements in press briefings.
+  </Card>
+
+  <Card title="Verification throughput" icon="stamp">
+    Count of verifications issued this week nationally, split by agency (Subsidy / Takaful / NADMA), plus acceptance rate and median turnaround.
+  </Card>
+</CardGroup>
+
+## Refresh cadence
+
+| Item | Refresh |
+| --- | --- |
+| Headline strip | **Monday 08:00 local** (weekly national rollup) |
+| Regional heat map | **Monday 08:00 local** |
+| Production forecast | **Monday 08:00 local**, plus rerun if a national weather forecast shifts materially |
+| Weather stress outlook | **Daily 06:00 local** |
+| Verification throughput | **Monday 08:00 local** |
+
+Stale cards show a **Stale** badge with the reason. Common causes are persistent cloud cover in a share of area, a rule card upgrade still propagating, or paused monitoring on a share of the national base. See [Aggregation Model - Refresh, freshness, and lag](/concepts/aggregation-model#refresh-freshness-and-lag).
+
+## Access and privacy
+
+National Overview does **not** unlock per-field or per-estate identity. Even a ministry-level user sees only:
+
+- Regional aggregates and their drilldowns
+- Estate-count buckets (never individual estate names in unauthorized regions)
+- k-anonymity threshold of 5 on every slice
+
+Individual estate performance stays with the operating entity. If a ministry needs field-level evidence for a specific case, it flows through a per-field [Verification](/guides/verification) bundle issued by the operator, not through this dashboard.
+
+## Common workflows
+
+<AccordionGroup>
+  <Accordion title="Weekly ministerial brief">
+    Read the headline strip on Monday morning. Add the top national hazards card and the weather stress outlook. Export as PDF. Every number in the deck is reproducible via the explain view; no manual number gathering.
+  </Accordion>
+
+  <Accordion title="Season outlook for policy planning">
+    Season-over-season card for the last four seasons of production forecast and healthy-area share. Overlay with subsidy disbursement and NADMA claim volume to inform the next fiscal year's allocation.
+  </Accordion>
+
+  <Accordion title="National early-warning coordination">
+    Weather stress card flags a national flood watch. Drill into each affected region, then export bulk pre-emptive NADMA notices. The evidence chain for each affected estate is already assembled by the [Verification Model](/concepts/verification-model).
+  </Accordion>
+
+  <Accordion title="Agency performance review">
+    Verification throughput card, filtered by agency, over the last 12 weeks. Track acceptance rate and median turnaround. A dropping acceptance rate on one bundle preset is a signal that the preset needs review with the receiving agency.
+  </Accordion>
+</AccordionGroup>
+
+## Reproducibility
+
+Every headline number and panel value has an **Explain** action. It shows:
+
+1. The list of regional rollups that fed into it
+2. The aggregation rule that was applied (extensive sum, area-weighted mean, distribution, rate)
+3. The job's run timestamp and the input `Data through` cutoff
+4. Any regions that were **excluded** and why (stale, paused, k-anonymity threshold, missing phenology)
+
+The same explanation is embedded in every exported PDF. National numbers do not appear without their explanation attached. This is what makes the dashboard citable in agency and ministerial documents.
+
+## Related
+
+- [Aggregation Model](/concepts/aggregation-model) - the contract this page follows.
+- [Regional Forecast](/guides/regional-forecast) - the layer below.
+- [Estate Group](/guides/estate-group) - the operator-facing layer.
+- [Verification](/guides/verification) - how field-level evidence supports national numbers.
+- [Risk Model](/concepts/risk-model) - the rule card catalog whose counts appear in top-hazard panels.
