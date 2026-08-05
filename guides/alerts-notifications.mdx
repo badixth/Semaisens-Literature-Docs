@@ -126,6 +126,23 @@ Access all alerts across every field from **Settings \> Alerts** in the left sid
   Alert notifications are typically delivered within **30 minutes** of a new imagery acquisition completing validation and ingestion. Weather alerts fire as soon as the underlying forecast data updates, which occurs every six hours. During periods of high imagery volume across the platform, delivery may occasionally extend to 60 minutes.
 </Note>
 
+## Guardrails
+
+This module follows the shared [guardrails template](/snippets/guardrails-template). The agent and every non-agent write path must respect these rules.
+
+The `alert_rule` is the human-authored configuration; the `alert` is the machine-fired instance. Muting acts on the rule, not the instance. Delivery routing acts on the instance.
+
+| Category | Rule |
+| --- | --- |
+| **Input validation** | Rule requires: `field_id[]` or `estate_id`, `alert_type` (`ndvi_drop` \| `threshold` \| `new_imagery` \| `weather`), a valid condition matching the type, and at least one delivery channel. NDVI-drop rules require a `drop_pct` between 5 and 50. Threshold rules require an `index`, `operator`, and `value` in range for the index. Weather rules require a `weather_event` from the supported list and a valid `lead_time_hours`. Webhook endpoints must respond HTTP 200 within 10 seconds on creation test. |
+| **Preconditions** | Every targeted `field_id` must have an active crop cycle. The actor must have write access to every targeted field or estate. At least one delivery channel must be verified for the actor. |
+| **Refusals** | Creating a rule targeting a field the actor cannot see (entitlements). Muting a rule that produces severity ≥ high signals beyond the bounded window declared by the safety floor. Deleting a rule that has fired within the last 24 hours without a supervisor confirmation. Setting `mute_until` in the past. Creating a rule with a delivery-only-webhook configuration for Critical or High without an on-call fallback. |
+| **Confirmations** | Delete a rule with an active firing history (irreversible: future firings stop entirely). Mute a rule whose last firing was Critical or High. Bulk edit across estates. Reversible actions (create, edit conditions, edit channels, mute with a near-term expiry, unmute) commit optimistically with a 5-second undo. |
+| **Soft warnings** | Rule threshold sits inside the noise band for the target index (informational; user can proceed). Rule targets more than 20 fields in one write. Mute window overlaps a period of historically high firings on the target field. New webhook endpoint has never received a delivery. |
+| **Rate and scope limits** | Bulk rule creation capped at N per org action (org-configurable) because of notification blast radius. Webhook endpoint creation rate-limited per org. No hard cap on total active rules per user; volume is a soft warning, not a refusal. Alert delivery retries follow the platform webhook retry policy; on terminal failure the `alert` transitions to `delivery_failed` and escalates. |
+| **Audit** | Every rule write conforms to the [Audit Envelope](/snippets/audit-envelope). Module-specific fields: `alert_type`, `conditions_snapshot`, `channels`, `mute_until` (when set), `mute_reason` (when set), `fields_scope[]` or `estate_id`. Every `alert` instance also audits `fired_at`, `matched_rule_id`, `matched_conditions_snapshot`, and per-delivery `channel`, `delivery_outcome`, `receipt_id`. Mutes are audited on the rule (`before_snapshot.mute_until` and `after_snapshot.mute_until`); acknowledgement is audited on the alert instance per user. |
+| **Escalation** | `delivery_failed` on a Critical or High alert escalates to the estate admin and, if configured, the on-call role. Three failed deliveries on the same rule within 24 hours escalate to the org admin. Attempt to mute a severity ≥ high rule beyond bounds escalates to the estate admin. Rule deletion by a non-admin identity when the rule has fired within 24 hours escalates to the estate admin. |
+
 ## Related
 
 - [Activity & Alerts](/guides/activity-and-alerts) - the umbrella module. Covers task, scout, map, imagery, and system activity in addition to field alerts, plus the delivery matrix, digests, and AI escalation.

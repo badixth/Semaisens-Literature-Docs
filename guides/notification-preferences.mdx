@@ -162,6 +162,21 @@ Estate admins can set **recommended defaults** for a team. New members inherit t
   </Accordion>
 </AccordionGroup>
 
+## Guardrails
+
+This module follows the shared [guardrails template](/snippets/guardrails-template). The agent and every non-agent write path must respect these rules.
+
+| Category | Rule |
+| --- | --- |
+| **Input validation** | Every preference row carries `severity`, `channel`, `enabled`, and (when scoped) `field_ids[]` or `estate_id`. Quiet hours require a valid IANA time zone; digest times require valid local times. Rule-card-scoped overrides require an existing `rulecard_id` and an explicit `expires_at`. Unverified channels cannot be set to receive Critical or High. |
+| **Preconditions** | Channel must be verified before it can receive Critical or High. Estate-level defaults may only be set by an estate admin. Locked rows may only be modified by the admin who owns the lock or by an org admin. On-call windows may only be set by an estate admin. |
+| **Refusals** | Disabling `in_app` on any severity. Disabling all channels for Critical or High (safety floor: they always deliver on at least one channel). Modifying an admin-locked row from a non-admin identity. Setting a rule-card override without `expires_at`. Muting a severity ≥ high signal beyond the bounded window declared by the safety floor. |
+| **Confirmations** | Disabling a previously-verified channel for Critical or High (safety floor: refused unless another verified channel remains). Overriding estate defaults for a locked row (requires admin identity \+ reason). Setting quiet hours that span more than 12 hours. Enabling webhook delivery for Critical or High without an on-call fallback configured. Reversible changes (adding a channel, adjusting a non-locked row, changing digest time, editing a scoped override) commit optimistically with a 5-second undo. |
+| **Soft warnings** | Preference change would silence more than 50% of the user's current alert volume. Rule-card override expires inside the next 7 days. Quiet hours cover the estate's on-call window. Preference conflicts with an estate default (informational; user can proceed). |
+| **Rate and scope limits** | Bulk import of preference rows capped at N per org action (org-configurable) because of notification blast radius. No hard cap on individual edits; workflow volume is a soft warning, not a refusal. Webhook endpoint additions are rate-limited to prevent enumeration. |
+| **Audit** | Every preference write conforms to the [Audit Envelope](/snippets/audit-envelope). Module-specific fields: `severity`, `channel`, `previous_enabled`, `new_enabled`, `scope` (org \| estate \| user \| field \| rule\_card), `locked` (boolean), `expires_at` (for scoped overrides), and `override_reason` (when overriding a locked row). Delivery routing changes are audited even when the underlying preference did not change (e.g., estate default propagation). |
+| **Escalation** | Attempted disable of a safety-floor channel escalates to the estate admin. Repeated attempts to modify a locked row (three within 7 days by the same identity) escalate to the org admin. On-call window changes escalate to the estate admin for acknowledgement. Delivery failure on Critical or High escalates per [Field Alerts](/guides/alerts-notifications). |
+
 ## Related
 
 - [Activity & Alerts](/guides/activity-and-alerts) - the unified feed these preferences route.

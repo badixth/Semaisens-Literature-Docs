@@ -1,0 +1,71 @@
+---
+title: "Audit Envelope"
+sidebarTitle: "Audit Envelope"
+description: "Common schema every module Audit row conforms to. Per-module Audit rows extend this envelope with their own fields."
+hidden: true
+---
+
+Every write logged under a module's [Audit guardrail](/snippets/guardrails-template) conforms to the shared envelope below. Modules extend the envelope with the fields their [Guardrails template](/snippets/guardrails-template) Audit row names, but they do not remove or rename envelope fields.
+
+<Note>
+  Audit is distinct from [Telemetry](/guides/semai-advisor/telemetry). Telemetry answers _how the agent behaved_ and only emits on advisor-mediated paths. Audit answers _what happened_ and emits on every write path (UI, API, integration, agent, system job). Every critical-state transition emits at least one audit row.
+</Note>
+
+## Common envelope
+
+| Field | Type | Required | Notes |
+| --- | --- | :-: | --- |
+| `event_id` | string | ✓ | Human-readable per the [ID conventions](/concepts/field-data-model). Unique across the audit stream. |
+| `timestamp` | ISO 8601 | ✓ | UTC. Time the write committed, not the time the request arrived. |
+| `module` | enum | ✓ | The module that owns the write. Matches the doc-page slug (`field_scouting`, `vra_maps`, `verification`, `notification_preferences`, etc.). |
+| `source` | enum | ✓ | `ui` \| `api` \| `integration` \| `agent` \| `system`. The write path that produced the row. |
+| `actor_id` | FK → `user` \| `system` | ✓ | The identity that initiated the write. `system` for scheduled jobs, ingestion, and webhook processing. |
+| `actor_role` | string | – | The role the actor held at write time. Snapshot, not a live lookup. Absent for `system`. |
+| `entity_type` | string | ✓ | The Layer 1 entity being written (e.g., `scout_task`, `vra_map`, `alert_rule`). |
+| `entity_ref` | string | ✓ | The entity's primary key. |
+| `before_snapshot` | object | – | State before the write. Null on creation. Omitted for read-only actions that still audit (exports, downloads). |
+| `after_snapshot` | object | – | State after the write. Null on deletion. |
+| `confirmed` | boolean | ✓ | True if a [Confirmation](/snippets/guardrails-template) gate ran and the actor confirmed. False for optimistic commits and non-confirmed writes. |
+| `confirmation_reason` | enum | – | `irreversible` \| `cross_scope` \| `safety_critical`. Set only when `confirmed = true`. |
+| `caller_session_id` | string | – | Set when `source = agent`. Links the audit row to the [Semai Advisor session](/guides/semai-advisor/overview) that produced the write. Absent otherwise. |
+
+## Escalation extension
+
+Every [Escalation](/snippets/guardrails-template) declared in a module's guardrails writes an audit row with the envelope plus:
+
+| Field | Type | Required | Notes |
+| --- | --- | :-: | --- |
+| `escalation_trigger` | string | ✓ | The guardrail rule that fired, quoted verbatim from the module's Escalation row. |
+| `target_role` | string | ✓ | The role that receives the escalation. Must resolve against the platform role model. |
+| `target_user_id` | FK → `user` | – | Set when the target\_role has a specific holder (on-call rotation, named supervisor). |
+| `delivery_outcome` | enum | ✓ | `delivered` \| `delivery_failed` \| `acknowledged`. |
+| `acknowledged_by` | FK → `user` | – | Set when `delivery_outcome = acknowledged`. |
+| `acknowledged_at` | ISO 8601 | – | Set when `delivery_outcome = acknowledged`. |
+
+## Rules
+
+1. **Append-only.** No update paths on audit rows. Corrections write a new row that references the prior via `entity_ref`.
+2. **One row per critical-state transition.** Non-critical transitions may audit; critical ones must.
+3. **No PII in `before_snapshot` or `after_snapshot`.** Redact per organization privacy rules before write.
+4. **Retention.** Indefinite for audit. Compare against [Telemetry retention](/guides/semai-advisor/telemetry) (90 days raw).
+5. **`source` is authoritative.** Every downstream analysis that splits by caller reads this field. It is not derivable from `actor_id` alone.
+
+## Per-module extension pattern
+
+A module's Audit row in its Guardrails table lists only the fields it adds. Example (`guides/field-scouting`):
+
+> **Audit** — Every task write logs actor, source (UI, API, agent), rule card ID and version, assignee, timestamps, and any severity band changes triggered by `activity_bindings`.
+
+This row extends the envelope with `rulecard_id`, `rulecard_version`, `assignee_id`, and `severity_band_change`. Actor, source, and timestamps are envelope fields and do not need restating in the module's row — they are always present.
+
+## Relationship to telemetry
+
+| Property | Audit | Telemetry |
+| --- | --- | --- |
+| Scope | Every write path | Advisor-mediated only |
+| Retention | Indefinite | 90 days raw, indefinite aggregated |
+| Common envelope | This page | [Telemetry common envelope](/guides/semai-advisor/telemetry) |
+| Answers | "What happened?" | "How did the agent behave?" |
+| Session-scoped | Optional (`caller_session_id`) | Required (`session_id`) |
+
+Both streams may fire for the same action. An advisor-drafted scout task emits `intent_classified`, `artifact_issued`, and `confirmation_shown` in telemetry, and one audit row per state transition (`scout_task` → `draft`, then → `assigned`) with `source = agent` and `caller_session_id` set.

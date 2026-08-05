@@ -36,7 +36,7 @@ Guardrails follow the [minimum viable friction](/guides/semai-advisor/overview#m
   </Accordion>
 
   <Accordion title="7. Audit" icon="scroll">
-    What is logged for every write: actor identity, timestamp, before/after values, source (UI, API, agent), and whether the action was confirmed. The audit trail is append-only.
+    What is logged for every write. Every module Audit row conforms to the shared [Audit Envelope](/snippets/audit-envelope): actor, source (UI, API, integration, agent, system), entity ref, before/after snapshots, confirmed flag, timestamp, module. Per-module Audit rows in the table below list only the fields the module adds to that envelope. The audit trail is append-only. Retention is indefinite (compare with [Telemetry](/guides/semai-advisor/telemetry) at 90 days raw).
   </Accordion>
 
   <Accordion title="8. Escalation" icon="bell">

@@ -346,7 +346,8 @@
               "help/troubleshooting"
             ]
           },
-          "snippets/guardrails-template"
+          "snippets/guardrails-template",
+          "snippets/audit-envelope"
         ]
       },
       {
