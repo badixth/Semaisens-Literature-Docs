@@ -1,0 +1,323 @@
+---
+title: "Risk & Alert Model: From Literature to AI Insights"
+sidebarTitle: "Risk Model"
+description: "How Google turns crop literature, satellite indices, weather, and phenology into machine-readable rule cards that power the Alerts and Risk Monitoring modules and ground the AI advisor."
+---
+
+The Alerts and Risk Monitoring modules do not run on prose. They run on a structured layer that sits between raw signals (indices, weather, phenology) and the diagnosis pages in this documentation. That layer is a library of **rule cards**: one machine-readable file per stress, disease, pest, or nutrient disorder, each backed by a full literature page.
+
+This page documents the model so agronomists, engineers, and integrators share the same vocabulary.
+
+## The four layers
+
+<CardGroup cols={2}>
+  <Card title="1. Signal layer" icon="satellite-dish">
+    Continuously ingested inputs: vegetation indices (NDVI, NDRE, NDMI, LST, CWSI, Salinity Index), weather observations and forecasts (temp, humidity, leaf-wetness hours, rainfall, ET), phenology (days after sowing or transplanting, derived stage), and optional in-field sensors and scout observations.
+  </Card>
+
+  <Card title="2. Rule cards" icon="file-code">
+    One YAML card per condition (e.g. `rice_blast`, `rice_water_stress`, `rice_bph`). Each card lists the crop, valid stage window, driver thresholds, severity formula, yield-impact curve, mitigation window, and recommended actions. Every card links back to its literature page.
+  </Card>
+
+  <Card title="3. Engines" icon="gears">
+    The **alert engine** fires on threshold crossings against the signal layer. The **risk engine** matches active alerts \+ forecasts against rule cards to produce forward-looking risk cards with yield-at-risk, estimated loss, and days to mitigate.
+  </Card>
+
+  <Card title="4. AI advisor" icon="sparkles">
+    Retrieval-augmented generation over the literature. Given an alert or risk payload, the advisor retrieves the matching rule card and diagnosis page and returns a grounded answer with four fixed sections: what's happening, parameters, what to do, how to do it.
+  </Card>
+</CardGroup>
+
+## Data flow
+
+```mermaid actions={true}
+flowchart TD
+    subgraph Inputs
+        SAT[Satellite pass]
+        WX[Weather feed]
+        PHEN[Phenology clock]
+        SCOUT[Scout observations]
+        SENS[In-field sensors]
+    end
+
+    SIG[Signal layer]
+    CARDS[(Rule cards)]
+    LIT[Literature pages]
+    RAG[(RAG index)]
+
+    AE[Alert engine]
+    RE[Risk engine]
+
+    ALERTS[Alerts table]
+    RISKS[Risk cards]
+
+    ALERTS_UI([Alerts module])
+    RISK_UI([Risk Monitoring])
+    ADV([AI advisor])
+
+    SAT --> SIG
+    WX --> SIG
+    PHEN --> SIG
+    SCOUT --> SIG
+    SENS --> SIG
+
+    SIG --> AE
+    CARDS -. thresholds<br/>alert_bindings .-> AE
+    AE --> ALERTS
+    ALERTS --> ALERTS_UI
+
+    ALERTS --> RE
+    SIG --> RE
+    CARDS -. yield_impact<br/>mitigation .-> RE
+    RE --> RISKS
+    RISKS --> RISK_UI
+
+    LIT -. indexed at<br/>build time .-> RAG
+    CARDS -. literature_ref .-> LIT
+
+    RISKS -. risk payload<br/>as context .-> ADV
+    RAG -. retrieval .-> ADV
+
+    SCOUT -. closes loop<br/>farm_history .-> CARDS
+
+    classDef store fill:#1f2937,stroke:#6b7280,color:#fff
+    classDef engine fill:#7c3aed,stroke:#a78bfa,color:#fff
+    classDef ui fill:#0891b2,stroke:#22d3ee,color:#fff
+    classDef input fill:#334155,stroke:#64748b,color:#fff
+
+    class SAT,WX,PHEN,SCOUT,SENS input
+    class SIG,CARDS,LIT,RAG,ALERTS,RISKS store
+    class AE,RE engine
+    class ALERTS_UI,RISK_UI,ADV ui
+```
+
+**How to read this diagram**
+
+- **Solid arrows** are data movement: satellite pass to risk card to grounded answer.
+- **Dashed arrows** are references or lookups (rule cards being read, RAG retrieval, cross-links).
+- **Rule cards feed both engines, never the other way around.** The alert engine reads driver thresholds and `alert_bindings`; the risk engine reads the same cards plus `yield_impact` and `mitigation`. Cards are inputs, not outputs.
+- **Literature pages feed the RAG index at build time,** not at query time. The advisor queries the index, then references the underlying pages via `literature_ref` on the rule card.
+- **The risk card is passed to the advisor as context** when the user clicks **Ask the advisor**, so the LLM sees the same numbers the operator sees.
+- **Scout observations close the loop** back into the signal layer and into `farm_history` calibration for the next season.
+
+**How to read this diagram**
+
+- **Solid arrows are data movement.** Follow them to see how a satellite pass becomes a risk card and then a grounded answer.
+- **Rule cards feed both engines, never the other way around.** The alert engine reads driver thresholds and `alert_bindings`; the risk engine reads the same cards plus `yield_impact` and `mitigation`. Cards are inputs, not outputs.
+- **Literature pages feed the RAG index at build time,** not at query time. The advisor queries the index, then references the underlying pages via `literature_ref` on the rule card.
+- **The risk card is passed to the advisor as context** when the user clicks **Ask the advisor**, so the LLM always sees the same numbers the operator sees.
+- **Scout observations close the loop back into the signal layer,** turning confirmed diagnoses into ground truth for the next season's `farm_history` calibration.
+
+## Rule card schema
+
+Rule cards live alongside their literature page as YAML frontmatter under a `rule_card:` key, so a single `.mdx` file is both human-readable documentation and the source of truth for the engines.
+
+```yaml
+rule_card:
+  id: rice_blast                    # unique, snake_case
+  crop: rice                        # rice | oil_palm | pineapple | rubber
+  category: biotic.disease          # biotic.disease | biotic.insect | biotic.weed |
+                                    # abiotic | nutrient
+  stage_window:                     # phenology stages when this rule is active
+    - tillering
+    - booting
+    - heading
+
+  drivers:                          # inputs the engine evaluates
+    - name: leaf_wetness_hours_7d
+      op: ">"
+      value: 40
+      weight: 0.35
+    - name: night_temp_min_c
+      op: "between"
+      value: [20, 28]
+      weight: 0.25
+    - name: ndre_anomaly
+      op: "<"
+      value: -0.05
+      weight: 0.20
+    - name: n_application_recent
+      op: "=="
+      value: true
+      weight: 0.20
+
+  severity:                         # how driver hits combine into a severity score
+    formula: weighted_sum           # weighted_sum | max | logistic
+    bands:
+      low:    [0.0, 0.35]
+      medium: [0.35, 0.65]
+      high:   [0.65, 1.0]
+
+  yield_impact:                     # per-stage loss curve, % of expected yield
+    default:                        # v0 - crop-only baseline, ships with platform
+      tillering: { low: 2,  medium: 6,  high: 12 }
+      booting:   { low: 5,  medium: 15, high: 30 }
+      heading:   { low: 8,  medium: 20, high: 45 }
+    by_ecosystem:                   # v1 - overrides default when field ecosystem is set
+      rainfed_upland:
+        tillering: { low: 4,  medium: 10, high: 20 }
+        booting:   { low: 8,  medium: 22, high: 40 }
+        heading:   { low: 12, medium: 28, high: 55 }
+      irrigated_lowland:
+        tillering: { low: 2,  medium: 5,  high: 10 }
+        booting:   { low: 4,  medium: 12, high: 25 }
+        heading:   { low: 6,  medium: 16, high: 38 }
+    by_variety_group:               # v2 - multiplier on the resolved row
+      susceptible:          { multiplier: 1.3 }
+      moderately_resistant: { multiplier: 0.7 }
+      resistant:            { multiplier: 0.4 }
+    source: literature_v0           # provenance
+    citations:
+      - "IRRI Rice Knowledge Bank - Blast"
+      - "FAO Rice Production Manual"
+
+  mitigation:
+    window_days_by_severity:        # honest countdown - tightens as risk rises
+      low: 10
+      medium: 7
+      high: 3
+    window_days_stage_modifier:     # optional: shorten window at critical stages
+      heading: -2
+    actions:                        # ordered, most-preferred first
+      - id: preventive_fungicide
+        label: "Preventive fungicide (tricyclazole or isoprothiolane)"
+        when: "dry weather window within 5 days"
+      - id: scout_susceptible_blocks
+        label: "Scout susceptible blocks; confirm before spraying"
+      - id: reduce_n_split
+        label: "Hold remaining N split until risk clears"
+
+  alert_bindings:                   # which alert types can precede this risk
+    - ndvi_drop
+    - weather.humidity_high
+    - weather.night_temp_low
+
+  literature_ref: /guides/Crop/Rice/biotic/diseases/blast
+  last_reviewed: 2026-06-01
+  reviewer: agronomy-team
+```
+
+### Field reference
+
+| Field | Purpose |
+| --- | --- |
+| `id` | Stable identifier used by the engine, API, and advisor. |
+| `crop`, `category` | Route the rule to the right crop and section of the literature. |
+| `stage_window` | Gates evaluation to the phenology stages where the rule is meaningful. A booting-stage rule should not fire at emergence. |
+| `drivers` | Machine-readable version of the "How it shows in satellite data" and "When rice is most vulnerable" sections. Each driver names a signal, comparison operator, threshold, and weight. |
+| `severity` | Converts driver hits into a normalized score and severity band (low / medium / high) surfaced on the Risk Monitoring card. |
+| `yield_impact` | Layered per-stage loss table. Used to compute "yield at risk %" and "estimated loss (t)" once field area and expected yield are known. See [Yield-impact layers](#yield-impact-layers) below. |
+| `mitigation.window_days_by_severity` | Powers the "days to mitigate" number on the risk card. The engine picks the row that matches the current severity band (`low`, `medium`, `high`), then applies any `window_days_stage_modifier` for the current stage. |
+| `mitigation.actions` | Ordered playbook. The top item becomes the primary CTA ("Open scout task"). |
+| `alert_bindings` | Tells the risk engine which alert types promote this rule from dormant to active for a field. |
+| `literature_ref` | Path the AI advisor retrieves when the user clicks **Ask the advisor**. |
+| `last_reviewed`, `reviewer` | Governance. Cards older than 12 months are flagged for agronomist review. |
+
+## How a risk card is produced
+
+<Steps>
+  <Step title="Alerts fire from the signal layer">
+    Example: `A2 water stress unresolved` (NDMI 0.19 below 0.30 healthy band) and `night_temp_low` from the weather forecast.
+  </Step>
+  <Step title="Risk engine matches active rule cards">
+    For field A2 (rice, booting stage), the engine loads all rule cards where `crop = rice` and `stage_window` contains `booting`, then evaluates each card's `drivers` against the current signal state.
+  </Step>
+  <Step title="Severity and impact are computed">
+    The `severity.formula` produces a score (e.g. 0.72 → **HIGH**). The engine resolves `yield_impact` layer by layer for this field: if `ecosystem = irrigated_lowland` and `variety_group = susceptible`, it takes `by_ecosystem.irrigated_lowland.booting.high = 25%`, then applies the susceptible multiplier `× 1.3 = 32.5%`. Multiplied by the field's expected yield and area, this becomes `~5.8 t estimated loss`.
+  </Step>
+  <Step title="Mitigation window is resolved">
+    The engine reads `mitigation.window_days_by_severity[high] = 3` and applies any `window_days_stage_modifier` for the current stage. This becomes the "Days to mitigate" number on the card.
+  </Step>
+  <Step title="Risk card is rendered">
+    The Risk Monitoring module displays hazard, driver summary, yield-at-risk %, estimated loss, `mitigation.window_days`, and the top action from `mitigation.actions`.
+  </Step>
+  <Step title="AI advisor grounds its answer">
+    Clicking **Ask the advisor** sends the risk payload plus the referenced literature page to the LLM with a fixed output schema: `whats_happening`, `parameters`, `what_to_do`, `how_to_do`.
+  </Step>
+</Steps>
+
+## Yield-impact layers
+
+A single flat yield-loss table is never right for every field. The same disease behaves very differently across ecosystems and varieties. `yield_impact` is therefore a **layered lookup**, from most general to most specific. The engine resolves them in order, and the first match wins:
+
+```text
+farm_history  →  region  →  variety + ecosystem  →  ecosystem  →  default
+    (v4)          (v3)              (v2)              (v1)         (v0)
+```
+
+| Layer | Ships when | Why it matters | Example |
+| --- | --- | --- | --- |
+| **`default`** (v0) | Day one, with the platform. | Baseline curve per crop, sourced from published literature. Enough to launch Risk Monitoring. | Rice blast at heading peaks at ~45% loss (IRRI reference). |
+| **`by_ecosystem`** (v1) | Highest-value refinement. Ship for the top 3-5 rules per crop. | Same disease behaves very differently across water regimes. Rainfed uplands see far higher blast pressure than irrigated lowlands. | See [Rice Ecosystems](/guides/Crop/Rice/rice-ecosystems). |
+| **`by_variety_group`** (v2) | Once the field data model captures `variety_group`. Applied as a multiplier on the resolved row, not a full override. | Resistant vs susceptible changes losses by 3-5x. Group is enough; exact variety not required. | `susceptible`, `moderately_resistant`, `resistant`. |
+| **`by_region`** (v3) | Once regional pathogen and weather patterns are characterized. | Local pathogen races and micro-climates. | `PH-Luzon`, `VN-Mekong`. |
+| **`farm_history`** (v4) | Auto-tuned by the platform after 1-2 seasons of observations. | The platform's own record of what actually happened on this farm. | Learned, not authored. |
+
+<Tip>
+  Ship v0 for every rule this quarter. Add v1 (ecosystem) for the top 3-5 rules per crop next. Do not block the module launch on v3 or v4 - they are refinements, not prerequisites.
+</Tip>
+
+### Ecosystem is a field-data prerequisite
+
+For crops where ecosystem meaningfully changes risk (rice is the clearest example), `ecosystem` must be a captured property on the field before the risk engine can apply v1 overrides. If the field record is missing an ecosystem tag, the engine falls back to `default` and marks the risk card as "baseline estimate" so the operator knows precision is limited.
+
+For crops where ecosystem is less discriminating (oil palm, pineapple, rubber), use `by_region` or `by_soil_type` in place of `by_ecosystem`. The layer key is generic on purpose.
+
+### Provenance and governance
+
+Every `yield_impact` block carries `source` and `citations`. Values are one of:
+
+- `literature_v0` - drawn from published references (IRRI, FAO, national extension).
+- `agronomy_reviewed` - validated by the internal agronomy team.
+- `farm_calibrated` - refined against the platform's own field-history observations.
+
+Cards flagged `literature_v0` are surfaced in the agronomy review queue and re-checked annually.
+
+## Days to mitigate
+
+The "Days to mitigate" number on the risk card is not a static rule constant. It answers a specific question: **how long does the operator have before the recommended action stops being effective?**
+
+The engine resolves it in two steps:
+
+1. Pick the base window from `mitigation.window_days_by_severity` using the current severity band.
+2. Add any `window_days_stage_modifier` value for the current phenology stage (usually negative, tightening the window at critical stages like heading or flowering).
+
+```text
+window = window_days_by_severity[severity] + stage_modifier[current_stage]
+```
+
+A HIGH-severity blast risk at heading with the schema above resolves to `3 + (-2) = 1 day`. That is honest: at heading, once conditions are right for neck blast, the preventive-spray window is very short.
+
+Rules that describe slow-developing conditions (nutrient deficiencies, salinity buildup) can keep windows in the 10-30 day range. Rules for fast-moving weather-driven diseases should tighten aggressively at HIGH severity.
+
+## Authoring rule cards
+
+1. Start from the existing diagnosis page (for example, [Blast](/guides/Crop/Rice/biotic/diseases/blast)).
+2. Extract the numeric thresholds already stated in prose (e.g. "cool nights below 22 C and humidity above 90% for 3\+ nights") into `drivers`.
+3. Ask the agronomy team for a per-stage yield-loss table if one is not already published. This is usually the only new content required.
+4. Add the `rule_card:` block to the page's frontmatter. The page continues to render normally; the engine reads the block at build time.
+5. Set `last_reviewed` to today and open a PR. Cards are validated against a JSON Schema in CI.
+
+<Tip>
+  A diagnosis page without a `rule_card:` block is still valuable to users but is invisible to the Alerts and Risk Monitoring engines. Prioritize rule cards for the top 5-10 conditions per crop first.
+</Tip>
+
+## What the AI advisor returns
+
+Every advisor response follows the same four-part schema, populated from the rule card and the retrieved literature page:
+
+| Section | Source |
+| --- | --- |
+| **What's happening** | Risk card summary \+ first paragraph of the literature page. |
+| **Parameters** | The `drivers` block, rendered with current values vs thresholds. |
+| **What to do** | `mitigation.actions` in order. |
+| **How to do it** | Retrieved from the "Reduce the damage by" and field-walk-protocol sections of the literature. |
+
+This structure is what makes the advisor useful in the field: the operator never has to guess whether the AI is speculating or citing your literature.
+
+## Related
+
+- [Vegetation Indices](/concepts/indices) - the signal layer's core inputs.
+- [Field Data Model](/concepts/field-data-model) - fields, zones, seasons, observations the engines run against.
+- [Alerts](/guides/alerts-notifications) - user-facing alert types and delivery.
+- [Rice Blast](/guides/Crop/Rice/biotic/diseases/blast) - reference page with a fully populated `rule_card:` example.
