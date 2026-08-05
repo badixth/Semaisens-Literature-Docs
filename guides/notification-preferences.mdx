@@ -1,0 +1,170 @@
+---
+title: "Notification Preferences: Channels, Quiet Hours, and Digests"
+sidebarTitle: "Notification Preferences"
+description: "Configure how Activity & Alerts reaches you: which channels per severity, quiet hours, digest schedules, and per-category overrides. Critical and High always deliver immediately."
+---
+
+[Activity & Alerts](/guides/activity-and-alerts) is one unified feed. Notification Preferences is where each user decides **how** that feed reaches them: which channels, which severities, which categories, and when the platform is allowed to interrupt them.
+
+<Note>
+  Preferences change delivery, not what gets recorded. Every event still lands in the feed and the [Activity Log](/guides/activity-log). Muting a category only stops the ping, not the record.
+</Note>
+
+## The delivery model
+
+Every event has three attributes that decide whether you get notified:
+
+1. **Severity** - Info, Low, Medium, High, Critical (see the [unified severity ladder](/guides/activity-and-alerts#unified-severity-ladder))
+2. **Category** - Field Alerts, Weather, Scout, Tasks, VRA, Verification, Team
+3. **Field / group scope** - which fields the event belongs to
+
+Your preferences map each combination to a set of channels. The defaults are safe for most users; override anything that does not fit your workflow.
+
+<Warning>
+  **Critical and High severities always deliver immediately** on at least one channel, regardless of your other settings. Quiet hours, digests, and category mutes cannot suppress them. This is a platform-level guarantee for field safety and yield protection.
+</Warning>
+
+## Channels
+
+| Channel | Best for | Latency | Configurable per-user |
+| --- | --- | --- | --- |
+| **In-app** | Everything; the primary feed | Real-time | Always on |
+| **Email** | Digests, summaries, verification receipts | Minutes | Yes |
+| **SMS** | Critical field alerts when the app is closed | Seconds | Yes, phone number required |
+| **Push (mobile)** | Field-time alerts, task assignments | Seconds | Yes, per device |
+| **Slack / Teams** | Team-wide channels, ops rooms | Seconds | Yes, per workspace |
+| **Webhook** | Downstream automation, farm management systems | Seconds | Yes, per endpoint |
+
+<Tip>
+  In-app is always on and cannot be disabled. It is your permanent record. All other channels are opt-in.
+</Tip>
+
+## Default delivery matrix
+
+These are the platform defaults. Every row is editable per user.
+
+| Severity | In-app | Push | SMS | Slack / Teams | Email |
+| --- | :-: | :-: | :-: | :-: | :-: |
+| **Critical** | ✓ | ✓ | ✓ | ✓ (channel \+ DM) | ✓ |
+| **High** | ✓ | ✓ | ✓ | ✓ (channel) | ✓ |
+| **Medium** | ✓ | ✓ |  | ✓ (channel) | Daily digest |
+| **Low** | ✓ |  |  |  | Daily digest |
+| **Info** | ✓ |  |  |  | Weekly digest |
+
+## Setting up your preferences
+
+<Steps>
+  <Step title="Open settings">
+    Click your avatar → **Notification Preferences**. Preferences are per-user, not per-estate.
+  </Step>
+  <Step title="Verify your channels">
+    Confirm your email, phone number for SMS, and any connected Slack, Teams, or push devices. Unverified channels cannot receive Critical or High.
+  </Step>
+  <Step title="Adjust the severity matrix">
+    For each severity row, tick the channels you want. Critical and High require at least one channel; the UI enforces this.
+  </Step>
+  <Step title="Configure category overrides (optional)">
+    Some categories deserve tighter or looser routing than the severity default. Example: send **every** VRA lifecycle event to Slack for the ops room, but keep Team events in-app only.
+  </Step>
+  <Step title="Set quiet hours">
+    Choose a start and end time in your local zone. During quiet hours, Medium and below hold until the window closes. Critical and High always deliver.
+  </Step>
+  <Step title="Choose digest cadence">
+    Daily digest time and weekly digest day. Digests only include items below your immediate-delivery threshold.
+  </Step>
+</Steps>
+
+## Category overrides
+
+Overrides let you route a single category differently from the severity default. Common patterns:
+
+<AccordionGroup>
+  <Accordion title="Ops room wants every VRA event">
+    Category **VRA** → route all severities to `#ops-room` Slack channel. Individuals still get their normal severity routing on other channels.
+  </Accordion>
+
+  <Accordion title="Estate manager wants a quiet weekend">
+    Category **Team** and **Scout completions** → digest only on Saturday and Sunday. Field Alerts and Weather stay on the normal schedule so real risks still ping.
+  </Accordion>
+
+  <Accordion title="Executives want headlines only">
+    All categories → digest only, except Critical which routes to SMS. Result: one daily email plus SMS for anything urgent.
+  </Accordion>
+
+  <Accordion title="Agronomist on-call for a specific hazard">
+    Rule card **rice\_blast** → SMS on every severity for this user for the next 14 days. Everyone else keeps normal routing. Auto-expires.
+  </Accordion>
+</AccordionGroup>
+
+## Quiet hours
+
+Quiet hours are a **local-time** window during which Medium, Low, and Info deliveries hold and release together when the window ends. Critical and High are exempt.
+
+- **Default**: 22:00 to 06:00 local
+- **Weekend override**: extend by up to 3 hours on Saturday and Sunday
+- **Travel-aware**: quiet hours follow the device time zone, not your home zone. If you land in a different region, the window shifts automatically.
+
+<Warning>
+  If your role includes an on-call rotation, the platform disables quiet hours during your on-call window automatically. This is set by the estate admin, not by the individual user.
+</Warning>
+
+## Digest schedule
+
+Digests are AI-summarized rollups of everything below your immediate-delivery threshold.
+
+| Digest | Default time | Contents |
+| --- | --- | --- |
+| **Daily** | 07:00 local | Last 24 hours of Low and Medium items, grouped by field, with the top actions surfaced |
+| **Weekly** | Friday 16:00 local | Last 7 days of Info items, scout completion rate, VRA applications, verification acceptance rate |
+
+Digests link back to the feed for one-click drilldown. They never contain Critical or High items; those already delivered immediately.
+
+## Team and estate-level defaults
+
+Estate admins can set **recommended defaults** for a team. New members inherit them on first login. Individuals can still override any row.
+
+<Steps>
+  <Step title="Open estate settings">
+    Estate → **Notification Defaults**.
+  </Step>
+  <Step title="Set the recommended matrix">
+    Adjust the severity × channel matrix that new members will start with.
+  </Step>
+  <Step title="Lock any rows (optional)">
+    For compliance or safety, admins can **lock** specific rows so individuals cannot disable them. Example: lock Critical → SMS on for every user. Locked rows show a padlock icon in the user's settings.
+  </Step>
+</Steps>
+
+## What preferences do NOT control
+
+- **Whether an event happens** - preferences never affect the risk engine, alert engine, or [Activity Log](/guides/activity-log).
+- **What Verification captures** - every operation still cross-checks. See [Verification Model](/concepts/verification-model).
+- **The unified severity ladder** - severity is computed from the [rule card](/concepts/risk-model), not from your preferences.
+- **Compliance floors** - locked rows and the Critical / High delivery guarantee override any user setting.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="I stopped getting SMS">
+    Check that your phone number is verified. Carriers occasionally reject long-form SMS; the platform falls back to a shortened link. If the failure persists, the platform automatically escalates delivery to Push and Email and shows a red badge in your settings.
+  </Accordion>
+
+  <Accordion title="Slack channel is silent">
+    The workspace token may have expired. Estate admin reconnects the workspace under Integrations. During disconnect, all Slack-only routes fall back to Email so you still get the message.
+  </Accordion>
+
+  <Accordion title="I am buried in Info-level notifications">
+    Move Info to weekly digest only, and consider muting the Team category if you do not manage other users. Info to weekly is the platform's recommended baseline; the default is Info-in-app for transparency, not for volume.
+  </Accordion>
+
+  <Accordion title="I want an audit of what was actually delivered">
+    Settings → **Delivery Log** shows every send, including channel, timestamp, and delivery receipt (where the channel supports one). Useful for confirming that a Critical alert reached you before an incident.
+  </Accordion>
+</AccordionGroup>
+
+## Related
+
+- [Activity & Alerts](/guides/activity-and-alerts) - the unified feed these preferences route.
+- [Field Alerts](/guides/alerts-notifications) - the four data-driven alert types.
+- [Activity Log](/guides/activity-log) - the timeline lens; unaffected by delivery preferences.
+- [Risk Model](/concepts/risk-model) - defines severity, which drives routing.

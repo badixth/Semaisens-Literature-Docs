@@ -299,6 +299,7 @@
               "guides/activity-and-alerts",
               "guides/activity-log",
               "guides/alerts-notifications",
+              "guides/notification-preferences",
               {
                 "group": "Fleet & Rollup",
                 "icon": "sitemap",
