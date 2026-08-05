@@ -1,0 +1,171 @@
+---
+title: "Semai Advisor: Overview"
+sidebarTitle: "Overview"
+description: "Semai Advisor is not a chat window. It is an intent router that reads your live data graph, navigates the UI to the right page, and drives agentic action through four artifact types, session-only memory, and module-owned guardrails."
+---
+
+Semai Advisor is the agentic layer of the platform. The user expresses intent; the advisor resolves it against the live data graph, navigates the UI to the page that visualizes the answer, and overlays reasoning, todos, and offered actions. Pages become **projections of agent state**, not destinations the user has to hunt for.
+
+<Note>
+  The chat surface is the entry point. The value is the routing, reasoning, and agentic action behind it. If a chat response cannot resolve into one of four artifact types, the advisor will not produce it.
+</Note>
+
+## Minimum viable friction
+
+Guardrails exist to prevent unsafe or irreversible writes, not to slow the user down. The advisor is agentic; that means it should feel like it is **doing the work with you**, not like it is asking permission for every step. Two rules govern how much friction is acceptable:
+
+### Rule 1: Pre-fill everything you can infer
+
+By the time the advisor presents a draft, every input it could infer from **Sense** and **Interpret** is already filled: field, block, cycle, firing rule card, severity, suggested assignee, why/what/when/how brief, target zone. The user sees a pre-filled draft, not an empty form. They review, adjust, confirm.
+
+The user is asked only when:
+
+1. The action is irreversible, cross-scope, or safety-critical (see Rule 2).
+2. Two candidate values are equally likely and the advisor cannot resolve without input.
+3. A refusal is triggered and there is a viable alternative path.
+
+Everything else commits optimistically with a short **undo** window.
+
+### Rule 2: The reversibility test
+
+Confirmations exist for actions the user cannot easily walk back. Apply this test:
+
+<CardGroup cols={2}>
+  <Card title="Commit + undo" icon="rotate-left">
+    Reversible, single-scope, non-safety-critical. Examples: create a scout task, reassign before acceptance, draft a VRA map, edit a task brief. Advisor commits immediately and shows a 5-second undo.
+  </Card>
+
+  <Card title="Confirm first" icon="hand">
+    Irreversible, cross-scope, or safety-critical. Examples: export a VRA map to a machine, apply-to-fleet across estates, close a scout task without a visit, override a "insufficient data" verification verdict, mute a severity-high\+ alert.
+  </Card>
+</CardGroup>
+
+### Rule 3: Soft warnings over hard refusals
+
+Most workflow concerns (a scout with too many open tasks, a busy day for the estate) are **management issues, not safety issues**. The advisor surfaces them as soft warnings the user can proceed past, not hard refusals. Hard refusals are reserved for:
+
+- Safety-critical writes (rates outside agronomic min/max, muting severity-critical alerts).
+- Entitlement violations (acting on entities the user cannot see).
+- Structural refusals declared by the target module.
+- Actions with external cost or blast radius (agency exports, notifications at scale).
+
+The result: the advisor feels agentic, module guardrails stay lean, and the safety floor is untouched.
+
+## The four artifact types
+
+Every advisor response is one of four artifacts. This is the response contract.
+
+<CardGroup cols={2}>
+  <Card title="Answer" icon="comment">
+    Text with citations to data points or literature refs. No writes. No navigation. Used for informational queries where the user does not need a page context.
+  </Card>
+
+  <Card title="View" icon="eye">
+    Navigate the user to a target page and apply an overlay: highlighted zones, a reasoning panel, a suggested-action strip, or a "why this page" ribbon. No writes.
+  </Card>
+
+  <Card title="Task" icon="list-check">
+    A concrete write to a module (scout task, VRA draft, alert mute, activity entry). Always human-confirmed before commit. Always passes the target module's [guardrails](/snippets/guardrails-template).
+  </Card>
+
+  <Card title="Proposal" icon="file-pen">
+    A suggested change to the knowledge base (threshold edit, new mitigation action, diagnosis page revision). Never auto-applied. Always routed to a human reviewer, regardless of confidence.
+  </Card>
+</CardGroup>
+
+## Session-only memory
+
+Semai Advisor has **no per-user memory**. Every session is fresh. This is deliberate.
+
+| Property | Value |
+| --- | --- |
+| **Scope** | Session only |
+| **Timeout** | 30-minute idle; survives page refresh |
+| **Bootstrapping** | Identity \+ entitlements \+ launch context (the page or entity the user was on when they opened chat) |
+| **Durability** | Lives on **artifacts** (scout tasks, VRA drafts, proposals), not on the agent |
+
+### Why session-only
+
+- **Coherence.** Two users asking the same question about the same field get the same answer. No divergence.
+- **Testability.** Same input plus same identity produces the same reasoning trace.
+- **Safety.** The agent cannot learn and internalize a user's bad habits.
+- **Institutional knowledge stays institutional.** Every durable learning must flow through the [knowledge tiers](#knowledge-tiers) as a **Proposal**, reviewed and versioned. Nothing sneaks into the model via personal drift.
+- **Privacy is trivial.** Nothing persistent to forget.
+
+### What replaces personalization
+
+Personalization comes from **identity and launch context**, not memory:
+
+- Estate manager opening chat from the Muda granary page → session pre-scoped to that estate.
+- Scout opening chat on mobile → default views tuned to today's assigned tasks.
+- Regional head opening chat from the National Overview → session pre-scoped to the aggregation layer.
+
+Durable state lives on the **artifact**. Reopen a scout task and a new session rehydrates from that task's context. The artifact is the memory.
+
+## Knowledge tiers
+
+Writes to knowledge (literature, rule cards, diagnosis pages) follow four tiers. The advisor plays only within tiers 1 and 2.
+
+| Tier | Who writes | Example |
+| --- | --- | --- |
+| **1. Auto-write** | Agent, within existing schema slots | Session telemetry, playbook success signals, feedback flags |
+| **2. Propose-value** | Agent proposes, human reviews | New threshold on an existing rule card, edit to a diagnosis page body, new entry in an existing `mitigation.actions` array |
+| **3. Read-only** | No writes | Crop biology fundamentals, regulatory content |
+| **4. Schema-change** | Humans only, via docs/schema PR | New rule card type, new frontmatter field, new taxonomy, new intent |
+
+The advisor can **flag the need** for a schema change ("this pattern doesn't fit any existing rule card type") but cannot draft one. Structural conformance is the scalability guardrail: the agent can only ever fill in shapes your team has already defined.
+
+## Module guardrails
+
+Every module that accepts writes declares its own guardrails using the shared [guardrails template](/snippets/guardrails-template). The advisor is a **consumer** of module guardrails, not their author. This matters because:
+
+- Non-agent paths (UI, API, integrations) hit the same rules.
+- The agent cannot escalate its own permissions.
+- **Refusals** (the safety floor) apply to the agent identically to any other caller.
+
+High-risk modules with fully documented guardrails today:
+
+- [Field Scouting](/guides/field-scouting#guardrails)
+- [VRA Maps](/guides/prescription-maps#guardrails)
+- [Verification](/guides/verification#guardrails)
+
+## Safety floor
+
+Regardless of session, personalization, or artifact type, the following are non-negotiable:
+
+- **Severity ≥ high** signals cannot be suppressed, muted beyond a bounded window, or personalized away. Only presentation is personalized, never thresholds.
+- The advisor cannot act on entities the user does not have access to under their identity and entitlements.
+- Every **Task** and **Proposal** artifact requires explicit human confirmation before commit.
+- Every write, whether by agent or human, is audited with actor, source, timestamps, and before/after values.
+
+## How it connects to the rest of the platform
+
+The advisor reads across the platform and writes back through module guardrails. Nothing bypasses.
+
+<Steps>
+  <Step title="Reads (data graph)">
+    Live entities: [Field Data](/concepts/field-data-model), [Indices](/concepts/indices), [Crop Cycle Models](/concepts/crop-cycle-models), [Risk Model](/concepts/risk-model) rule cards, [Aggregation](/concepts/aggregation-model) rollups.
+  </Step>
+  <Step title="Reads (knowledge base)">
+    Crop literature (diagnosis pages, field-walk protocols), rule card metadata, mitigation actions.
+  </Step>
+  <Step title="Navigates + overlays">
+    Sends a **View** artifact: routes the user to the right page and overlays reasoning and offered actions.
+  </Step>
+  <Step title="Writes (tasks)">
+    Sends a **Task** artifact: creates a scout task, drafts a VRA map, mutes an alert. Human confirms; module guardrails validate; commit or refuse.
+  </Step>
+  <Step title="Writes (proposals)">
+    Sends a **Proposal** artifact: files a literature edit or threshold change. Routed to a human reviewer. Approved changes are versioned and enter the knowledge base.
+  </Step>
+  <Step title="Closes the loop">
+    Every completed task or applied proposal emits an event back into [Activity & Alerts](/guides/activity-and-alerts), the [Risk Model](/concepts/risk-model), and where applicable, [Verification](/guides/verification).
+  </Step>
+</Steps>
+
+## What comes next in these docs
+
+- [**The Agent Loop**](/guides/semai-advisor/agent-loop) — the five-stage loop (Sense → Interpret → Decide → Act → Close) every advisor action follows.
+- [**Intent Taxonomy**](/guides/semai-advisor/intent-taxonomy) — the seven intents (Inform, Diagnose, Decide, Act, Verify, Learn, Configure) and how each maps to entry, target page, overlay, and artifact.
+
+Deeper pages will follow: overlays and navigation, preset playbooks, agentic actions and guardrails in detail, handoff and escalation.

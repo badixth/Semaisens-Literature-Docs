@@ -1,0 +1,168 @@
+---
+title: "Intent Taxonomy"
+sidebarTitle: "Intent Taxonomy"
+description: "Seven intents Semai Advisor recognizes. Each intent maps deterministically to an entry surface, a target page, an overlay, and the artifact types it can produce. This is how chat becomes navigation."
+---
+
+The advisor cannot route to the right page unless intents are enumerated. Every user message is classified into one of seven intents. Each intent has a fixed contract: **entry surface → data reads → target page → overlay → allowed artifacts → close-the-loop event**.
+
+<Note>
+  Intent classification happens in the [Interpret](/guides/semai-advisor/agent-loop) stage of the agent loop. If a message does not classify cleanly into one intent, the advisor asks a scoping question rather than guessing.
+</Note>
+
+## The seven intents
+
+| Intent | Trigger phrase example | Primary artifact | Target surface |
+| --- | --- | --- | --- |
+| **Inform** | "What's happening in Kedah?" | Answer or View | Regional Forecast, National Overview |
+| **Diagnose** | "Why is Blok A2 stressed?" | View | Field page with risk card expanded |
+| **Decide** | "Should I irrigate Blok A2 today?" | Answer with recommendation | Chat (stays in place) |
+| **Act** | "Assign scouting to Ali for Blok A2" | Task | Field Scouting draft |
+| **Verify** | "Did the last irrigation work?" | View | Verification with before/after |
+| **Learn** | "Show me last season's cycle for this estate" | View | Cycle Analysis |
+| **Configure** | "Mute alerts on Blok A2 for the weekend" | Task | Notification Preferences draft |
+
+## Per-intent contracts
+
+<AccordionGroup>
+  <Accordion title="Inform" icon="circle-info">
+    **Purpose**: user wants situational awareness. No decision required, no action requested.
+
+    | Field | Value |
+    | --- | --- |
+    | **Entry surface** | Chat launched from anywhere |
+    | **Reads** | [Aggregation Model](/concepts/aggregation-model) rollups, [Regional Forecast](/guides/regional-forecast), [National Overview](/guides/national-overview), current alerts |
+    | **Target page** | Regional Forecast, National Overview, or Estate Group depending on scope |
+    | **Overlay** | Highlighted regions of interest, reasoning ribbon ("why this page") |
+    | **Allowed artifacts** | Answer, View |
+    | **Close-the-loop** | None (read-only) |
+    | **Failure mode** | If scope is ambiguous ("how are things?"), advisor asks: national, regional, or estate? |
+  </Accordion>
+
+  <Accordion title="Diagnose" icon="stethoscope">
+    **Purpose**: user wants to know why a specific entity is showing anomalous behavior.
+
+    | Field | Value |
+    | --- | --- |
+    | **Entry surface** | Chat launched from a field, block, or alert |
+    | **Reads** | Field data, [Indices](/concepts/indices), [Crop Cycle Models](/concepts/crop-cycle-models), firing [Risk Model](/concepts/risk-model) rule cards, matching crop literature diagnosis page |
+    | **Target page** | The field's page, with the firing rule card expanded and diagnosis excerpt inline |
+    | **Overlay** | Stressed sub-zones highlighted, reasoning panel with `drivers` and confidence, suggested-action strip |
+    | **Allowed artifacts** | View, then optionally Task (offer scout task or VRA draft) |
+    | **Close-the-loop** | If user accepts a follow-on Task, standard scout or VRA lifecycle |
+    | **Failure mode** | If no rule card matches, advisor returns an Answer citing raw indices and offers to file a **Proposal** for a missing pattern |
+  </Accordion>
+
+  <Accordion title="Decide" icon="scale-balanced">
+    **Purpose**: user wants a recommendation. Advisor produces a bounded recommendation with confidence and stops.
+
+    | Field | Value |
+    | --- | --- |
+    | **Entry surface** | Chat, typically after a Diagnose exchange |
+    | **Reads** | Same as Diagnose, plus `mitigation.actions` and `mitigation.window_days_by_severity` from the matching rule card |
+    | **Target page** | Stays in chat; does not navigate |
+    | **Overlay** | Reasoning panel with recommendation, confidence, alternative options |
+    | **Allowed artifacts** | Answer |
+    | **Close-the-loop** | None until the user escalates to Act |
+    | **Failure mode** | Confidence below threshold → advisor recommends Diagnose or scout first, does not fabricate a call |
+  </Accordion>
+
+  <Accordion title="Act" icon="bolt">
+    **Purpose**: user wants a concrete write. Assign, draft, mute, schedule.
+
+    | Field | Value |
+    | --- | --- |
+    | **Entry surface** | Chat, or from a Decide response |
+    | **Reads** | Target module's schema, entitlements, current state of the target entity |
+    | **Target page** | The target module's draft view ([Field Scouting](/guides/field-scouting), [VRA Maps](/guides/prescription-maps), [Notification Preferences](/guides/notification-preferences)) |
+    | **Overlay** | Pre-filled form, module guardrail validation banner, explicit confirmation button |
+    | **Allowed artifacts** | Task |
+    | **Close-the-loop** | Task-created event into [Activity & Alerts](/guides/activity-and-alerts); downstream module lifecycle takes over |
+    | **Failure mode** | Module refusal (e.g., assignee lacks field access) surfaces the refusal reason; advisor offers an alternative that would pass |
+  </Accordion>
+
+  <Accordion title="Verify" icon="circle-check">
+    **Purpose**: user wants proof of outcome after an action.
+
+    | Field | Value |
+    | --- | --- |
+    | **Entry surface** | Chat, or from a completed task in the Activity feed |
+    | **Reads** | [Verification Model](/concepts/verification-model), source events (scout reports, as-applied maps), satellite passes in the tolerance window |
+    | **Target page** | [Verification](/guides/verification) with the relevant bundle open |
+    | **Overlay** | Before/after comparison, cross-check verdict, source-event list |
+    | **Allowed artifacts** | View |
+    | **Close-the-loop** | Approved bundles are exportable; overrides trigger escalation per [Verification guardrails](/guides/verification#guardrails) |
+    | **Failure mode** | Insufficient imagery → advisor states the reason and offers to schedule the next check; does not override |
+  </Accordion>
+
+  <Accordion title="Learn" icon="book-open">
+    **Purpose**: user wants historical or educational context, not a live decision.
+
+    | Field | Value |
+    | --- | --- |
+    | **Entry surface** | Chat |
+    | **Reads** | [Cycle Analysis](/guides/seasonal-analysis), [Activity Log](/guides/activity-log), historical rollups, crop literature |
+    | **Target page** | Cycle Analysis, Activity Log, or a diagnosis page |
+    | **Overlay** | Highlighted period, narrative summary, links to related literature |
+    | **Allowed artifacts** | Answer, View |
+    | **Close-the-loop** | None (read-only) |
+    | **Failure mode** | Incomplete cycle → advisor states what is missing and offers a partial narrative |
+  </Accordion>
+
+  <Accordion title="Configure" icon="sliders">
+    **Purpose**: user wants to change platform behavior for themselves or the estate.
+
+    | Field | Value |
+    | --- | --- |
+    | **Entry surface** | Chat |
+    | **Reads** | Current preferences, entitlements, safety-floor rules |
+    | **Target page** | [Notification Preferences](/guides/notification-preferences), Estate Group settings |
+    | **Overlay** | Diff preview (before/after), safety-floor banner if applicable, explicit confirmation |
+    | **Allowed artifacts** | Task |
+    | **Close-the-loop** | Preference-changed event into audit log; downstream alert routing updates |
+    | **Failure mode** | Attempt to disable a safety-floor channel → module refusal; advisor explains and suggests the bounded alternative |
+  </Accordion>
+</AccordionGroup>
+
+## How intent selects the artifact
+
+| Intent | Answer | View | Task | Proposal |
+| --- | --- | --- | --- | --- |
+| Inform | ✓ | ✓ |  |  |
+| Diagnose |  | ✓ | offered as follow-on | offered when no match |
+| Decide | ✓ |  |  |  |
+| Act |  |  | ✓ |  |
+| Verify |  | ✓ |  |  |
+| Learn | ✓ | ✓ |  |  |
+| Configure |  |  | ✓ |  |
+
+**Proposal** is not tied to a single intent. It can be issued from any intent when the advisor detects that the knowledge base is missing a pattern (a new stressor, a new mitigation, a threshold that fires too aggressively). Proposals always route to human review; they never auto-apply. See the [knowledge tiers](/guides/semai-advisor/overview#knowledge-tiers).
+
+## Ambiguity handling
+
+If the classifier confidence is below threshold or two intents are close, the advisor asks a **single scoping question** before proceeding. It does not guess and it does not chain multiple clarifiers. Example:
+
+> User: "What about Blok A2?"
+>
+> Advisor: "Do you want a diagnosis, a scout assignment, or a historical cycle view?"
+
+This keeps the loop deterministic and testable.
+
+## Multi-intent messages
+
+A message like _"Blok A2 looks stressed, assign Ali to scout it and mute the alerts until he reports back"_ contains **Diagnose \+ Act \+ Configure**. The advisor executes them as a **sequence of separate loops**, each with its own artifact and confirmation, in dependency order:
+
+1. Diagnose → View on Blok A2 (auto-confirmed, read-only).
+2. Act → Task: scout assignment to Ali (human confirms).
+3. Configure → Task: bounded alert mute (human confirms; safety floor still applies).
+
+Each step's output is available as context to the next. Nothing is bundled into a single opaque action.
+
+## Next
+
+Upcoming pages will cover:
+
+- **Overlays and navigation** — the UI primitives that make View artifacts feel like the agent is driving the page.
+- **Preset playbooks** — named end-to-end compositions of intents (Morning Brief, Diagnose a Field, Assign a Scout, Verify a Treatment, Plan a VRA Map, Explain an Alert, Rollup Review, Weekly Cycle Debrief).
+- **Agentic actions and guardrails in detail** — the full matrix of what the advisor can do against every module.
+- **Handoff and escalation** — chat → scout task → assignee → activity log → verification.

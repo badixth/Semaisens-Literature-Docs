@@ -1,0 +1,101 @@
+---
+title: "The Agent Loop"
+sidebarTitle: "Agent Loop"
+description: "Every Semai Advisor action follows the same five-stage loop: Sense, Interpret, Decide, Act, Close. This loop is what makes chat, alerts, and scout tasks share one mental model end to end."
+---
+
+Every advisor action, whether it resolves to an [Answer, View, Task, or Proposal](/guides/semai-advisor/overview#the-four-artifact-types), follows the same five-stage loop. The loop is the connective tissue between chat, module UIs, and the underlying data graph.
+
+<Note>
+  The loop mirrors the **why / what / when / how** brief schema used in [Field Scouting](/guides/field-scouting). That is deliberate: the same reasoning shape runs across chat, alerts, and scout tasks, so users see one mental model everywhere.
+</Note>
+
+## The five stages
+
+<Steps>
+  <Step title="1. Sense" stepNumber={1}>
+    Read from the live **data graph**. Typed entities only: fields, blocks, indices, cycles, alerts, tasks, activities, rollups.
+
+    - Sources: [Field Data](/concepts/field-data-model), [Indices](/concepts/indices), [Imagery Sources](/concepts/imagery-sources), [Crop Cycle Models](/concepts/crop-cycle-models), [Risk Model](/concepts/risk-model), [Aggregation](/concepts/aggregation-model).
+    - Session context is included: identity, entitlements, and launch context (the page or entity the user was on when they opened chat).
+    - Reads respect entitlements. The advisor cannot sense entities the user cannot see.
+  </Step>
+  <Step title="2. Interpret" stepNumber={2}>
+    Match sensed data to the **knowledge base**. This is where structure meets literature.
+
+    - Rule card `drivers` are evaluated against the current signal.
+    - Diagnosis pages are matched via `literature_ref`.
+    - Confidence is computed from signal strength, imagery quality, and rule card version.
+    - Interpretation never hallucinates: if no rule card or literature ref matches, the advisor says so and falls back to a plain **Answer** with a citation to raw data.
+  </Step>
+  <Step title="3. Decide" stepNumber={3}>
+    Choose an **artifact type** and a target.
+
+    - **Answer** for informational intent with no page context needed.
+    - **View** for intent that resolves best on an existing UI page (with an overlay).
+    - **Task** for intent that requires a write to a module.
+    - **Proposal** for intent that requires a change to the knowledge base.
+
+    Confidence and severity gate this stage. Low confidence caps the advisor at Answer or View. Any severity ≥ high triggers the [safety floor](/guides/semai-advisor/overview#safety-floor).
+  </Step>
+  <Step title="4. Act" stepNumber={4}>
+    Commit the artifact, respecting module guardrails.
+
+    - **Answer**: render text with citations. No writes.
+    - **View**: navigate the user to the target page; apply overlays (highlighted zones, reasoning panel, suggested-action strip).
+    - **Task**: draft the write. Show human confirmation. On confirm, hand off to the target module. Module runs its [guardrails](/snippets/guardrails-template): input validation, preconditions, refusals, confirmations, rate limits.
+    - **Proposal**: file the proposed knowledge edit. Route to a human reviewer. Never auto-apply.
+  </Step>
+  <Step title="5. Close the loop" stepNumber={5}>
+    Emit events so the platform learns from the action.
+
+    - Completed tasks emit into [Activity & Alerts](/guides/activity-and-alerts) and trigger `activity_bindings` on the source [Risk Model](/concepts/risk-model) rule card.
+    - As-applied uploads (from [VRA Maps](/guides/prescription-maps)) reset severity on the targeted card and feed [Verification](/guides/verification).
+    - Scout completions become verifiable source events for future [Verification](/guides/verification) bundles.
+    - Proposals, once approved, are versioned into the knowledge base and become part of future **Interpret** matches.
+  </Step>
+</Steps>
+
+## Loop at a glance
+
+| Stage | Reads | Writes | Fails safe by |
+| --- | --- | --- | --- |
+| **Sense** | Data graph, session, entitlements | — | Refusing to read out-of-scope entities |
+| **Interpret** | Knowledge base, rule cards, literature | — | Falling back to raw data \+ citation when no match |
+| **Decide** | Confidence, severity, safety floor | — | Downgrading artifact type when confidence is low |
+| **Act** | Module guardrails | Task, Proposal, View overlay | Module refusal or human non-confirmation |
+| **Close** | Emitted events | Activity feed, Risk Model, Verification | Append-only audit; nothing silently overwrites |
+
+## Worked example: a stressed block
+
+A regional head types: **"What's wrong with Blok A2 in Muda?"**
+
+<Steps>
+  <Step title="Sense">
+    Advisor reads field geometry, latest NDVI/NDRE for Blok A2, current crop cycle stage, active rule cards firing, recent activity entries, and weather context.
+  </Step>
+  <Step title="Interpret">
+    NDVI drop of 18% over 14 days plus a firing water-stress rule card (`drivers: {ndvi_delta, api_rain_deficit_days}`) matches the Rice → Abiotic Stress → Drought diagnosis page. Confidence: 0.86.
+  </Step>
+  <Step title="Decide">
+    Confidence is high, severity is medium, intent is diagnostic → issue a **View** artifact. Target: the Blok A2 field page. Also offer a follow-on **Task** artifact: create a scout task.
+  </Step>
+  <Step title="Act">
+    Navigate the user to Blok A2's field page. Overlay: highlighted stressed sub-zones, reasoning panel citing the rule card and diagnosis page, suggested-action strip with `Open scout task` and `Draft VRA irrigation map`. User clicks `Open scout task`.
+  </Step>
+  <Step title="Close">
+    Field Scouting runs its guardrails, accepts the write, emits a task-created event into Activity & Alerts. When the scout completes the visit, the completion event resets or escalates the water-stress card via `activity_bindings`, and the scout report becomes a source event for the next Verification bundle.
+  </Step>
+</Steps>
+
+## Where the loop enforces the contract
+
+- **Session-only memory**: Sense reads from the live data graph and session context; nothing is pulled from a per-user memory store (there is none).
+- **Four artifact types**: Decide selects exactly one; there is no fifth path.
+- **Knowledge tiers**: Act writes to data via module guardrails, and writes to knowledge only as Propose-value. Schema changes are never in the loop.
+- **Safety floor**: Decide caps or escalates the artifact when severity ≥ high, regardless of user intent.
+- **Audit**: Close emits append-only events with actor, source, and before/after values.
+
+## Next
+
+- [**Intent Taxonomy**](/guides/semai-advisor/intent-taxonomy) — the seven intents the advisor recognizes and how each drives the loop to a specific page and artifact.

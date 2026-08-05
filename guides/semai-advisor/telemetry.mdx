@@ -1,0 +1,173 @@
+---
+title: "Agent Telemetry"
+sidebarTitle: "Telemetry"
+description: "The event schema Semai Advisor emits so operators can observe intent classification, artifact issuance, undo signals, refusal hits, and proposal outcomes. Without this, tuning is anecdotal."
+---
+
+Semai Advisor emits a small, stable set of events so operators can see what the agent is doing, where it struggles, and which guardrails need tuning. Telemetry is separate from **module audit logs** (which record every write): audit answers _what happened_; telemetry answers _how the agent behaved_.
+
+<Note>
+  Telemetry is **auto-write** under the [knowledge tiers](/guides/semai-advisor/overview#knowledge-tiers): it fits an existing schema and never proposes changes to literature.
+</Note>
+
+## Event schema
+
+Every event carries a common envelope, then a payload specific to the event type.
+
+### Common envelope
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `event_id` | string | UUID |
+| `session_id` | string | Ephemeral, expires with the session |
+| `actor_id` | string | User identity |
+| `entitlement_scope` | string | Estate, region, or global |
+| `launch_context` | object | Page or entity the session was opened from |
+| `timestamp` | ISO 8601 | UTC |
+| `agent_version` | string | Model \+ prompt \+ rule-card ruleset version |
+| `contract_version` | string | Version of the artifact-type contract |
+
+### Event types
+
+<AccordionGroup>
+  <Accordion title="intent_classified" icon="tag">
+    Emitted after the [Interpret](/guides/semai-advisor/agent-loop) stage.
+
+    | Field | Notes |
+    | --- | --- |
+    | `raw_input` | User message, redacted per privacy rules |
+    | `intent` | One of the seven from the [Intent Taxonomy](/guides/semai-advisor/intent-taxonomy) |
+    | `confidence` | 0.0 to 1.0 |
+    | `alternatives` | Top-N candidate intents with their scores |
+    | `disambiguation_asked` | Boolean; true when the advisor asked a scoping question |
+
+    **What it tells you**: which intents are hard to classify, where phrasing changes hurt accuracy, and how often users get a scoping question.
+  </Accordion>
+
+  <Accordion title="artifact_issued" icon="file-export">
+    Emitted when the [Decide](/guides/semai-advisor/agent-loop) stage picks an artifact.
+
+    | Field | Notes |
+    | --- | --- |
+    | `artifact_type` | Answer, View, Task, or Proposal |
+    | `target_module` | If View or Task |
+    | `confidence` | Same source as Decide gating |
+    | `severity` | If the artifact was driven by a rule card |
+    | `prefilled_fields` | Names of fields the advisor filled from Sense \+ Interpret |
+
+    **What it tells you**: which artifacts dominate, whether severity-high paths behave as expected, how much the pre-fill actually covers.
+  </Accordion>
+
+  <Accordion title="confirmation_shown" icon="hand">
+    Emitted when a Task or Proposal requires human confirmation per the [reversibility test](/guides/semai-advisor/overview#minimum-viable-friction).
+
+    | Field | Notes |
+    | --- | --- |
+    | `artifact_type` | Task or Proposal |
+    | `reason` | Irreversible, cross-scope, or safety-critical |
+    | `outcome` | Confirmed, canceled, timed-out |
+    | `latency_ms` | Time between shown and outcome |
+
+    **What it tells you**: whether confirmations are being canceled at high rates (signal the pre-fill or timing is off) and where friction actually lives.
+  </Accordion>
+
+  <Accordion title="undo_used" icon="rotate-left">
+    Emitted when the user hits undo within the 5-second window after an optimistic commit.
+
+    | Field | Notes |
+    | --- | --- |
+    | `artifact_type` | Almost always Task |
+    | `target_module` | Where the write landed |
+    | `time_to_undo_ms` | How quickly the user reacted |
+    | `prefilled_fields` | The pre-fill snapshot at commit time |
+
+    **What it tells you**: the strongest signal that the advisor's pre-fill was wrong. High undo rates on a specific target field indicate a bad inference.
+  </Accordion>
+
+  <Accordion title="refusal_hit" icon="ban">
+    Emitted when a module refuses a write.
+
+    | Field | Notes |
+    | --- | --- |
+    | `target_module` | Module that refused |
+    | `refusal_code` | Stable machine-readable code |
+    | `refusal_reason` | Human-readable |
+    | `alternative_offered` | Boolean; true if the advisor surfaced a viable alternative |
+
+    **What it tells you**: which refusals fire often. High counts on a single code either point to a mis-tuned rule or a workflow that should be a soft warning instead of a refusal.
+  </Accordion>
+
+  <Accordion title="soft_warning_shown" icon="triangle-exclamation">
+    Emitted when the advisor surfaces a soft warning per the module's guardrails.
+
+    | Field | Notes |
+    | --- | --- |
+    | `target_module` | Source of the warning |
+    | `warning_code` | Stable machine-readable code |
+    | `outcome` | Proceeded, canceled |
+
+    **What it tells you**: whether soft warnings are useful (mixed proceed/cancel) or noise (100% proceed → remove them).
+  </Accordion>
+
+  <Accordion title="proposal_filed" icon="file-pen">
+    Emitted when the advisor files a knowledge-base Proposal.
+
+    | Field | Notes |
+    | --- | --- |
+    | `proposal_type` | Threshold edit, mitigation edit, diagnosis edit, new pattern |
+    | `target_ref` | Rule card ID or literature ref |
+    | `evidence_count` | How many session events supported it |
+
+    **What it tells you**: what the agent is learning to want. High-frequency Proposals against the same target indicate the knowledge base is behind reality.
+  </Accordion>
+
+  <Accordion title="proposal_reviewed" icon="gavel">
+    Emitted when a human reviewer approves or rejects a Proposal.
+
+    | Field | Notes |
+    | --- | --- |
+    | `proposal_id` | Links back to `proposal_filed` |
+    | `outcome` | Approved, rejected, deferred |
+    | `reviewer_id` | Who reviewed |
+    | `rejection_reason` | If rejected |
+
+    **What it tells you**: whether the propose-value tier is healthy (proposals reviewed within SLA, approval rate not zero, rejection reasons clustered).
+  </Accordion>
+
+  <Accordion title="session_closed" icon="door-closed">
+    Emitted when a session ends (30-minute idle or explicit close).
+
+    | Field | Notes |
+    | --- | --- |
+    | `duration_ms` | Session length |
+    | `intents_count` | Total intents classified |
+    | `artifacts_by_type` | Counts per artifact type |
+    | `end_reason` | Idle timeout, explicit close, refresh timeout, error |
+
+    **What it tells you**: session shape (short lookups vs. multi-step workflows) and where sessions die unexpectedly.
+  </Accordion>
+</AccordionGroup>
+
+## Core dashboards to build against this schema
+
+| Dashboard | Signals to plot | What you tune when it moves |
+| --- | --- | --- |
+| **Classifier health** | `intent_classified` confidence distribution, disambiguation rate, per-intent volume | Prompts, examples, intent boundaries |
+| **Pre-fill accuracy** | `undo_used` rate per `target_module`, keyed on `prefilled_fields` | Sense reads, defaults, suggestion logic |
+| **Friction budget** | `confirmation_shown` rate, cancel rate, latency | Confirmation list per module (tighten or loosen) |
+| **Refusal health** | `refusal_hit` by `refusal_code`, alternative-offered rate | Refusal list, error messaging, alternative paths |
+| **Warning noise** | `soft_warning_shown` proceed rate per `warning_code` | Remove warnings above 95% proceed |
+| **Knowledge freshness** | `proposal_filed` vs. `proposal_reviewed` throughput and approval rate | Reviewer capacity, rule card coverage, literature gaps |
+| **Session shape** | `session_closed` duration and artifact mix | Playbook design, entry-surface routing |
+
+## Privacy and retention
+
+- `raw_input` on `intent_classified` is redacted per org privacy rules. Personally identifying tokens are stripped before write.
+- Telemetry is scoped by `entitlement_scope`. Cross-org aggregation is opt-in and anonymized per the [Overview](/guides/semai-advisor/overview#knowledge-tiers) global tier.
+- Retention default: 90 days for raw events, indefinite for aggregated dashboards.
+
+## Related
+
+- [Overview](/guides/semai-advisor/overview) — the artifact contract these events observe.
+- [Agent Loop](/guides/semai-advisor/agent-loop) — the stage each event corresponds to.
+- [Failure Modes](/guides/semai-advisor/failure-modes) — what happens when the agent cannot proceed normally.

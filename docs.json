@@ -29,7 +29,7 @@
     "tabs": [
       {
         "tab": "Documentation",
-        "groups": [
+        "pages": [
           {
             "group": "Get Started",
             "pages": [
@@ -317,6 +317,17 @@
                   "guides/regional-forecast",
                   "guides/national-overview"
                 ]
+              },
+              {
+                "group": "Semai Advisor (AI Chat)",
+                "icon": "sparkles",
+                "pages": [
+                  "guides/semai-advisor/overview",
+                  "guides/semai-advisor/agent-loop",
+                  "guides/semai-advisor/intent-taxonomy",
+                  "guides/semai-advisor/telemetry",
+                  "guides/semai-advisor/failure-modes"
+                ]
               }
             ]
           },
@@ -334,7 +345,8 @@
               "help/faq",
               "help/troubleshooting"
             ]
-          }
+          },
+          "snippets/guardrails-template"
         ]
       },
       {

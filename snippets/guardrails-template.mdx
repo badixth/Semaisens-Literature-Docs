@@ -1,0 +1,89 @@
+---
+title: "Guardrails Template"
+description: "Reusable structure for documenting per-module safety, validation, and audit rules. Every module page uses this shape so the agent (and every non-agent path) plays by the same rules."
+hidden: true
+---
+
+Every module that accepts writes, produces artifacts, or is callable by [Semai Advisor](/guides/semai-advisor/overview) declares its guardrails using the categories below. Guardrails live at the **module** (where data enters), not at the agent. The agent is a consumer of these rules, not their author.
+
+Guardrails follow the [minimum viable friction](/guides/semai-advisor/overview#minimum-viable-friction) principle: **Input validation, Preconditions, and Audit are always on** (they are invisible when passing). **Refusals** stay short and safety-focused. **Confirmations** pass the reversibility test. Workflow concerns are surfaced as **soft warnings**, not hard blocks. Hard **rate and scope limits** are reserved for actions with external cost or blast radius.
+
+## Categories
+
+<AccordionGroup>
+  <Accordion title="1. Input validation" icon="circle-check">
+    Required fields, types, ranges, formats, and referential integrity that any write must satisfy before it is accepted. Applies equally to UI, API, integrations, and agent-initiated writes.
+  </Accordion>
+
+  <Accordion title="2. Preconditions" icon="list-check">
+    System-state requirements that must be true before an action is allowed. Example: a field must have an active crop cycle before a scout task can be created against it.
+  </Accordion>
+
+  <Accordion title="3. Refusals" icon="ban">
+    Hard stops the module will not perform under any circumstance, regardless of caller. Refusals are the safety floor. Keep this list short: safety-critical writes, entitlement violations, and structural impossibilities only. Workflow concerns are not refusals; they are soft warnings.
+  </Accordion>
+
+  <Accordion title="4. Confirmations" icon="hand">
+    Actions that require an explicit human click before commit. Apply the **reversibility test**: confirm only when the action is irreversible, cross-scope, or safety-critical. Everything reversible commits optimistically with a 5-second undo. Confirmations are not the default; they are the exception.
+  </Accordion>
+
+  <Accordion title="5. Soft warnings" icon="triangle-exclamation">
+    Non-blocking notices for workflow concerns (scout already has many open tasks, estate is in a busy period, deviation is above the usual band). The user can proceed. Prefer soft warnings over rate limits for anything that is a management issue rather than a safety issue.
+  </Accordion>
+
+  <Accordion title="6. Rate and scope limits" icon="gauge">
+    Hard ceilings, used sparingly. Reserve for actions with **external cost or blast radius**: agency exports, satellite tasking, bulk notifications, apply-to-fleet across estates. Do not use hard rate limits to control internal workflow volume; use soft warnings for that.
+  </Accordion>
+
+  <Accordion title="7. Audit" icon="scroll">
+    What is logged for every write: actor identity, timestamp, before/after values, source (UI, API, agent), and whether the action was confirmed. The audit trail is append-only.
+  </Accordion>
+
+  <Accordion title="8. Escalation" icon="bell">
+    Conditions that trigger notification to a supervisor, org admin, or on-call role. Escalation is how the module surfaces edge cases without silently failing.
+  </Accordion>
+</AccordionGroup>
+
+## How to use this template
+
+Copy the section below into any module page under a top-level `## Guardrails` heading. Fill each category with concrete rules. If a category does not apply to your module, keep the row and write `None` so the absence is explicit.
+
+### Template block
+
+```mdx
+## Guardrails
+
+This module follows the shared [guardrails template](/snippets/guardrails-template). The agent and every non-agent write path must respect these rules.
+
+| Category | Rule |
+| --- | --- |
+| **Input validation** | ... |
+| **Preconditions** | ... |
+| **Refusals** | ... |
+| **Confirmations** | ... |
+| **Soft warnings** | ... |
+| **Rate and scope limits** | ... |
+| **Audit** | ... |
+| **Escalation** | ... |
+```
+
+## Relationship to the agent contract
+
+[Semai Advisor](/guides/semai-advisor/overview) produces four artifact types: **Answer**, **View**, **Task**, and **Proposal**. Only **Task** and **Proposal** cause writes, and both flow through module guardrails:
+
+- A **Task** artifact (scout task, VRA draft, alert mute) must pass the target module's Input validation and Preconditions, and triggers any Confirmations before commit.
+- A **Proposal** artifact (literature edit, threshold change) is always Propose-only; it never bypasses review, regardless of confidence.
+- **Refusals** apply to the agent identically to a human user. The agent cannot escalate its own permissions.
+
+## Knowledge tiers (writes to literature and schema)
+
+Module guardrails control writes to **data**. Writes to **knowledge** follow a separate four-tier model:
+
+| Tier | Who writes | Example |
+| --- | --- | --- |
+| **Auto-write** | Agent, within existing schema slots | Session telemetry, playbook success signals |
+| **Propose-value** | Agent proposes, human reviews | New threshold on an existing rule card, edit to a diagnosis page body |
+| **Read-only** | No writes | Crop biology fundamentals, regulatory content |
+| **Schema-change** | Humans only, via docs/schema PR | New rule card type, new frontmatter field, new taxonomy |
+
+The agent can _flag_ the need for a schema change but cannot draft one.

@@ -111,6 +111,21 @@ The upload emits `map.applied` into [Activity & Alerts](/guides/activity-and-ale
 
 Use the deviation comparison to identify equipment calibration issues, coverage gaps, or overlaps, and carry the findings into your next application planning session.
 
+## Guardrails
+
+This module follows the shared [guardrails template](/snippets/guardrails-template). The agent and every non-agent write path must respect these rules.
+
+| Category | Rule |
+| --- | --- |
+| **Input validation** | Prescription requires: `field_id`, active crop cycle, `index_basis` (NDVI, NDRE, etc.), product, per-zone rates, and unit. Rates must fall within the crop-specific agronomic min/max declared in the [Risk Model](/concepts/risk-model). Zones must cover the target field with no unintentional gaps or overlaps. The advisor pre-fills the draft from the latest calibration; the user reviews rather than authors. |
+| **Preconditions** | Field must have a recent calibration (satellite pass within the cadence declared in the [Crop Cycle Model](/concepts/crop-cycle-models)). Buffer zones near waterways and regulated boundaries must be defined and honored. |
+| **Refusals** | Rates outside agronomic min/max. Missing or expired calibration imagery. Prescriptions on closed cycles. Application inside a regulatory buffer. Agent cannot write prescriptions above the safety floor for restricted products (pesticides, high-nitrogen formulations). |
+| **Confirmations** | Export to machine format (leaves the platform; effectively irreversible). Apply-to-fleet across multiple fields (cross-scope). Edit-after-export. Deletion of a prescription with downstream verification records. Override of the "deviation \> 10%" warning on as-applied upload. Drafting, editing, and deleting a pre-export prescription commit optimistically with undo. |
+| **Soft warnings** | Rates near the top of the agronomic band (not over). Draft on a field that already has a recent active prescription for the same product. Draft during a busy application window for the estate. As-applied deviation between 10-20% (informational; over 20% escalates). |
+| **Rate and scope limits** | Fleet-apply capped at N fields per action (org-configurable) because of external cost and blast radius. Agency-facing exports capped per org tier. No hard cap on drafts or in-platform edits. |
+| **Audit** | Every prescription is versioned. Log includes actor, source, `index_basis` snapshot, rate table, product, export format, timestamps, and any confirmation acknowledgments. As-applied uploads log deviation summary and the linked satellite cross-check. |
+| **Escalation** | Deviation \> 20% on as-applied cross-check escalates to the estate manager. Failed cross-check against the next satellite pass escalates to agronomy review. Prescriptions rejected at export twice by different reviewers escalate to the org admin. |
+
 ## Related
 
 - [Field Scouting](/guides/field-scouting) - a scout completion often triggers a new VRA map, especially for confirmed disease or nutrient hazards.

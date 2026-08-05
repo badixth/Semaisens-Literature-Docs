@@ -149,6 +149,21 @@ The natural boundary for a verification bundle depends on the crop's `cycle_mode
 
 The platform picks the default cadence from `cycle_model` when the bundle is created; estate admins can override under **Verifications \> Settings \> Bundle Cadence**. Overriding a cyclical crop to monthly (or a perennial to per-season) is supported but flagged with a warning because it can misalign with the receiving agency's expected schedule.
 
+## Guardrails
+
+This module follows the shared [guardrails template](/snippets/guardrails-template). The agent and every non-agent write path must respect these rules.
+
+| Category | Rule |
+| --- | --- |
+| **Input validation** | Bundle requires: `field_id` or `estate_id`, `cycle_model`, bundle boundary (season, month, batch), and at least one source event (scout report, as-applied map, activity entry). Every source event must carry an ISO timestamp, GPS coordinates within the field, and a hash matching the [Verification Model](/concepts/verification-model) schema. The advisor pre-fills the bundle draft from qualifying events; the user reviews rather than authors. |
+| **Preconditions** | Cross-check requires a satellite pass within the tolerance window declared for the crop's `cycle_model`. Bundle cannot be assembled before the cycle boundary event (harvest, book-close, batch complete). Field geometry must be locked for the bundle period (no unlogged edits). |
+| **Refusals** | Cross-check refuses to run on intervals shorter than 7 days, on insufficient cloud-free imagery, or on unlocked geometry. Bundle refuses assembly if any source event fails hash validation. Agent cannot override "insufficient data" verdicts; only an authorized reviewer can, with a written reason. |
+| **Confirmations** | Override of an "insufficient data" verdict (safety-critical). Export of a bundle to a receiving agency (leaves the platform). Deletion of a bundle with agency-side receipts (irreversible on the agency side). Cadence override that misaligns with the agency's expected schedule. Bundle assembly and pre-export edits commit optimistically with undo. |
+| **Soft warnings** | Cross-check verdict close to the tolerance boundary. Cadence override that stays within the agency's usual range but differs from the crop's default. Bundle assembled with only one source event when multiple are typically available. |
+| **Rate and scope limits** | Agency-facing exports capped per org tier because of external cost. Manual cross-check re-runs capped per bundle per 24 hours to control satellite tasking cost. No hard cap on bundle drafts or in-platform reviews. |
+| **Audit** | Every bundle records actor, source-event hashes, satellite pass IDs, cross-check verdict, reviewer identity for any override (with reason), export destination, and receipt IDs from the receiving agency. Bundle records are append-only after export. |
+| **Escalation** | Cross-check fail escalates to agronomy review before any override is offered. Two consecutive failed bundles on the same field escalate to the estate manager. Any override of an "insufficient data" verdict is copied to the org admin. |
+
 ## Related
 
 - [Verification Model](/concepts/verification-model) - the cross-check math, hashing, and bundle schema.

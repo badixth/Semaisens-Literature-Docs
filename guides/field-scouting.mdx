@@ -182,6 +182,21 @@ Authorization: Bearer <your_api_key>
   Schedule a scouting session at least once per week during peak vegetative growth and at every critical growth stage (tillering, heading, grain fill). Regular ground-truth data makes the platform's anomaly detection significantly more accurate for your specific crop and soil conditions over time.
 </Tip>
 
+## Guardrails
+
+This module follows the shared [guardrails template](/snippets/guardrails-template). The agent and every non-agent write path must respect these rules.
+
+| Category | Rule |
+| --- | --- |
+| **Input validation** | Task requires: `field_id`, `assignee_id`, `source` (alert, risk, plan), and a populated **why/what/when/how** brief. Geometry of the target zone must be within the field boundary. The advisor pre-fills all of these from Sense \+ Interpret; the user reviews rather than authors. |
+| **Preconditions** | Field must have an active crop cycle. Assignee must have read access to the field and belong to the same estate or an authorized cross-estate role. |
+| **Refusals** | Assigning to a user without field access. Suppressing a task that originates from a **severity ≥ high** rule card (safety floor). Creating a task on a closed cycle. |
+| **Confirmations** | Closing a task without a visit or without photos (irreversible: completion is append-only). Deleting an in-flight task that has already emitted events. Bulk assignment across estates. Everything else, including create, reassign-before-acceptance, and edit-brief, commits optimistically with a 5-second undo. |
+| **Soft warnings** | Scout already has many open tasks (surfaces the count; user can proceed). Field has received many tasks recently. Assignee has a recent refusal streak. Duplicate brief detected against a recent task on the same rule card version. |
+| **Rate and scope limits** | Bulk assignment capped at N tasks per action (org-configurable) because of notification blast radius. No hard cap on total open tasks per scout; workflow volume is a soft warning, not a refusal. |
+| **Audit** | Every task write logs actor, source (UI, API, agent), rule card ID and version, assignee, timestamps, and any severity band changes triggered by `activity_bindings`. Completion writes are append-only and cannot be edited after sync. |
+| **Escalation** | Task overdue past `mitigation.window_days_by_severity` escalates to the estate manager. Three refused assignments by the same scout in 7 days escalates to their supervisor. Severity-critical tasks with no acceptance within 2 hours page the on-call role. |
+
 ## Related
 
 - [Activity & Alerts](/guides/activity-and-alerts) - the feed where every task assignment, completion, and escalation is recorded.

@@ -1,0 +1,165 @@
+---
+title: "Failure Modes & Degraded States"
+sidebarTitle: "Failure Modes"
+description: "What Semai Advisor does when Sense returns partial data, a rule card is mid-migration, entitlements change mid-session, a downstream module is down, or two data sources disagree. Silence in a contract becomes hallucination in production."
+---
+
+Every page in this section so far describes the success path. This page describes what the advisor does when the success path is not available. The rule is simple: **the advisor is allowed to be less useful; it is not allowed to be silently wrong.**
+
+<Note>
+  Every failure below emits a matching event in [Telemetry](/guides/semai-advisor/telemetry). Degraded states are observable, not hidden.
+</Note>
+
+## The four degradation levels
+
+Every failure mode maps to one of these:
+
+<CardGroup cols={2}>
+  <Card title="Level 1: Answer with caveat" icon="circle-info">
+    Advisor proceeds but explicitly cites the limitation. Never for Task or Proposal.
+  </Card>
+
+  <Card title="Level 2: Downgrade artifact" icon="arrow-down">
+    Advisor produces a weaker artifact than it would have (Task → View, View → Answer). User can still act, just with fewer shortcuts.
+  </Card>
+
+  <Card title="Level 3: Refuse with alternative" icon="ban">
+    Advisor cannot act, states the reason in plain language, and offers a viable next step (schedule check, wait for imagery, contact admin).
+  </Card>
+
+  <Card title="Level 4: Refuse without alternative" icon="triangle-exclamation">
+    Advisor cannot act and no alternative is safe. Rare. Reserved for entitlement violations and structural impossibilities.
+  </Card>
+</CardGroup>
+
+## Failure catalog
+
+<AccordionGroup>
+  <Accordion title="Stale or partially loaded data graph" icon="clock-rotate-left">
+    **Trigger**: Sense reads succeed but the latest imagery, activity, or rule card ruleset is older than the freshness SLA for the crop's cycle model.
+
+    **Behavior**: Level 1 or 2 depending on artifact.
+
+    - **Answer / View**: proceed, prepend a freshness banner ("latest NDVI is 9 days old; next pass scheduled").
+    - **Task**: downgrade to View. The advisor will not draft a scout task or VRA on stale imagery. It offers to notify the user when fresh data arrives.
+    - **Proposal**: refuse. Proposals require current evidence.
+  </Accordion>
+
+  <Accordion title="Rule card mid-migration" icon="code-branch">
+    **Trigger**: the rule card that would fire is in a pending version bump (thresholds under review, `activity_bindings` changing).
+
+    **Behavior**: Level 2.
+
+    - Advisor uses the last-approved version, cites the version in the reasoning panel, and flags that a review is in progress.
+    - Task issuance is allowed but the confirmation dialog includes the caveat.
+    - Proposal issuance against the same card is deferred until the migration lands.
+  </Accordion>
+
+  <Accordion title="Entitlements changed mid-session" icon="user-lock">
+    **Trigger**: user's access to an estate, field, or role was revoked while the session was open. Session is not per-user memory, but it is bound to identity \+ entitlements at start.
+
+    **Behavior**: Level 4 for the affected entity; Level 1 for the rest.
+
+    - In-flight artifacts targeting the revoked scope refuse without alternative.
+    - Session is not killed; other scopes continue.
+    - Advisor tells the user which scope is no longer available and why (revocation is not silent).
+  </Accordion>
+
+  <Accordion title="Downstream module unavailable" icon="plug-circle-xmark">
+    **Trigger**: a module the advisor needs to write to (Field Scouting, VRA Maps, Verification) is unavailable or returns errors.
+
+    **Behavior**: Level 3.
+
+    - Advisor states which module is down.
+    - Task drafts are preserved in the session so the user can retry when the module recovers (drafts, not commits).
+    - View artifacts fall back to a read-only version of the target page if available.
+    - For Verification specifically, satellite provider outages are surfaced with an estimated recovery window if known.
+  </Accordion>
+
+  <Accordion title="Disagreeing sources" icon="code-compare">
+    **Trigger**: Sense reads contradict. Most common example: the last scout report says healthy; the latest NDVI says stressed. Or two rule cards fire with conflicting `activity_bindings`.
+
+    **Behavior**: Level 2.
+
+    - Advisor never picks a winner silently.
+    - Reasoning panel shows both signals with their timestamps and confidences.
+    - Artifact is downgraded to View with an explicit prompt: "scout says healthy on {date}; NDVI drop on {date}; assign a fresh scout or wait for the next pass?"
+    - Downgrade includes offering a Task (fresh scout) as the natural resolution path.
+  </Accordion>
+
+  <Accordion title="Low classifier confidence" icon="question">
+    **Trigger**: intent classification confidence is below threshold and no single alternative is dominant.
+
+    **Behavior**: Level 1, then re-attempt.
+
+    - Advisor asks a single scoping question (not a chain).
+    - If the follow-up still cannot classify, advisor returns an Answer citing what it can see (raw entities) and asks the user to rephrase.
+    - It does not fabricate an intent.
+  </Accordion>
+
+  <Accordion title="No literature match" icon="book-open">
+    **Trigger**: Interpret finds firing signals but no rule card or diagnosis page matches the pattern.
+
+    **Behavior**: Level 2 \+ Proposal.
+
+    - Advisor returns an Answer with raw indices and any partial rule card matches.
+    - Advisor offers to file a **Proposal** flagging that a new pattern may be needed. Proposal enters the human review queue; nothing auto-applies.
+  </Accordion>
+
+  <Accordion title="Safety floor triggered" icon="shield">
+    **Trigger**: user requests an action that would suppress a **severity ≥ high** signal, mute a safety-critical alert beyond bounds, or exceed agronomic min/max rates.
+
+    **Behavior**: Level 3.
+
+    - Refusal is stated in plain language with the rule ID.
+    - Advisor offers the bounded alternative (mute for the maximum allowed window, rate at the ceiling, escalate to a role that can override with reason).
+    - Every safety-floor refusal is logged and, for repeated hits by the same user, escalates per the target module's guardrails.
+  </Accordion>
+
+  <Accordion title="Concurrency conflict" icon="users">
+    **Trigger**: two users acting on the same entity at overlapping times, or the target entity was archived or edited between Sense and Act.
+
+    **Behavior**: Level 2.
+
+    - Advisor re-reads the entity before commit. If it has changed materially, the confirmation dialog switches to a diff view: "this changed since you started; keep, discard, or merge?"
+    - If the entity was archived, the artifact refuses with a Level 3 alternative (open the archive, un-archive if authorized, or target the successor entity).
+    - The corresponding audit entry on the module records the concurrency reconciliation.
+  </Accordion>
+
+  <Accordion title="Offline or degraded connectivity" icon="wifi-slash">
+    **Trigger**: mobile client or spotty connection. Not the same as module outage.
+
+    **Behavior**: Level 2 (read-only mode).
+
+    - Advisor answers from last-known state with an explicit staleness banner.
+    - Task and Proposal issuance is disabled. Drafts can be composed and queued, but nothing commits until connectivity returns.
+    - Matches the offline model described in [Field Scouting](/guides/field-scouting).
+  </Accordion>
+
+  <Accordion title="Contract or agent version mismatch" icon="triangle-exclamation">
+    **Trigger**: session started under one `contract_version` or `agent_version`; a deploy landed mid-session.
+
+    **Behavior**: Level 1.
+
+    - Active session continues on the version it started with (pinned).
+    - New sessions use the new version.
+    - Telemetry records both versions on `session_closed` so evaluation can attribute outcomes correctly.
+  </Accordion>
+</AccordionGroup>
+
+## What the user always sees
+
+When the advisor degrades, the user gets four things, in this order, every time:
+
+1. **What is limited** ("latest NDVI is 9 days old").
+2. **Why** ("next Sentinel pass scheduled for {date}").
+3. **What the advisor can still do** ("I can still show you the last verified state and file a Proposal if you think a pattern is missing").
+4. **What the advisor will not do and the alternative** ("I won't draft a VRA on stale imagery; want me to notify you when fresh data lands?").
+
+This is the anti-hallucination contract. The advisor is allowed to be less useful. It is not allowed to be silently wrong.
+
+## Related
+
+- [Overview](/guides/semai-advisor/overview) — the artifact contract these failures map back to.
+- [Agent Loop](/guides/semai-advisor/agent-loop) — the stage where each failure surfaces.
+- [Telemetry](/guides/semai-advisor/telemetry) — the events emitted when a degradation happens.
