@@ -50,7 +50,8 @@
               "concepts/risk-model",
               "concepts/verification-model",
               "concepts/aggregation-model",
-              "concepts/finding-provenance"
+              "concepts/finding-provenance",
+              "concepts/effect-methodology"
             ]
           },
           {

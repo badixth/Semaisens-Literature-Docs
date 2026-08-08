@@ -1,0 +1,327 @@
+---
+title: "Effect Methodology: From Verified Operation to Attributable Outcome"
+sidebarTitle: "Effect Methodology"
+description: "Amendment D. Joins verification, seasonal analysis, farm history, and reconciliation into an intervention-to-outcome methodology with three claim strengths, per-crop baselines, per-hazard attribution windows, and an explicit no-claim state."
+---
+
+Verification proves an operation happened. Nothing here proves it worked. The [Verification Model](/concepts/verification-model) caps its claim at _the operation is logged and cross-checked_; an agency accepting a bundle under that regime is buying evidence of activity, not evidence of impact. Semai's honest answer to _did it help_ is separate from its answer to _did it happen_, and the two answers travel under different disclosures.
+
+Amendment D defines that separate track. It joins four pieces that already exist and are unjoined: [Seasonal Analysis](/guides/seasonal-analysis) correlates index against yield with R² and a residual map, the [Risk Model](/concepts/risk-model#yield-impact-layers) `farm_history` layer learns from what happened on a farm, [Estate Group](/guides/estate-group) reconciles forecast against actual harvest by field, and the [Aggregation Model](/concepts/aggregation-model) defines forecast, confidence degradation, and k-anonymity. The methodology adds no new aggregation category, invents no new causal machinery, and refuses more claims than it makes.
+
+<Note>
+  Amendment D routes public money. A confident wrong answer here costs more than an honest _not yet_. The largest section of this page is [When no claim can be made](#when-no-claim-can-be-made); read it before reading the positive case.
+</Note>
+
+## Three claim strengths
+
+The methodology carries three claim tiers, in increasing strength and decreasing availability. Every effect measure, baseline, and disclosure below anchors to which tier it can support.
+
+| Tier | Meaning | What it lets the platform say | Availability |
+| --- | --- | --- | --- |
+| **Observed change** | A measured difference in the field's own state, without an attribution. | _"This field returned to the healthy band 9 days after the mitigation was applied."_ No claim about cause. | Fast. Available as soon as the attribution window elapses. |
+| **Attributable change** | An observed change paired with an intervention log, an attribution window, a disposed set of confounders, and a primary baseline that formed. | _"On this field, the mitigation is associated with a return to band inside its rulecard window. The paired prior cycle showed no such recovery in the same phenology window."_ | Medium. Requires the primary baseline to form and confounders to be controlled. |
+| **Counterfactual impact** | An attributable change generalised across a cohort with a defined comparison arm, respecting k-anonymity, aggregated per [Aggregation Model](/concepts/aggregation-model) discipline. | _"Across the 47-field cohort, the treated arm recovered inside its rulecard window at a rate N percentage points higher than the untreated arm; the reconciled harvest gap is M% area-weighted, at min-confidence C."_ | Slow. Scheme-level only. Refused if k or comparability fail. |
+
+Every downstream artifact discloses which tier it supports. A bundle that claims counterfactual impact but only demonstrates observed change fails the disclosure rule and cannot ship. This is the same discipline the [Aggregation Model reproducibility rule](/concepts/aggregation-model) applies to rollups.
+
+## Vocabulary
+
+These terms are strict; do not use them interchangeably. In particular the three claim-strength words above (`observed change`, `attributable change`, `counterfactual impact`) carry distinct disclosure rules and are not synonyms for "effect".
+
+| Term | Definition |
+| --- | --- |
+| **Intervention** | A logged operation intended to change an outcome. See [What counts as an intervention](#what-counts-as-an-intervention) for the measurable and non-measurable split. |
+| **Effect measure** | A quantity a claim rests on. Four are defined below and ranked by claim strength. |
+| **Attribution window** | The interval after an intervention during which an effect claim is admissible on this platform. Tied to the rulecard's `days_to_mitigate`, capped per crop. See [The attribution window](#the-attribution-window). |
+| **Baseline** | The comparison the effect measure is taken against. Three candidates; per-crop primary and fallback. See [The baseline](#the-baseline). |
+| **Cohort** | A set of comparable fields for counterfactual-impact claims. Comparability keys are Amendment A's band-resolver keys: `crop`, `ecosystem`, `stage`, `region`. Never combined across crops. |
+| **Comparison arm** | A subset of a cohort defined by intervention status: `treated` (received the intervention) or `untreated` (did not, in the same window). Not a randomised assignment; a documented split. |
+| **Rulecard yield-impact curve** | The mapping from severity band and stage to projected yield loss, per [Risk Model → yield-impact layers](/concepts/risk-model#yield-impact-layers). Used as the counterfactual for the _avoided-loss_ effect measure. |
+| **No-claim state** | The declared outcome when the methodology cannot honestly compute a claim. Not silent, not defaulted; a positive assertion that the answer is _not yet_ with a stated reason. |
+
+<Warning>
+  **Effect is not attribution.** A field returning to band is an observed change. Saying the mitigation caused it is an attributable change and requires a baseline. Saying the scheme would have lost N% without disbursement is a counterfactual-impact claim and requires a cohort. The platform will show observed change without attribution; it will not show attribution without a baseline.
+</Warning>
+
+## What counts as an intervention
+
+An intervention is a logged operation intended to change an outcome. The list is deliberately narrow: an operation that leaves no on-farm signal cannot support an effect claim at field granularity regardless of how much money is attached to it.
+
+### Measurable at field granularity
+
+| Intervention | Log source | Attribution basis |
+| --- | --- | --- |
+| **Applied application plan** | [VRA Maps](/guides/prescription-maps) `map.applied` event, per [Verification Model source events](/concepts/verification-model#source-events). | The map ties a rate to a zone; the paired satellite pass corroborates uptake. Both are in the record. |
+| **Completed field check that changed a decision** | `scout.completed` event with a paired state transition on a `finding` (per [Finding Provenance](/concepts/finding-provenance)) — promoted, demoted, contradicted, or resolved. | The check's outcome is bound to a specific rulecard-firing or human finding. A `scout.completed` with no state change is not an intervention; it is corroboration. |
+| **Irrigation action logged as a source event** | `map.applied` on an irrigation plan, or an explicit `irrigation.completed` event if the estate integrates a controller. | Same cross-check discipline as any application plan. |
+| **Harvest declared** | `harvest.declared` per [Verification Model](/concepts/verification-model#source-events). | Not an intervention on the current cycle, but the terminal signal against which yield-delta claims are computed. |
+
+### Not measurable at field granularity
+
+| Item | Reason | Where it _can_ land |
+| --- | --- | --- |
+| **Disbursed subsidy** | The subsidy is disbursed to an entity, not applied to a field. There is no on-farm signal that the money existed. What is measurable is _what the recipient did with the money_, if the follow-on operation was itself logged as one of the measurable interventions above. | Scheme-level counterfactual-impact claims only, at cohort level, with a documented comparison arm. Field-level subsidy attribution is refused. See [Guardrails → Refusals](#guardrails) and [What the agency sees](#what-the-agency-sees). |
+| **Advisory content delivered** | An advisor artifact per [Semai Advisor overview](/guides/semai-advisor/overview) is a Task, Explanation, or Proposal. Delivery is logged; adoption is not, unless the user then executes a measurable intervention. | Advisor influence surfaces as an antecedent to a measurable intervention, not as an intervention itself. |
+| **Insurance payout** | Same shape as subsidy: an entity-level transfer with no on-farm signal. | Same scheme-level cohort disposition. |
+| **Training or extension visit** | No `scout.completed` semantics apply; no rulecard state changes. | Cannot support any effect tier at field level. |
+
+**Decision: subsidy attribution.** Field-granularity attribution of a subsidy disbursement to a field-level outcome is refused. Scheme-level cohort attribution is the honest answer and is the only path by which a subsidy claim reaches counterfactual impact. This is written as decision rather than option because the alternative (letting agencies claim field-level subsidy attribution on any signal correlated in time) is the failure mode the [Verification Model](/concepts/verification-model) already refuses for `did-it-happen` claims; extending the refusal to `did-it-help` is consistent.
+
+## Effect measures, ranked by claim strength
+
+Four measures. They are not a menu; they are a hierarchy. The methodology maps each intervention type to a primary measure and lists the fallbacks in order.
+
+| Rank | Measure | What it says | Claim tier ceiling | Horizon |
+| :-: | --- | --- | --- | --- |
+| 1 | **Yield delta** | Actual harvest against the forecast for the same field, per [Estate Group reconciliation](/guides/estate-group). | Attributable change (field-level) or counterfactual impact (scheme cohort). | End of cycle. Slowest. |
+| 2 | **Avoided-loss against yield-impact curve** | The delta between the rulecard's projected yield loss at intervention time and the resolver's projection now, using the [rulecard yield-impact curve](/concepts/risk-model#yield-impact-layers) as counterfactual. | Attributable change, bounded by curve trust. | Intervention close. |
+| 3 | **Recovery back inside band** | A state claim: the field returned to the healthy band per Amendment A within the attribution window. | Observed change primary; attributable change only when paired with a baseline. | Days after mitigation. |
+| 4 | **Days to recovery** | Duration between mitigation and return to band. Useful for comparing interventions on the same hazard; not for attribution against a baseline. | Observed change only. | Days after mitigation. |
+
+**Primary measure per intervention type.**
+
+| Intervention | Primary measure | Fallbacks (in order) |
+| --- | --- | --- |
+| Applied application plan (fertiliser, plant protection) | Avoided-loss against yield-impact curve | Recovery back inside band, then yield delta at end of cycle |
+| Completed field check that changed a decision | Recovery back inside band | Days to recovery for comparative reporting |
+| Irrigation action | Recovery back inside band | Yield delta at end of cycle if the water stress rulecard has a trusted yield-impact curve |
+| Subsidy disbursement (scheme-level only) | Yield delta across the cohort | No field-level fallback exists; the tier does not degrade to attributable change at field level |
+
+<Warning>
+  The **yield-impact curve trust** is the single point on which the avoided-loss measure rests. The [Risk Model](/concepts/risk-model#yield-impact-layers) does not currently expose a per-rulecard trust score. Amendment D depends on one; see [Docs Delta AD-04](#docs-delta) and [Open Questions](#open-questions).
+</Warning>
+
+## The baseline
+
+Three candidates, each with a failure mode named in the brief. Amendment D's decision is a **per-crop primary and per-crop fallback**, because the crop cycle models differ enough that a single global primary would be dishonest.
+
+### The candidates
+
+| Candidate | What it compares | Failure mode |
+| --- | --- | --- |
+| **Before and after (same field)** | The field's state in the attribution window against the same field before the intervention. | Confounded by phenology: Amendment A's band moves anyway as the crop advances through stages. A recovery observed after mitigation may be the same recovery the band model predicts without any intervention. |
+| **Prior comparable cycle (same field)** | The field's state in the intervention window against the same field in a prior cycle at the same phenology, filtered by [Amendment B](/concepts/field-data-model) comparability. | Limited by how many cycles exist for the field, and by season-to-season change in variety, weather, and ecosystem. New plantings and switched varieties fail comparability. |
+| **Cohort (comparable untreated fields)** | The treated field(s) against a documented arm of comparable fields that did not receive the intervention in the same window. Comparability keys: `crop`, `ecosystem`, `stage`, `region` per Amendment A. | Requires enough untreated fields to satisfy k-anonymity at k=5 per [Aggregation Model](/concepts/aggregation-model), and a documented arm (not a residual left over from a treatment rollout). |
+
+### Per-crop decision
+
+| Crop | Primary baseline | Fallback | Argument |
+| --- | --- | --- | --- |
+| **Rice (paddy)** | Cohort | Prior comparable cycle then before-and-after | Paddy runs Main and Off Seasons per [Crop Cycle Models](/concepts/crop-cycle-models); a field has few prior comparable cycles and season-to-season variety and weather change hurt them. Enough fields exist per scheme to form cohorts. |
+| **Oil palm** | Prior comparable cycle | Cohort then before-and-after | Oil palm's [Production Year](/concepts/crop-cycle-models) and tree-age cohorts give a field many prior comparable windows. Cohort formation is possible but competes with the field's own strong history. |
+| **Rubber** | Prior comparable cycle | Cohort then before-and-after | Rubber's [tapping panel model](/concepts/crop-cycle-models) is continuous with strong panel-year history; comparison against the same panel in the prior tapping year controls for panel biology better than a cross-block cohort would. The [annual wintering dip](/guides/Crop/Rubber/rubber-diagnosis) is excluded from the attribution window in any baseline. |
+| **Pineapple** | Cohort | Before-and-after (prior comparable cycle rejected) | Pineapple's [Planting Batches](/concepts/crop-cycle-models) mean multiple batches per year; batch-to-batch comparison is confounded by forcing timing and batch age. Cohort is primary; prior comparable cycle is not a defensible fallback and is skipped. |
+
+**Before-and-after is never primary.** In every crop it is the last-resort fallback, used only when neither prior-cycle nor cohort can form. When it is used, the [claim-strength ceiling](#three-claim-strengths) is **observed change**; the methodology refuses to promote a before-and-after comparison to attributable change.
+
+<Note>
+  Amendment A's [band resolver](/concepts/risk-model) already keys on `crop`, `ecosystem`, and `stage`. Reusing those keys as cohort comparability keys is not a coincidence; it is the argument for why cohort baselines are computable on this platform. If the band resolver can honestly compare two fields for what a healthy band looks like, the cohort machinery can honestly compare them for what an untreated arm looks like.
+</Note>
+
+## The attribution window
+
+The window during which an effect claim is admissible. Tied to the rulecard's `days_to_mitigate` per [Risk Model](/concepts/risk-model#days-to-mitigate), capped by per-crop cycle geometry.
+
+### Rulecard-anchored, crop-capped
+
+| Rule | Meaning |
+| --- | --- |
+| **Lower bound** | The attribution window opens at `days_to_mitigate * 0.5` after intervention. Before that the intervention has not had biological time to work; any observed change is background. |
+| **Nominal window** | `days_to_mitigate` to `2 * days_to_mitigate`. This is the admissible interval for an effect claim on this hazard. |
+| **Upper bound** | Beyond `2 * days_to_mitigate`, confounders dominate (weather, phenology drift, subsequent operations). Effect claims after this point are refused; observed change may still be logged without attribution. |
+| **Crop ceiling** | Whichever of the crop caps below arrives first, the window closes. |
+
+### Per-crop ceilings
+
+| Crop | Ceiling | Why |
+| --- | --- | --- |
+| Rice (paddy) | End of the current season's harvest per [Crop Cycle Models](/concepts/crop-cycle-models). Interventions in previous seasons attribute to those seasons. | Paddy seasons are 3 to 4 months; attribution across seasons is a variety-and-weather comparison, not an intervention comparison. |
+| Oil palm | 12 months from intervention, capped at the current [Production Year](/concepts/crop-cycle-models). | One production year is the longest defensible horizon before multi-year weather and management effects dominate. |
+| Rubber | The current tapping year, with the annual wintering dip explicitly excluded. | Wintering [surfaces as an annual NDVI decline](/guides/Crop/Rubber/rubber-diagnosis) and will masquerade as intervention failure or success depending on timing. |
+| Pineapple | End of the current [Planting Batch](/concepts/crop-cycle-models) at harvest. | Batched forcing means attributing across batches confounds intervention effect with batch-age and forcing timing. |
+
+**Rulecard-anchored, not calendar-anchored.** An intervention against a fast-cycle disease (rulecard `days_to_mitigate = 14 days`) has a nominal window of 14 to 28 days after intervention. An intervention against a slow-cycle nutrient deficiency (rulecard `days_to_mitigate = 45 days`) has a nominal window of 45 to 90 days. The methodology does not apply a single "60 days after any intervention" rule; the rulecard already knows the biological horizon and the effect methodology inherits it.
+
+## Confounders
+
+The claim is only as strong as the disposition of these confounders. Each is either **controlled for** (the methodology has a rule that neutralises it) or **refused if uncontrollable** (the claim degrades to observed change or to no-claim).
+
+| Confounder | Source | Disposition |
+| --- | --- | --- |
+| **Weather during the attribution window** | Weather layer, per [Risk Model](/concepts/risk-model). | Controlled for in cohort baselines by requiring the comparison arm to share the same weather cell; controlled for in prior-cycle baselines by rejecting the cycle if a documented extreme (drought, flood) does not repeat. Refused if weather is missing. |
+| **Phenology drift (the band moves anyway)** | Amendment A band resolver. | Controlled for by anchoring the attribution window to `stage_at_intervention` and requiring the baseline to compare at the same stage. Before-and-after cannot control this; that is why before-and-after ceilings at observed change. |
+| **Ecosystem** | Amendment A. | Controlled for in cohort baselines by requiring ecosystem match. In prior-cycle baselines the ecosystem is by definition constant. |
+| **Variety** | Field metadata. | Controlled for by requiring variety match on the field or on cohort members. New plantings and switched varieties fail comparability under prior-cycle; cohort is the only path. |
+| **Region** | Amendment A. | Controlled for in cohort baselines by requiring region match. Cross-region cohorts are refused. |
+| **Saturation** (NDVI ceiling in dense canopy) | [Amendment A distortions](/concepts/risk-model); [oil palm and rubber literature](/guides/Crop/Oilpalm/palm-diagnosis). | Refused if uncontrollable when the index in use has saturated; the effect measure switches to a saturation-tolerant index (NDRE, SAVI) or the claim degrades. |
+| **Soil background** (young canopy, sparse cover) | [Amendment A distortions](/concepts/risk-model). | Refused if uncontrollable when the crop stage is below closed-canopy; switch to a soil-tolerant index or refuse the claim. |
+| **Wintering** (rubber) | [Rubber wintering dip](/guides/Crop/Rubber/rubber-diagnosis). | Controlled for by excluding the wintering window from the attribution window. If the attribution window and the wintering window overlap and the rulecard requires the full window, the claim is refused. |
+| **CAM lag** (pineapple) | [Pineapple CAM physiology](/guides/Crop/Pineapple/pineapple-diagnosis). | Controlled for by lengthening the lower bound of the attribution window to account for lag; the methodology uses the pineapple-specific `days_to_mitigate` from the rulecard rather than a generic index-response horizon. |
+| **Subsequent operations in the same window** | Operation log. | Controlled for by exclusion: if a second measurable intervention on the same hazard occurred inside the attribution window, the attribution splits (both interventions share the credit at the observed-change tier; neither reaches attributable change alone). |
+| **Cloud cover blocking the corroborating pass** | [Verification Model weak-grade](/concepts/verification-model). | Controlled for by the same weak-grade disclosure verification uses. An effect claim built on a weak-graded pass carries the weak flag through to the agency artifact. |
+
+An effect claim that ignores any applicable confounder is refused, not downgraded. The refusal is loud; see [Guardrails](#guardrails).
+
+## When no claim can be made
+
+The largest section, per the brief and per the product's habit. Every condition below produces a **no-claim state**: a positive assertion that the answer is _not yet_, with a stated reason and a stated condition that would allow a claim to become possible. Silence is not permitted; the platform's honest posture is to say _we cannot tell yet, here is why, here is what would need to be true_.
+
+| Condition | What is shown | What would need to be true |
+| --- | --- | --- |
+| **Primary baseline cannot form** and no fallback is defensible for this crop | Observed change only, with disclosure: _"No comparable baseline available; showing state change only."_ | Enough prior cycles (oil palm, rubber), or enough comparable untreated fields (paddy, pineapple), to form the primary. |
+| **Attribution window has not elapsed** | Intervention log with countdown: _"Attribution window opens in N days; recovery to band is not yet a claim."_ | The window's lower bound (`days_to_mitigate * 0.5`) elapses without a subsequent intervention on the same hazard. |
+| **Attribution window has closed** (past `2 * days_to_mitigate` or crop ceiling) | Observed change only if state is still consistent; no attributable claim: _"Attribution window closed; any recovery observed now is not attributed to this intervention."_ | Not recoverable for this intervention. A subsequent intervention resets the clock for itself, not for the prior one. |
+| **A confounder listed as _refused if uncontrollable_** applies | No-claim state with the specific confounder named: _"Not enough soil-corrected data at this stage; NDVI is soil-contaminated below closed canopy."_ | The confounder resolves (canopy closes; index switches to soil-tolerant; wintering window ends) inside the attribution window. |
+| **Cohort forms below k** at k=5 per [Aggregation Model](/concepts/aggregation-model) | Cohort claim refused: _"Cohort has fewer than 5 comparable fields; scheme-level claim withheld."_ | Additional comparable fields enter the cohort (through the scheme's own growth, not through relaxing comparability keys). |
+| **Cohort breakdown would fall below k** (the k-anonymity-trap case) | The breakdown is refused, not silenced; the aggregate remains: _"Breakdown by ecosystem withheld at k=5; total scheme claim remains available."_ | Cohort growth. |
+| **Forecast-vs-actual reconciliation is not available** for the yield-delta measure | Yield delta refused; fallback to next measure in the hierarchy: _"Reconciled harvest not yet available; showing avoided-loss estimate against rulecard curve."_ | Harvest is declared and reconciled per [Estate Group](/guides/estate-group). |
+| **Rulecard yield-impact curve is untrusted** for this hazard | Avoided-loss refused; fallback to recovery back inside band: _"Yield-impact curve for this hazard is not scored; showing state recovery only."_ | The rulecard's yield-impact curve carries an explicit trust score (see [Docs Delta AD-04](#docs-delta) and [Open Questions](#open-questions)). |
+| **Two interventions on the same hazard inside the window** | Attribution split; each intervention ceilings at observed change alone: _"Two interventions in this window; credit is not attributable to either alone."_ | A future intervention on the same hazard with a clear window (no second intervention inside `2 * days_to_mitigate`). |
+| **Cross-crop rollup requested** for an effect claim | Refused per [Aggregation Model — never average across crops](/concepts/aggregation-model): _"Effect measured on paddy at ripening and oil palm at prime are not the same quantity. No cross-crop average will be shown."_ | Not resolvable. The refusal is structural, not conditional. |
+| **Weak-graded satellite pass** (cloud) is the only corroboration | Claim carries the weak flag; the tier ceilings at attributable change with weak disclosure. Counterfactual impact is refused on weak-only cohorts. | A subsequent unblocked pass corroborates. |
+
+**The no-claim state is a first-class artifact.** It bundles into the [Verification](/concepts/verification-model) evidence envelope, is logged per the [Audit Envelope](/snippets/audit-envelope), and is displayed on every surface an effect claim would be displayed on. An agency that receives a no-claim artifact has the same tamper-evident guarantee as a positive claim: they can prove the platform refused, when, and why.
+
+## How it aggregates
+
+Field-level effect measures roll to scheme-level answers under the existing [Aggregation Model](/concepts/aggregation-model) discipline. Amendment D adds no new category. It adds one composition rule and one k-anonymity extension.
+
+### The existing discipline (unchanged)
+
+- **Never average an average.** Field-level effect claims do not average into a scheme-level claim; they compose per the aggregation category applicable to the measure. Recovery back inside band is a count with an area weight per field; days to recovery is a per-field duration and is aggregated as a distribution (median, IQR), not as a mean.
+- **Area-weight intensive measures.** Yield delta expressed as a percentage is intensive; when rolled to scheme level it is area-weighted by the treated area on each field. Absolute yield delta in kg or tonnes is extensive and sums directly, subject to the reconciliation source.
+- **k-anonymity at k=5.** Any breakdown of the scheme claim that would land below k=5 fields is withheld; the aggregate remains available.
+- **Confidence as minimum of inputs.** The scheme-level effect claim's confidence is the minimum of the field-level confidences composing it. A single weak-graded field lowers the scheme confidence; it does not average with the strong-graded ones.
+
+### The Amendment D additions
+
+**Cohort-breakdown k-floor.** Once a cohort is defined at k, any breakdown of that cohort (by crop, ecosystem, region, intervention timing) inherits the k floor and refuses breakdowns that would violate it. The failure mode this closes: a scheme covers 12 fields, 7 treated, 5 untreated. The cohort has k=5 exactly at the untreated arm. Any further breakdown (by ecosystem, by region) would drop below k on one side. The methodology withholds the breakdown; the aggregate remains available. This is a natural extension of the existing k rule and is stated explicitly because the shape (subset of a cohort must also respect k) is not obvious from the general rule.
+
+**Attribution-window composition at scheme level.** When rolling field-level attributable-change claims to a scheme-level counterfactual-impact claim, the scheme-level attribution window is the **intersection** of the field-level windows, not the union. A scheme with 100 treated fields whose windows range from Day 14 to Day 90 supports a counterfactual-impact claim only over the interval where every field's window is open. The scheme claim outside that interval degrades to observed change. This preserves the _minimum-of-inputs_ discipline the aggregation model already applies to confidence.
+
+**Cross-crop refusal is structural.** As with the [band model](/concepts/risk-model), effect measures do not average across crops. A national dashboard showing _"scheme-level effect: N%"_ across paddy, oil palm, rubber, and pineapple is refused; the dashboard shows four separate claims or none.
+
+## What the agency sees
+
+Not a screen design. The claims the platform is willing to make, in tiers, and the evidence attached to each.
+
+### The claims
+
+| Tier | Claim wording (illustrative) | Attached evidence |
+| --- | --- | --- |
+| **Observed change** | _"On this field, recovery to healthy band observed 9 days after the mitigation was applied on 12 Jun."_ | Before-and-after band states, indexed pass timestamps, [Verification](/concepts/verification-model) bundle for the `map.applied` event. |
+| **Attributable change** | _"On this field, the mitigation applied on 12 Jun is associated with a recovery to band inside the rulecard window. Paired prior-cycle (Main Season 1 · 2024) at the same phenology showed no such recovery."_ | All observed-change evidence, plus: baseline identifier (prior-cycle citation or cohort id), the confounders' dispositions, the rulecard window used, the attribution window's open and close dates. |
+| **Counterfactual impact** | _"Across the 47-field cohort (paddy, MD2 ecosystem, Perlis, ripening stage), the treated arm recovered inside the rulecard window at a rate 22 percentage points higher than the untreated arm. Reconciled harvest gap is 8.4% area-weighted, at min-confidence C. k=23 treated, k=24 untreated."_ | All attributable-change evidence for each field composing the cohort, plus: cohort definition (comparability keys), comparison-arm construction, k on each arm, aggregation rules applied, [reconciliation source](/guides/estate-group). |
+| **No claim** | _"Attribution window opens in 4 days; recovery to band is not yet a claim. No effect will be shown before 16 Jun."_ Or: _"Cohort has 3 comparable fields; scheme-level claim withheld at k=5."_ | The specific reason from the [When no claim can be made](#when-no-claim-can-be-made) table, and the condition that would allow the claim to become possible. |
+
+### The disclosure envelope
+
+Every tier's artifact carries:
+
+- The tier itself, named. No artifact conflates tiers.
+- The intervention log reference (event id, actor, timestamp, verification bundle).
+- The baseline reference (which of the three candidates was used, why the primary was chosen or the fallback was required).
+- The attribution window's open and close dates.
+- The confounders' dispositions (which were controlled, which if any were noted as weak).
+- The verification grade of the corroborating pass; weak grade carries through.
+- The reconciliation source if the claim rests on yield delta.
+- For counterfactual-impact tier: cohort id, k on each arm, aggregation rules applied.
+
+An artifact missing any of these fields fails the disclosure rule and is refused by the [Guardrails audit line](#guardrails).
+
+### The subsidy case, stated bluntly
+
+An agency disbursing subsidy under Amendment D can receive:
+
+- **Not** a field-level attributable-change claim tying the subsidy to a specific field's outcome. Refused; see [What counts as an intervention](#what-counts-as-an-intervention).
+- **Not** a counterfactual-impact claim for the scheme unless a documented untreated cohort exists and satisfies k. Refused otherwise.
+- **Yes** an operation-log summary of measurable interventions taken by subsidy recipients (application plans applied, field checks completed, irrigation actions logged), each carrying its own effect artifact at whatever tier that intervention's evidence supports.
+- **Yes** a no-claim artifact for the scheme where a claim cannot be made, with the reason stated.
+
+The agency's disbursement round can be directed by the aggregate of the recipient interventions' effect artifacts. It cannot be directed by a fabricated field-level subsidy attribution.
+
+## Guardrails
+
+Amendment D follows the shared [guardrails template](/snippets/guardrails-template). No new category is introduced.
+
+| Category | Rule |
+| --- | --- |
+| **Input validation** | Every effect artifact requires: `intervention_ref` (a verifiable source event per [Verification Model](/concepts/verification-model#source-events)), `hazard_ref` (a rulecard id or literature ref), `field_ref` and `crop_cycle_ref`, `attribution_window` (open and close ISO 8601), `effect_measure` (one of the four measures), `baseline` (one of the three candidates and which was primary vs fallback), `confounder_dispositions` (an entry for each applicable confounder), `verification_grade`, and `claim_tier`. Counterfactual-impact artifacts additionally require `cohort_id`, `treated_arm_k`, `untreated_arm_k`, and `aggregation_rules`. |
+| **Preconditions** | The intervention must be one of the measurable types in [What counts as an intervention](#what-counts-as-an-intervention). The rulecard must exist and its `days_to_mitigate` must be set; effect artifacts against a rulecard without `days_to_mitigate` are refused. The field's `crop_cycle` must be the one the intervention was logged against. Cohorts must form on Amendment A comparability keys and satisfy k. |
+| **Refusals** | Cross-crop effect averaging (structural refusal, see [How it aggregates](#how-it-aggregates)). Field-level subsidy attribution. Attribution claim before `days_to_mitigate * 0.5` has elapsed. Attribution claim after `2 * days_to_mitigate` or the crop ceiling. Before-and-after used as anything above observed change. Cohort claim below k=5 on either arm. Cohort breakdown that would drop below k. Effect claim built on a weak-graded pass presented as counterfactual impact. Avoided-loss claim against a rulecard without a trust-scored yield-impact curve. Any artifact missing a disclosure field per [What the agency sees → disclosure envelope](#the-disclosure-envelope). |
+| **Confirmations** | Publishing an attributable-change artifact for the first time on a field (safety-critical for downstream `farm_history` calibration per [Finding Provenance → Feedback into farm\_history](/concepts/finding-provenance)). Publishing a counterfactual-impact artifact to an external agency bundle (safety-critical). Overriding the primary baseline with a fallback when the primary could form but the author judges it weak (requires stated reason; enters audit). |
+| **Soft warnings** | Attribution window closes in the next 72 hours ("close the artifact now or attribution will be refused"). Cohort at k=5 exactly ("any breakdown will drop below k"). Weather confounder marginal ("controlled but the comparison arm's weather cell disagrees on one week"). Rulecard `days_to_mitigate` was updated during the attribution window ("window bounds recomputed; earlier draft claims may be stale"). |
+| **Rate and scope limits** | Cohort formation is capped per scheme per reporting period; the aggregation cost of cohorts scales with cohort size and repeated cohort formation on the same scheme is rate-limited to prevent p-hacking through re-drawing the untreated arm. No hard cap on read paths. |
+| **Audit** | Every artifact write logs actor, source (`system` \| `ui` \| `api` \| `integration`), all input-validation fields above, the reason chosen from the [no-claim table](#when-no-claim-can-be-made) if applicable, and hashes of the source-event bundles referenced. State transitions on effect artifacts (draft → published → superseded → withdrawn) each write one row per the [Audit Envelope](/snippets/audit-envelope). |
+| **Escalation** | An artifact contradicting a previously published artifact on the same field and cycle (`raise_contradiction` per [Risk Model](/concepts/risk-model#activity-bindings)) escalates to `agronomist` and freezes both artifacts pending review. A refused counterfactual-impact artifact for a scheme where the agency has a pending disbursement decision escalates to `estate_manager` for out-of-band communication. Three refused artifacts on the same scheme in 24 hours escalate to `org_admin` (possible scheme-level data quality problem). |
+
+## Seed
+
+Fixtures target the observed, attributable, and counterfactual tiers, the no-claim state, and the subsidy case that lands correctly at scheme level only. Fixture ids follow the human-readable convention per [Field Data Model](/concepts/field-data-model); no UUIDs. The `eff_` prefix is decided here.
+
+| Fixture id | Field(s) | Crop | Tier exercised | Purpose |
+| --- | --- | --- | --- | --- |
+| `eff_seed_paddy_bb_recovery_01` | `field_muda_b1` | Rice | Observed change | An `map.applied` fungicide plan against rice bacterial leaf blight. Attribution window opens 7 days after, recovery to band observed at day 12. No baseline forms (single field, no comparable prior cycle). Ceilings at observed change per Amendment D policy. |
+| `eff_seed_palm_ganoderma_priorcycle_02` | Oil palm block, `blk_semenyih_e3` | Oil palm | Attributable change | Sanitation and mounding intervention against ganoderma; prior-cycle baseline forms from the same block's Production Year 2024 at the same tree-age cohort. Confounders (weather, ecosystem, variety) all match. Reaches attributable change. |
+| `eff_seed_rubber_wintering_refused_03` | Rubber field, `field_ldg_perak_r3` | Rubber | No claim | Intervention scheduled in the wintering window; attribution window would overlap with the wintering dip. Rulecard requires the full window. Claim refused with the wintering reason; no-claim artifact published. |
+| `eff_seed_pineapple_forcing_cohort_04` | Pineapple cohort across `batch_johor_p1`, `batch_johor_p2`, `batch_negeri_p1` (treated: 6 fields) and matched untreated cohort of 8 fields | Pineapple | Counterfactual impact | Forcing regime change tested against a matched-batch-age cohort. k=6 treated, k=8 untreated. Cohort reaches counterfactual impact; ecosystem breakdown withheld (would drop below k on one arm). |
+| `eff_seed_paddy_avoidedloss_curve_absent_05` | Paddy field, `field_kedah_a2` | Rice | No claim (fallback) | Intervention against a rulecard whose yield-impact curve carries no trust score. Avoided-loss refused; degrades to recovery back inside band with disclosure. Exercises the yield-impact-curve-trust degradation path. |
+| `eff_seed_paddy_two_interventions_split_06` | Paddy field, `field_muda_c4` | Rice | Observed change (split) | Two interventions on the same hazard 8 days apart, both inside `2 * days_to_mitigate`. Attribution split; each intervention ceilings at observed change alone. |
+| `eff_seed_subsidy_scheme_cohort_07` | 47-field paddy scheme, `sch_perlis_2026a` | Rice | Counterfactual impact (scheme-only) | Subsidy scheme with 23 treated fields (received input vouchers redeemed for logged application plans) and 24 untreated comparable fields. Field-level subsidy attribution refused per policy. Scheme-level counterfactual-impact claim published with all disclosure fields. |
+| `eff_seed_subsidy_scheme_no_untreated_08` | 30-field paddy scheme, `sch_kedah_2026a` | Rice | No claim (scheme) | Same shape as fixture 07 but with no comparable untreated cohort available (the scheme covered every eligible field in the district). Counterfactual-impact refused; no-claim artifact published with the k-not-met reason. |
+| `eff_seed_palm_yielddelta_reconciled_09` | Oil palm estate, `est_negeri_op2` | Oil palm | Attributable change (yield delta) | End-of-Production-Year reconciliation per [Estate Group](/guides/estate-group); yield delta computed against prior Production Year at the same tree-age cohort. Exercises the slowest, strongest field-level effect measure. |
+| `eff_seed_weak_cloud_ceiling_10` | Paddy field, `field_kelantan_b7` | Rice | Attributable change (weak) | Corroborating pass was cloud-blocked; verification grade is weak. Claim reaches attributable change but carries the weak flag through the disclosure envelope. Counterfactual-impact promotion refused if fixture 10 is added to a cohort. |
+
+**Coverage properties.**
+
+- Every effect measure appears at least once.
+- Every no-claim reason appears at least once (attribution window, cohort below k, wintering, missing trust score, two interventions, no untreated arm).
+- Every per-crop primary baseline is exercised on its intended crop.
+- Weak-grade cloud disclosure travels end-to-end.
+- Subsidy is exercised in both the possible-cohort case and the no-comparable-untreated case; field-level subsidy attribution never appears.
+- Cross-crop rollup is not seeded; the refusal is structural and is not exercised through fixtures.
+
+## Docs Delta
+
+Amendment D is silent, ambiguous, or contradictory against the current docs in the places below. Each item is enumerated, not resolved silently.
+
+| Id | Where | Gap |
+| --- | --- | --- |
+| **AD-01** | [Verification Model](/concepts/verification-model) states its claim as _the operation is logged and cross-checked_. | Amendment D reads that as the ceiling on `did-it-happen` claims and defines a separate track for `did-it-help`. The verification-model page should reference the effect-methodology page as the sibling module, and should state explicitly that verification does not claim outcome. |
+| **AD-02** | [Aggregation Model](/concepts/aggregation-model) defines five categories but does not name a cohort-breakdown k-floor rule. | Amendment D states one: once a cohort is defined at k, breakdowns inherit the k floor. The aggregation-model page should incorporate this as a clarification of the k-anonymity rule, not a new category. |
+| **AD-03** | [Risk Model](/concepts/risk-model#yield-impact-layers) `farm_history` layer learns from what happened on a farm. | Amendment D's attributable-change claims are the input to `farm_history` learning; the risk-model page should state that only attributable-change and counterfactual-impact tiers feed `farm_history`, and observed change alone does not. This aligns with the [Finding Provenance → Feedback into farm\_history](/concepts/finding-provenance) rule requiring corroboration before calibration. |
+| **AD-04** | [Risk Model](/concepts/risk-model#yield-impact-layers) yield-impact curve is not exposed with a per-rulecard trust score. | The avoided-loss effect measure rests entirely on curve trust. Amendment D depends on the risk-model page adding a trust score to each rulecard's yield-impact curve; without it, avoided-loss cannot be honestly claimed and always degrades to recovery back inside band. |
+| **AD-05** | [Seasonal Analysis](/guides/seasonal-analysis) presents index-vs-yield correlation with R² and a residual map at field level. | This is a descriptive, not causal, analysis. The seasonal-analysis page should state its relationship to effect methodology: it is a correlation exercise, not an attribution one, and its outputs feed Amendment D as inputs (evidence for observed change) rather than as effect claims themselves. |
+| **AD-06** | [Estate Group](/guides/estate-group) reconciles forecast against actual harvest at field level. | The reconciliation is the raw material for yield-delta claims. The estate-group page should expose the reconciliation output as a formal source for Amendment D's yield-delta effect measure, including the reconciliation timestamp and confidence. |
+| **AD-07** | [Crop Cycle Models](/concepts/crop-cycle-models) enumerates paddy Main and Off seasons, oil palm Production Year, rubber tapping panels, and pineapple Planting Batches, but does not enumerate attribution windows. | The per-crop ceilings on attribution windows in [The attribution window](#the-attribution-window) belong on the crop-cycle-models page as a companion table, so any consumer building an effect artifact resolves the cap without cross-reading Amendment D. |
+| **AD-08** | [Finding Provenance](/concepts/finding-provenance) defines corroboration for `farm_history` feedback (Feedback into farm\_history section). | Amendment D and Amendment C both bear on `farm_history` calibration. The finding-provenance page's corroboration rule and Amendment D's attributable-change tier are compatible but the interaction (a corroborated finding is an input to an attributable-change claim; the effect artifact then feeds `farm_history`) should be stated on both pages so the calibration pipeline is not implicit. |
+| **AD-09** | [Semai Advisor overview](/guides/semai-advisor/overview) does not describe advisor behaviour when a user asks for an effect claim that would land in a no-claim state. | The advisor should decline to fabricate an effect and instead return the no-claim artifact, per [Failure Modes → Level 2 (Downgrade artifact)](/guides/semai-advisor/failure-modes). The advisor overview page should reflect this explicitly. |
+| **AD-10** | [Audit Envelope](/snippets/audit-envelope) does not list the effect-artifact fields (`claim_tier`, `cohort_id`, `treated_arm_k`, `untreated_arm_k`, `attribution_window`, `no_claim_reason`). | The envelope is extensible per its per-module extension pattern; Amendment D names the extension fields. |
+| **AD-11** | [Notification Preferences](/guides/notification-preferences) does not describe delivery for effect artifacts. | Attributable-change and counterfactual-impact artifacts are delivered to different roles than raw verification bundles; the preferences page should account for this. In particular, no-claim artifacts should be delivered to the agency contact who requested the claim, not suppressed. |
+| **AD-12** | [Role Model](/snippets/role-model) does not name authoring authority for effect artifacts. | Amendment D's confirmations (publishing attributable-change; publishing counterfactual-impact to an external agency) imply role gating that the role-model page should surface. Draft resolution: `agronomist` publishes attributable-change; `estate_manager` or `regional` (agency officer) publishes counterfactual-impact bundles externally. |
+
+## Open Questions
+
+These are decisions the literature did not resolve. Amendment D enumerates them; it does not answer them.
+
+1. **Rulecard yield-impact curve trust score.** Amendment D's avoided-loss measure depends on the [risk-model curve](/concepts/risk-model#yield-impact-layers) carrying a per-rulecard trust score. The literature does not define one. Whether trust is a binary flag (trusted or untrusted), a graded score (weak, medium, strong to match verification), or a numeric confidence is undecided.
+2. **Cohort formation cadence.** Cohorts can be formed per-artifact (each effect claim draws its own untreated arm at publication time), per-reporting-period (the scheme's untreated arm is fixed at the start of the reporting round), or maintained continuously (the platform holds a scheme's cohorts as a first-class object). Each has integrity and cost trade-offs; the current draft is silent on which is default.
+3. **NADMA disaster relief as a fifth agency use case.** Subsidy bodies and takaful insurers fit the intervention-effect model cleanly. NADMA relief is a different shape: the intervention is disbursement after damage, and the counterfactual (would the recipient have recovered without relief) is much harder to construct against a cohort because comparable untreated cases in a disaster zone are politically and ethically constrained. Amendment D does not resolve the disaster-relief attribution model; a companion amendment may be needed.
+4. **Interaction with human-raised findings** per [Finding Provenance](/concepts/finding-provenance). A `scout.completed` from a human finding may be an intervention (it changed a decision) or it may be corroboration (it confirmed a machine finding without changing the state). The current draft distinguishes by whether a rulecard-firing state changed; whether a human finding on its own (no machine pairing) can support an attributable-change claim without a paired rulecard is undecided.
+5. **Yield-delta reconciliation timing.** [Estate Group](/guides/estate-group) reconciliation lands at end of cycle. For long-horizon crops (oil palm production year, rubber tapping year) the yield-delta effect artifact is a year late. Whether an interim reconciliation checkpoint (mid-cycle FFB yield for oil palm; mid-tapping-year latex output for rubber) is admissible as a partial yield-delta claim is undecided.
+6. **Cross-scheme aggregation for national dashboards.** A national dashboard aggregating counterfactual-impact claims across many schemes must respect k on each contributing scheme and preserve the minimum-of-inputs confidence. Whether a national-level cohort (drawing untreated arms across schemes) is admissible or whether national claims are strictly summations of scheme-level claims is undecided; the current draft implies the latter but does not state it.
+7. **Retroactive attribution.** An intervention logged and cross-checked months after the fact (a late-log per [Verification Model](/concepts/verification-model#source-events)) may still fall within an admissible attribution window on paper. Whether late-log interventions can support attributable-change and counterfactual-impact claims, or only observed change, is undecided.
+
+## Related
+
+- [Verification Model](/concepts/verification-model) — the _did-it-happen_ track this page's _did-it-help_ track sits alongside.
+- [Aggregation Model](/concepts/aggregation-model) — the rollup discipline effect claims obey; the source of the k-anonymity and never-average-an-average rules.
+- [Risk Model](/concepts/risk-model) — the source of the rulecard `days_to_mitigate`, the yield-impact curve, and the `farm_history` layer effect claims feed.
+- [Crop Cycle Models](/concepts/crop-cycle-models) — the per-crop cycle geometry that caps attribution windows.
+- [Finding Provenance](/concepts/finding-provenance) — the source of the corroboration rule for `farm_history` feedback, which composes with Amendment D's attributable-change tier.
+- [Seasonal Analysis](/guides/seasonal-analysis) — the descriptive index-vs-yield correlation whose outputs feed effect claims as evidence.
+- [Estate Group](/guides/estate-group) — the forecast-vs-actual reconciliation that yield-delta claims rest on.
+- [Semai Advisor overview](/guides/semai-advisor/overview) — the safety floor effect artifacts obey, and the advisor behaviour when a claim would land in a no-claim state.
+- [Guardrails Template](/snippets/guardrails-template) — the eight categories this page fills.
+- [Role Model](/snippets/role-model) — the authoring authority effect artifacts require.
+- [Audit Envelope](/snippets/audit-envelope) — the envelope every effect artifact extends.
