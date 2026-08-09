@@ -289,6 +289,140 @@ Every `yield_impact` block carries `source` and `citations`. Values are one of:
 
 Cards flagged `literature_v0` are surfaced in the agronomy review queue and re-checked annually.
 
+## Agronomic rate bands
+
+The Alerts and Risk engines produce prescriptions. Before a prescription can be exported or applied, the [VRA Maps](/guides/prescription-maps) **Input validation** guardrail requires every per-zone rate to fall inside a crop-specific agronomic band. The [Semai Advisor](/guides/semai-advisor/overview) uses the same band as its safety-critical write gate, and [Failure Modes](/guides/semai-advisor/failure-modes) trips a degradation when a requested rate would exceed it. Those three references land here.
+
+A band is one row keyed on **crop × product** with a **minimum**, a **maximum**, a **unit**, a **basis** (per pass, per season, or per year), and a **source**. Anything else is out of scope for this table: recommended rate curves live in the crop diagnosis pages, not here. This is the refusal boundary, not the recipe.
+
+### Units policy
+
+Every band on this page is stated in **kg of product per hectare** (`kg product/ha`), never kg of nutrient. The two differ by the product's nutrient fraction (urea is ~46% N, MOP is ~60% K₂O, kieserite is ~27% MgO), and a validator that silently accepts one for the other corrupts every rate it passes. Where a Malaysian source publishes a recommendation in kg nutrient/ha, the conversion to the specified product form is applied and the source figure is preserved in the citation.
+
+Two exceptions, both explicit:
+
+- **Ethephon (pineapple forcing)** is stated in **mL of formulated product per plant** at the labelled active-ingredient concentration, because that is how the Malaysian label directs it and how it is applied. It is not a hectare rate.
+- **Foliar borate on oil palm** is stated in **g product per palm**, because MPOB extension publishes it per palm and per-hectare conversion depends on stand density.
+
+The unit is part of the band. A prescription submitted in a different unit is rejected before the min/max check even runs.
+
+### Basis: per pass, per season, per year
+
+Sources publish rates on three different time bases and they are not interchangeable:
+
+- **Per pass** — a single application event. This is what the prescription file actually executes. VRA validation compares against this basis.
+- **Per season** — the whole-crop-cycle total, split across passes. Used by DOA and MARDI for rice.
+- **Per year** — the annual total for perennials. Used by MPOB for oil palm and RRIM for rubber, typically split across 2-4 rounds.
+
+**A season or annual total is never validated as a single-pass rate.** Where the sourced figure is a season or annual total, the band declares that basis, and the platform derives a per-pass ceiling from `total / expected_passes` for the field's declared application schedule. Fields without a declared schedule fall back to a conservative per-pass cap of `total / 3` (rice) or `total / 4` (oil palm, rubber), documented on the field record so the operator knows what is being enforced.
+
+### Stage and tier keying
+
+Two structural decisions the handoff called out explicitly:
+
+- **Growth stage.** Rice N at tillering and rice N at panicle initiation are different recommendations. Where a source gives stage-specific rates, the band carries a `by_stage` map with a `default` fallback, identical in shape to `yield_impact.by_ecosystem`. Where a source only gives a season total, the band carries `basis: season` and the per-pass derivation above applies; no stage keying is invented.
+- **Ecosystem and variety.** These are the same tiers the yield-impact resolver already uses. Where a Malaysian source distinguishes (for example, MPOB's inland-mineral vs coastal-clay vs peat soil groups; DOA's granary-scheme differences), the band carries `by_ecosystem` or `by_soil_group` in the same layered-lookup shape. Where the source does not distinguish, the band carries a single row and the resolver returns it for every tier. No parallel structure is introduced.
+
+### Band schema
+
+Bands live in `product_bands.yml` alongside the rule cards. One entry per crop-product pair.
+
+```yaml
+product_bands:
+  - id: rice_urea                    # snake_case, human-readable
+    crop: rice
+    product: urea
+    unit: kg_product_per_ha
+    basis: season                    # per_pass | season | year
+    expected_passes_default: 3       # used to derive per-pass cap when basis != per_pass
+    band:
+      min: ~                         # kg product/ha, season total
+      max: ~
+    by_ecosystem:                    # optional; same shape as yield_impact.by_ecosystem
+      irrigated_lowland:
+        band: { min: ~, max: ~ }
+      rainfed_lowland:
+        band: { min: ~, max: ~ }
+    by_stage:                        # optional; only when the source is stage-specific
+      tillering:      { min: ~, max: ~ }
+      panicle_init:   { min: ~, max: ~ }
+    source: ~                        # "MARDI Rice Check", "DOA Fertiliser Guideline 2019", etc.
+    citation: ~                      # exact document + page/section
+    status: decision_required        # sourced | decision_required | undefined
+    last_reviewed: ~
+    reviewer: agronomy-team
+```
+
+### Bands
+
+<Warning>
+  **Every band below is `status: decision_required`.** No Malaysian primary sources (MPOB, MARDI, DOA, RRIM / Malaysian Rubber Board) were available in this drafting session to attribute a defensible min/max per figure. This section establishes the schema, unit policy, and fail-closed rule so the three consuming pages have a live target. **The numeric bands themselves must be filled by an agronomist with the primary documents in hand, one row at a time, and marked `sourced` with an exact citation before validation is enabled in production.**
+
+  Until each row is marked `sourced`, the platform treats it as undefined and applies the fail-closed rule below.
+</Warning>
+
+| Crop | Product | Unit | Basis | Min | Max | Source | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Rice | Urea (46-0-0) | kg product/ha | season | — | — | MARDI / DOA fertiliser recommendation; MADA and KADA scheme guidance | Decision required |
+| Rice | NPK compound (e.g. 15:15:15) | kg product/ha | season | — | — | MARDI / DOA; specify which compound formulation | Decision required |
+| Rice | TSP or CIRP (phosphorus source) | kg product/ha | season | — | — | MARDI / DOA | Decision required |
+| Rice | MOP (60% K₂O) | kg product/ha | season | — | — | MARDI / DOA | Decision required |
+| Oil palm | Urea or ammonium sulphate | kg product/ha/yr | year | — | — | MPOB Oil Palm Bulletin fertiliser recommendation, by soil group | Decision required |
+| Oil palm | MOP (60% K₂O) | kg product/ha/yr | year | — | — | MPOB, by soil group (inland mineral / coastal clay / peat) | Decision required |
+| Oil palm | Kieserite (27% MgO) | kg product/ha/yr | year | — | — | MPOB, by soil group | Decision required |
+| Oil palm | Sodium borate / Fertibor | g product/palm/yr | year | — | — | MPOB extension leaflet on boron; stand density noted on field record | Decision required |
+| Rubber | Urea or ammonium sulphate | kg product/ha/yr | year | — | — | RRIM 1000-series / Malaysian Rubber Board, by soil type and tapping status | Decision required |
+| Rubber | TSP or CIRP | kg product/ha/yr | year | — | — | RRIM / MRB | Decision required |
+| Rubber | MOP | kg product/ha/yr | year | — | — | RRIM / MRB | Decision required |
+| Pineapple | Urea or ammonium sulphate | kg product/ha/cycle | season | — | — | MARDI pineapple production manual (MD2 / Josapine / Moris) | Decision required |
+| Pineapple | MOP | kg product/ha/cycle | season | — | — | MARDI | Decision required |
+| Pineapple | Ethephon (forcing) | mL product/plant | per\_pass | — | — | Malaysian label rate and MARDI forcing protocol; note active-ingredient concentration | Decision required |
+
+**Decision required** (surfaced explicitly so they are not lost in the table):
+
+- _Decision required: For rice, does MARDI/DOA publish stage-specific N min/max (tillering, panicle initiation), or only a season total?_ This determines whether the band uses `by_stage` or `basis: season` with per-pass derivation.
+- _Decision required: For oil palm N, K, and Mg, does MPOB publish bands by soil group (inland mineral, coastal clay, peat), or a single band?_ This determines whether the row uses `by_ecosystem` / `by_soil_group` or a flat band.
+- _Decision required: For rubber, do RRIM recommendations distinguish immature (pre-tapping) vs mature (tapped) stands within the min/max, or only in the recommended rate?_ Stands change the band, not just the recipe.
+- _Decision required: For pineapple ethephon, is there a Malaysian primary source (MARDI or the product label registered with Department of Agriculture) that publishes a maximum per-plant dose that can be defended, or should this product be left undefined and therefore refused?_ If no defensible source, leave undefined; the platform will refuse ethephon prescriptions rather than accept any rate.
+- _Decision required: For every row above, the exact citation (document title, year, page or section) that will be recorded on the band. Recommendations change across MARDI/DOA/MPOB revisions; the band must name the revision it comes from._
+
+### Fail-closed rule for undefined combinations
+
+**Where no band exists for a crop and product, the platform declines the prescription. It does not fall back to "any rate is acceptable."** This is the rule that keeps the guardrail honest while the table is being filled in.
+
+Concretely:
+
+- The VRA Maps **Input validation** guardrail rejects a prescription whose `(crop, product)` pair has no `product_bands` entry, or has an entry with `status: decision_required` or `status: undefined`. The rejection cites the missing band by id and links here.
+- The Semai Advisor treats the same missing band as a **hard refusal**, not a confirmation prompt. Confirmation only applies where a band exists and the requested rate is outside it. Where no band exists at all, the advisor refuses and states which band is missing.
+- The Failure Modes trigger _"requests an action that would exceed agronomic min/max rates"_ extends to _"requests an action for a crop-product pair with no defined band."_ Both fire the same degradation.
+
+A missing guardrail fails closed. That is the difference between _we have not sourced this yet_ and _any rate is acceptable here_, and the second one puts fertiliser on the ground.
+
+### Provenance
+
+Each row on the bands table carries the same provenance tags as `yield_impact`:
+
+- `sourced` — attributed to a named Malaysian primary source with an exact citation. Enforced.
+- `decision_required` — schema exists, numbers do not. Rejected by the fail-closed rule.
+- `undefined` — the agronomy team has explicitly declined to publish a band for this pair (e.g. product not supported in Malaysia, or no defensible source). Rejected by the fail-closed rule with an explanatory message.
+- `agronomy_reviewed` — a band adjusted from the primary source by the internal agronomy team, with rationale recorded.
+
+Bands, like rule cards, are re-checked annually and whenever the underlying Malaysian source publishes a revision.
+
+## Docs Delta
+
+New section on this page: **Agronomic rate bands** (schema, units policy, basis rules, stage and tier keying, band table, fail-closed rule, provenance).
+
+The following pre-existing references now resolve to a live definition on this page:
+
+- [VRA Maps](/guides/prescription-maps) — Input validation and Refusals rows in the guardrails table. "Rates must fall within the crop-specific agronomic min/max declared in the Risk Model" now points at the bands table above.
+- [Semai Advisor overview](/guides/semai-advisor/overview) — safety-critical writes list. "Rates outside agronomic min/max" now resolves to the same bands.
+- [Semai Advisor failure modes](/guides/semai-advisor/failure-modes) — degradation trigger for "exceed agronomic min/max rates" now resolves to the same bands.
+
+**Fail-closed rule** (repeated here so it is not lost inside the section): a crop-product pair with no `sourced` band produces a refusal, not a silent pass. This applies to VRA validation, Semai Advisor writes, and the failure-modes trigger, uniformly.
+
+**Not changed:** no new guardrail categories, no new telemetry types, no new refusal rows on `prescription-maps`. This section fills the existing Input validation and Refusals rows that already reference it.
+
 ## Days to mitigate
 
 The "Days to mitigate" number on the risk card is not a static rule constant. It answers a specific question: **how long does the operator have before the recommended action stops being effective?**
