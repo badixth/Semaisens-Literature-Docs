@@ -182,6 +182,56 @@ Authorization: Bearer <your_api_key>
   Schedule a scouting session at least once per week during peak vegetative growth and at every critical growth stage (tillering, heading, grain fill). Regular ground-truth data makes the platform's anomaly detection significantly more accurate for your specific crop and soil conditions over time.
 </Tip>
 
+## Task lifecycle
+
+Task states were referenced across this page and in the [Audit Envelope](/snippets/audit-envelope) without ever being enumerated. This section enumerates them. **Every state below is cited to behaviour the platform already has**; nothing here is new, and where the evidence runs out the row says so rather than inventing a state.
+
+### The four resting states
+
+| State | Meaning | Evidence |
+| --- | --- | --- |
+| `draft` | Created, nobody against it | Audit rows record `scout_task` → `draft` per [Audit Envelope](/snippets/audit-envelope) |
+| `assigned` | A name against it, not yet accepted | Same audit sequence, `draft` → `assigned`. Carries a future date where the work is scheduled ahead |
+| `accepted` | The assignee has taken it; the work is under way | Implied by "reassign-**before-acceptance**" and by the escalation on tasks with "no acceptance within 2 hours" (see [Guardrails](#guardrails)). A task in this state is what that table calls **in-flight** |
+| `completed` | Finished. **Append-only** — a correction is a new entry, never an edit | "completion is append-only", and `scout.completed` in [Risk Model activity bindings](/concepts/risk-model#activity-bindings) |
+
+There are four.
+
+### Two things that are not states
+
+**Overdue is a flag, not a state.** `task.overdue` is an **event** in [activity bindings](/concepts/risk-model#activity-bindings) that fires `promote_severity`. A task past its window is still `assigned` or `accepted` — it is late, not elsewhere. Nothing transitions _into_ overdue and nothing transitions out of it by action; only the clock and the work decide it.
+
+**Refusal returns the task to `draft`.** An assignee may decline. The docs track this — three refused assignments by the same scout in seven days escalates to their supervisor, and a recent refusal streak raises a soft warning — so the refusal and its author are retained on the task as history. The task itself has no assignee again, so it rests at `draft` carrying that record. Refusal is a transition with a memory, not a fifth state.
+
+### A projection is not the state
+
+**A board's columns are not these four states.** Any surface grouping tasks reads state **plus two attributes**, and stating that here is the point of this section:
+
+| Column on a board | Resolves from |
+| --- | --- |
+| To do | `draft` — including a task refused, and a task assigned with a future date not yet asked |
+| Waiting to be accepted | `assigned`, where the assignee has been asked and the acceptance clock is running |
+| In flight | `accepted` |
+| Done | `completed`, within whatever window that surface declares |
+
+The distinction between the first two columns is **whether the assignee has been asked**, not the state. A task assigned for next Tuesday has an assignee and no running clock; putting it beside tasks whose two-hour escalation is live would mix two different things under one heading.
+
+### Transitions
+
+| From → to | What it is | Who | What it costs |
+| --- | --- | --- | --- |
+| `draft` → `assigned` | Assigning | Anyone entitled to assign on that field | Refused where the assignee has no field access. Confirmed on bulk across estates. Soft-warned on volume and refusal streak |
+| `assigned` → `draft` | Unassigning, or the assignee refusing | The assigner, or the assignee | Commits optimistically with the **5-second undo** already used for reassign-before-acceptance. Retains who and when |
+| `assigned` → `accepted` | Accepting | **The assignee.** Acceptance is the act that stops the two-hour escalation clock, so it cannot be performed on their behalf without making that clock meaningless | — |
+| `accepted` → `completed` | Completing | The assignee, or anyone entitled to close | **Confirmed**, and more heavily where closing without a visit or without photos. Irreversible past the undo window |
+| `completed` → anything | — | — | **Refused.** Completion is append-only; a correction is a new entry |
+
+### Not decided here
+
+- **Whether a "mark as started on their behalf" action should exist.** If it does, it is a different verb from acceptance, needs its own audit distinction, and must not stop the escalation clock. Requires a decision before any surface offers it.
+- **A per-role permission table for these transitions.** The refusals above constrain by entitlement and by assignee identity, but the docs carry no task-permission matrix equivalent to the one in [Finding Provenance](/concepts/finding-provenance). Until one exists, entitlement is the only gate.
+- **Whether this lifecycle governs work items other than scout tasks** — application plans, prescription exports, proof packs. It is written here because this is where task states were already described, and it may need to graduate to a concept page if it turns out to be general.
+
 ## Guardrails
 
 This module follows the shared [guardrails template](/snippets/guardrails-template). The agent and every non-agent write path must respect these rules.
