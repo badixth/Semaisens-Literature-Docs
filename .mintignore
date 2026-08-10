@@ -5,3 +5,21 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Build record — briefs, decisions, conventions, defect logs and handoffs.
+# These live at the repo root on purpose but are NOT documentation pages:
+# they are derived from the docs and must never be published to the site.
+AGENTS.md
+CLAUDE.md
+START-HERE.md
+AMENDMENT-*.md
+CHARTS-product-map.md
+CONVENTION-*.md
+DECISION-*.md
+DEFECTS*.md
+HANDOFF-*.md
+METHODOLOGY-*.md
+TRACK-*.md
+
+# Local working notes, if present
+LOCAL-WORKING-NOTES.md

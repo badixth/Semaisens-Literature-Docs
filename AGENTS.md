@@ -1,33 +1,37 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
+# Agent instructions
 
-# Documentation project instructions
+**Read `CLAUDE.md` first.** It is the real orientation file for this repo — where truth lives, which sets are closed, what is settled, and the stop rule. This file only covers the Mintlify mechanics that sit underneath it.
 
-## About this project
+If the two ever disagree, `CLAUDE.md` wins.
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
-- Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
-- Use the Mintlify MCP server, `https://mcp.mintlify.com`, to edit content and settings via MCP
-- Use the Mintlify docs MCP server, `https://www.mintlify.com/docs/mcp`, to query information about using Mintlify via MCP
+---
 
-## Terminology
+## What this repo is
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+The Mintlify documentation site for **Semai / SemaiSens**, a remote-sensing agronomy platform for Malaysian agriculture, plus the build briefs and decision records that drive its prototype.
 
-## Style preferences
+- Pages are MDX with YAML frontmatter. Configuration lives in `docs.json`.
+- The Mintlify MCP server (`https://mcp.mintlify.com`) reads, searches, diffs and edits the live docs. Deployment subdomain: `badixth-dc85e378`.
+- **Agent review is on.** `save` opens a PR rather than committing to `main`. Leave it that way and do not route around it via `execute_code`. Propose; let a human merge.
+- `diff` is the only reliable way to confirm an edit landed.
 
-{/* Add any project-specific style rules below */}
+## Authority
 
-- Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
-- Use sentence case for headings
-- Bold for UI elements: Click **Settings**
-- Code formatting for file names, commands, paths, and code references
+`concepts/`, `guides/`, `snippets/`, `api/` and `docs.json` are the **source of truth**. Everything at the repo root — briefs, decisions, conventions, defect logs — is **derived**. Patch the derived files against the docs, never the reverse.
 
-## Content boundaries
+## Style
 
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+- Sentence case for headings. Active voice.
+- Code formatting for file names, commands, paths, field names and enum values.
+- Bold for UI elements: click **Settings**.
+- One idea per sentence.
+
+**Product-mode copy is different and stricter.** Anything a user can see carries no spec vocabulary — no snake_case, no enum values, no field names. Review mode may. This is enforced by grep in several acceptance tests, so it is not a preference.
+
+## The habit that matters most
+
+**Refuse rather than mislead.** An em dash with a stated reason beats a fabricated figure, and a refusal is an answer that renders as one — never a blank, never a zero, never silence. This runs through the whole product and the docs describe it as behaviour rather than as tone.
+
+## The stop rule
+
+If a decision is needed that is not resolvable from the docs and the brief in front of you, **stop and say "Decision required: *question*"** rather than picking a reasonable default. `CLAUDE.md` explains what this rule cost before it existed.

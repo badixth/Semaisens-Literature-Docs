@@ -1,55 +1,42 @@
-# Mintlify Starter Kit
+# SemaiSens — documentation and build record
 
-Use the starter kit to get your docs deployed and ready to customize.
+The Mintlify documentation site for **Semai / SemaiSens**, a remote-sensing agronomy platform for Malaysian agriculture, together with the build briefs and decision records that drive its prototype.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+Four crops — paddy, oil palm, rubber, pineapple. Four audiences — estate managers, agronomists, farm owners, agency officers.
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+## Where to start
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+| You are | Read |
+| --- | --- |
+| A person picking the project back up | **`START-HERE.md`** — current state, what to run next, what to check when it comes back |
+| An agent about to change something | **`CLAUDE.md`** — where truth lives, which sets are closed, what not to reopen |
+| Working on the docs site itself | `AGENTS.md` — Mintlify mechanics and the review gate |
 
-## AI-assisted writing
+## What is in here
 
-Set up your AI coding tool to work with Mintlify:
+**The documentation site** lives in `concepts/`, `guides/`, `snippets/`, `api/` and `docs.json`. This is the source of truth. Where a brief and the docs disagree, the docs win.
+
+**The build record** lives at the repo root:
+
+- `TRACK-*.md` — self-contained build briefs, one per surface. Pasted into a fresh chat with nothing attached.
+- `DECISION-*.md` — settled positions, including two deliberately-kept wrong turns so the reasoning stays traceable.
+- `CONVENTION-*.md`, `CHARTS-product-map.md` — standing rules every brief inherits.
+- `DEFECTS.md` — append-only defect log with dates.
+- `HANDOFF-*.md` — briefs written for a specialist agent, mostly consumed.
+
+Every root file carries a status line under its title. Read it before acting on the file.
+
+The prototype itself lives in a Claude Design project, not in this repo.
+
+## Running the docs locally
 
 ```bash
-npx skills add https://mintlify.com/docs
-```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
 npm i -g mint
-```
-
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
-```
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+Run from the folder containing `docs.json`. `mint update` if the CLI is out of date; delete `~/.mintlify` and re-run if dev stops working.
 
-## Publishing changes
+## Publishing
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+Changes to the deploy branch publish automatically via the Mintlify GitHub app. **Agent review is enabled**, so agent-authored changes open a pull request rather than committing to `main`.
