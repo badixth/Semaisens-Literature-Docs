@@ -350,7 +350,8 @@
           },
           "snippets/guardrails-template",
           "snippets/audit-envelope",
-          "snippets/role-model"
+          "snippets/role-model",
+          "snippets/pesticide-registration"
         ]
       },
       {
