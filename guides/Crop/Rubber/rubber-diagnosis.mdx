@@ -80,6 +80,22 @@ Rubber leaf-tissue analysis uses **Whorl 2** leaves (the second whorl from the t
 | Reduced flow across the whole block | Drought, cold snap, or block-wide TPD |
 | Green streak on new bark | Poor bark renewal, panel over-consumed |
 
+### A latex yield comparison carries its panel and its tapping system
+
+Every yield-drop trigger on rubber compares a block's latex output against its own recent baseline. That comparison is only valid if the tapping did not change underneath it.
+
+**Tapping intensity sets yield directly.** A block moved from d/2 to d/3 produces less latex the following week, and a block opened on a new panel produces differently from one late in the previous panel. Neither change is visible from orbit — the canopy looks identical — so the satellite offers no correction and the drop reads as a stress signal.
+
+<Warning>
+  A rubber yield comparison names its **panel** and its **tapping system**, or it is not a comparison. A block either side of a panel change, or either side of a change in tapping frequency, is two blocks as far as yield is concerned.
+
+  This applies to every `-15%` and `-25%` latex trigger in the rubber pages, including [Tapping Panel Dryness](/guides/Crop/Rubber/biotic/tpd) and [Potassium](/guides/Crop/Rubber/nutrient/potassium).
+</Warning>
+
+Tapping frequency and panel position are currently recorded as free-text scout notes rather than as fields, so **the platform cannot enforce this and does not claim to.** It shows the panel and the system alongside the comparison where a scout has recorded them, and leaves the judgement to the reader. Where nothing has been recorded, the comparison is shown with the gap named rather than suppressed — an unrecorded tapping change is a reason for doubt, not proof of one.
+
+This is a **yield** rule. It does not govern index comparison, which is set by wintering and stand age — see [Rubber ecosystems](/guides/Crop/Rubber/rubber-ecosystems).
+
 ## Stand-age vulnerability
 
 Different stresses matter at different ages. Use this alongside the pattern tables.
@@ -105,7 +121,9 @@ Rubber's closed tall canopy makes it satellite-friendly but NDVI saturates. Matc
 | Individual tree | Panel dryness, single tree death | Not resolvable at Sentinel scale; use scout records |
 
 <Warning>
-  The single biggest source of false alerts on rubber is the annual **wintering** dip in Feb to Apr. Always compare against the same block in previous years before dispatching a scout. Use the [rubber ecosystems](/guides/Crop/Rubber/rubber-ecosystems) baselines and Anomaly view.
+  The single biggest source of false alerts on rubber is the annual **wintering** dip in Feb to Apr. Judge the block against the [rubber ecosystems](/guides/Crop/Rubber/rubber-ecosystems) wintering stage table and the recovery test before dispatching a scout.
+
+  **Anomaly view is refused inside the wintering window** and cannot be used for this. Wintering shifts by clone, by state, and between Peninsular and East Malaysia, so a calendar-aligned year-over-year comparison across that boundary measures the shift in timing rather than the block. Outside the window, Anomaly is sound and is the right tool.
 </Warning>
 
 ## Decision flow
