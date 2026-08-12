@@ -487,7 +487,11 @@ The wording changes with the route, and both remain answers:
 
 #### Who may set one
 
-**Decision required: which functional roles may set an attributed rate.** The role matrix on [VRA Maps](/guides/prescription-maps) names Operator, Agronomist, Approver/Manager and Read-only, and **`Operator` is not one of the eight functional roles** in the [role model](/snippets/role-model). That mismatch has to be resolved before attribution can be enforced, because the entitlement is the whole of the guardrail.
+**Decided 11 August 2026.** `agronomist`, `approver` and `estate_manager` may set an attributed rate. `scout` may not — its documented function is ground-truth work, not diagnosis, which is the same reason it cannot raise a finding above `medium`.
+
+The mismatch that blocked this is resolved: the role matrix on [VRA Maps](/guides/prescription-maps) named **Operator** and **Read-only**, neither of which is one of the eight. **No ninth role was added.** `Operator`'s permissions were distributed — as-applied upload to `scout`, generation to `agronomist` and above — and `Read-only` became `viewer` with its review permission removed, since attaching a comment is a write.
+
+**And the entitlement now has a second half: the approver may not be the author.** A rate resting on one person's judgement, approved by that same person, is a single unchecked point of decision on a physical operation — which is precisely what attribution exists to prevent. The rule and its fallback are on [VRA Maps → Approval is a second person](/guides/prescription-maps#approval-is-a-second-person).
 
 ### Provenance
 
@@ -512,7 +516,9 @@ The following pre-existing references now resolve to a live definition on this p
 
 **Fail-closed rule** (repeated here so it is not lost inside the section): a crop-product pair with no `sourced` band and **no named author** produces a refusal, not a silent pass. This applies to VRA validation, Semai Advisor writes, and the failure-modes trigger, uniformly.
 
-**Attribution** is the second route, added above: where no band exists, a rate may proceed if it carries a named author who was entitled to set it, and it is then rendered as a judgement rather than as a citation. **It does not apply to restricted products or to anything constrained by regulation**, where the safety floor stands unchanged. Two decisions are open and named in that section: which roles may set an attributed rate, and the `Operator` role that appears on `prescription-maps` but not in the role model.
+**Attribution** is the second route, added above: where no band exists, a rate may proceed if it carries a named author who was entitled to set it, and it is then rendered as a judgement rather than as a citation. **It does not apply to restricted products or to anything constrained by regulation**, where the safety floor stands unchanged.
+
+**Both decisions that section opened are now closed** — `agronomist`, `approver` and `estate_manager` may set an attributed rate, and **the approver may not be the author**. `prescription-maps` was reconciled with the role model in the same pass: `Operator` distributed across the eight, `Read-only` resolved to `viewer`, **no ninth functional role added**.
 
 **Not changed:** no new guardrail categories, no new telemetry types. Attribution is recorded on the prescription and does not add a `status` value to the bands table — a band remains `decision_required` until it is sourced.
 
