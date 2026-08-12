@@ -73,6 +73,35 @@ Frond color patterns in oil palm are so specific they are often named after the 
 | Hooked, deformed young frond | Boron deficiency |
 | Chlorotic young frond | Iron deficiency or Crown Disease |
 
+## What an alert threshold can claim
+
+Six alerts in the oil palm pages fire on the same signal: a **localized NDVI drop of 0.10 or more** over a cluster of palms. They are offered for Ganoderma, upper stem rot, bud rot, Fusarium wilt, bagworms and nettle caterpillars.
+
+**One threshold cannot discriminate six causes, and this documentation already says so** — `upper-stem-rot.mdx` states plainly that its alert is _"same as basal Ganoderma. The satellite cannot distinguish the two."_
+
+<Warning>
+  **A shared threshold is a prompt, not a diagnosis.** When a cluster alert fires, the platform names **the set of causes it could be** and sends a scout. It does not name one of them.
+
+  Naming a single cause from a signal shared by six is a fabricated claim of the same family as averaging a band.
+</Warning>
+
+The discriminators are on the ground, not in the index, and they are already written on the individual pages: bracket position and trunk rot for Ganoderma, height of the lesion for upper stem rot, spear condition for bud rot, silk bags and window-pane feeding for bagworms, stinging larvae and skeletonized leaflets for nettle caterpillars.
+
+### An absolute delta is band-relative in effect
+
+`0.10` is not the same event everywhere. Read against the per-environment bands on [Oil Palm Ecosystems](/guides/Crop/Oil-Palm/oil-palm-ecosystems):
+
+| Starting at | Band it sits in | After a 0.10 drop |
+| --- | --- | --- |
+| 0.88 | Mineral upland prime, 0.75 – 0.88 | 0.78 — **still inside the band** |
+| 0.68 | Inland peat prime, 0.68 – 0.82 | 0.58 — **0.10 below the floor** |
+
+The same alert fires in both cases, and the second block is in trouble while the first may not be. **The delta says something changed; the band says whether where it landed is a problem.** Both are needed and neither substitutes for the other.
+
+### A percentage threshold names which end it is a percentage of
+
+Where a rule is written as a percentage below baseline rather than an absolute delta — as the potassium and drought alerts are — **the baseline is the floor of the resolved band**, not its ceiling and not its midpoint. A percentage of an unnamed reference is not a threshold.
+
 ## Stand-age vulnerability
 
 Different stresses matter at different ages. Use this alongside the pattern tables.
