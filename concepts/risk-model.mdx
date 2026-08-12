@@ -444,6 +444,51 @@ Concretely:
 
 A missing guardrail fails closed. That is the difference between _we have not sourced this yet_ and _any rate is acceptable here_, and the second one puts fertiliser on the ground.
 
+### Attribution: the second route to a permitted rate
+
+The rule above is correct and it has a consequence worth stating plainly: **while every band is `decision_required`, the guardrail permits nothing.** A guardrail that has never let a prescription through is not yet a working feature, and the table may stay unfilled for a long time — no Malaysian authority publishes a min/max for any crop-product pair, only point recommendations.
+
+So there are **two routes to a permitted rate**, and only two:
+
+| Route | Condition | What the platform is claiming |
+| --- | --- | --- |
+| **Validated** | A `sourced` band exists and the rate falls inside it | _This rate is within a published recommendation, and here is the citation._ |
+| **Attributed** | No band exists, and the rate carries a named author who was entitled to set it | _Nobody has published a range for this. **A named person decided this figure**, on this date, for this map._ |
+
+**A rate with neither a band nor an author is still refused.** That is the fail-closed rule, unchanged. What changes is that _no source_ and _no accountability_ stop being the same condition.
+
+#### What an attributed rate must carry
+
+Every attributed rate records `set_by`, `set_by_role`, `set_at`, and a stated reason. These are **not** a band: a band is a range that validates many prescriptions, and an attributed rate is one figure on one map. **Do not add a fifth `status` value to the bands table for this** — the band stays `decision_required` until somebody sources it, and attribution is recorded on the prescription instead.
+
+#### Attribution never substitutes for a regulatory limit
+
+**Attributed rates apply to fertiliser and soil amendments only.** They are refused, regardless of who signs, for:
+
+- **restricted products** — pesticides and high-nitrogen formulations, per the existing safety floor on [VRA Maps](/guides/prescription-maps);
+- **anything constrained by regulation rather than agronomy** — buffer zones near waterways, regulated boundaries, and statutory maximum application rates.
+
+Where the constraint is law, a name is not authority. The safety floor is unchanged by this section.
+
+#### An attributed rate does not become a default
+
+A figure entered once will be copied to the next map, and to the one after that, until it is a house standard nobody has read the reasoning for. That is the same fabricated default this page refuses, arrived at by drift instead of by decision.
+
+**So a rate carried forward from an earlier map carries its origin with it** — who set it, when, and on which map — and the reader is told it is being reused rather than decided. Reuse is not authorship.
+
+#### The difference is visible where the rate is used
+
+A **sourced** rate and an **attributed** rate must be distinguishable **on the prescription itself**, not only in a settings table. The bands table will hold a mix for a long time — the one genuine published range found to date is ethephon on pineapple — and a citation and a judgement that look identical at the point of use are worse than either alone.
+
+The wording changes with the route, and both remain answers:
+
+- **No band, no author** — _"No published recommendation exists for this crop and product, and nobody has set a rate for it. This prescription is refused."_
+- **No band, named author** — _"This rate is not sourced from any published recommendation. It was set by Siti Rahman on 3 August and applies to this map only."_
+
+#### Who may set one
+
+**Decision required: which functional roles may set an attributed rate.** The role matrix on [VRA Maps](/guides/prescription-maps) names Operator, Agronomist, Approver/Manager and Read-only, and **`Operator` is not one of the eight functional roles** in the [role model](/snippets/role-model). That mismatch has to be resolved before attribution can be enforced, because the entitlement is the whole of the guardrail.
+
 ### Provenance
 
 Each row on the bands table carries the same provenance tags as `yield_impact`:
@@ -465,9 +510,11 @@ The following pre-existing references now resolve to a live definition on this p
 - [Semai Advisor overview](/guides/semai-advisor/overview) — safety-critical writes list. "Rates outside agronomic min/max" now resolves to the same bands.
 - [Semai Advisor failure modes](/guides/semai-advisor/failure-modes) — degradation trigger for "exceed agronomic min/max rates" now resolves to the same bands.
 
-**Fail-closed rule** (repeated here so it is not lost inside the section): a crop-product pair with no `sourced` band produces a refusal, not a silent pass. This applies to VRA validation, Semai Advisor writes, and the failure-modes trigger, uniformly.
+**Fail-closed rule** (repeated here so it is not lost inside the section): a crop-product pair with no `sourced` band and **no named author** produces a refusal, not a silent pass. This applies to VRA validation, Semai Advisor writes, and the failure-modes trigger, uniformly.
 
-**Not changed:** no new guardrail categories, no new telemetry types, no new refusal rows on `prescription-maps`. This section fills the existing Input validation and Refusals rows that already reference it.
+**Attribution** is the second route, added above: where no band exists, a rate may proceed if it carries a named author who was entitled to set it, and it is then rendered as a judgement rather than as a citation. **It does not apply to restricted products or to anything constrained by regulation**, where the safety floor stands unchanged. Two decisions are open and named in that section: which roles may set an attributed rate, and the `Operator` role that appears on `prescription-maps` but not in the role model.
+
+**Not changed:** no new guardrail categories, no new telemetry types. Attribution is recorded on the prescription and does not add a `status` value to the bands table — a band remains `decision_required` until it is sourced.
 
 ## Days to mitigate
 
