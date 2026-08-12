@@ -1,6 +1,25 @@
 # Decision required — the agronomic min/max does not exist
 
-**Status: live, and it carries an open decision.** Nothing can be built against the rate bands until it is answered. VRA refuses every prescription meanwhile, which is correct.
+**Status: live. Option D adopted and shipped; the sourcing question stays open. Corrected 13 August 2026.**
+
+**Two claims in this file were true when written and are now wrong. Do not act on them.**
+
+- *"VRA refuses every prescription"* — **no longer true.** Three oil palm peat rows are `sourced` and validate, and attribution (PR #5, merged) permits a rate carrying a named entitled author. A rate with **neither** a band nor an author is still refused; that part is unchanged.
+- *"Still open: which functional roles may set an attributed rate"* — **closed.** Decided 11 August 2026 on `concepts/risk-model`: `agronomist`, `approver` and `estate_manager` may; `scout` may not. `Operator` was never one of the eight and is gone from the docs.
+
+**What is still genuinely open** is the sourcing, not the mechanism: eleven crop-product rows remain `decision_required`, and filling them is blocked on documents listed under *What to chase next*. See `ACQUISITION-list.md`.
+
+**And a live defect this file's fix created.** PR #5 amended the attribution section but not the fail-closed section above it, so `concepts/risk-model` now refuses in one place what it permits forty lines later. `guides/prescription-maps` Input validation and both advisor pages were never told either. That propagation is unwritten work, not a decision.
+
+> **Three corrections, from the research in `RESEARCH-the-band-is-on-the-tissue.md`. Read them before using anything below.**
+>
+> **The title of this file is too strong.** MPOB publishes ranges for **oil palm on peat** — MOP 4.0–6.0 kg/palm/yr, urea 0.5–0.6, rock phosphate ceiling 1.0, each with a stated agronomic reason. The claim holds for mineral soils only. Landed as docs PR #6.
+>
+> **The rice LCC lookup was published**, in *Pakej Teknologi Padi* (2008): LCC No.3 / SPAD < 32 → 50 kg urea/ha off-season, 75 main season. DOA **removed it** from the 2022 successor. It is a trigger with a point dose, not a band — but "not published" was the wrong reason to refuse.
+>
+> **MPOB Bulletin 72 is reachable, not missing.** It has no text layer. OCR of that one document is the highest-value outstanding action.
+>
+> **And the reframe that matters most: the band exists, on the plant rather than on the bag.** Leaf tissue optimum ranges are published for oil palm with a deficient / good / excessive structure — the same nominal-is-best shape this product already uses — together with four published functions from tissue deficit to rate, three of them Malaysian. **The guardrail was validating the wrong quantity.** Options A–D below remain live, but D now covers a much smaller surface than when it was written.
 
 Research pass on the Handoff 3 gap. **The finding is structural and it changes the shape of the guardrail, so it needs a decision rather than more searching.**
 
@@ -26,9 +45,24 @@ Three shapes, and they are not equivalent:
 
 **C · Keep failing closed.** Every band stays `decision_required`, VRA refuses every prescription. Correct, and currently shipped, but it is a guardrail that has never permitted anything — which is not yet a product.
 
-I have not picked one. Choosing an *x* in option A is exactly the "plausible number is the failure mode" case Handoff 3 named.
+**D · Attribution — the rate is not validated, it is signed.** Proposed 11 August after studying a working competitor. No band is invented at all: where none exists, a rate may proceed if it carries a named author who was entitled to set it, and the platform renders it as a judgement rather than as a citation. **The guardrail's question changes from *is this rate inside a band* — which we cannot answer — to *is this rate attributable to somebody entitled to set it*, which we can answer today for every crop.**
 
-**Second decision, smaller:** `status` currently offers `sourced | decision_required | undefined`. If a band is set by judgement it is neither sourced nor undefined, and calling it `sourced` would be a lie in the audit trail. A fourth value is likely needed.
+**Adopted. [PR #5](https://github.com/badixth/Semaisens-Literature-Docs/pull/5) is merged and live**, amending the fail-closed rule on `concepts/risk-model` so that *no source* and *no accountability* stop being the same condition. **A rate with neither a band nor an author is still refused.**
+
+Four constraints are written into it so attribution cannot decay into the fabricated default this file exists to refuse:
+
+- **Restricted products and regulatory limits are excluded.** Pesticides, high-nitrogen formulations, buffer zones and statutory maxima refuse regardless of who signs. Where the constraint is law, a name is not authority.
+- **A carried-forward rate carries its origin.** Reuse is not authorship, and a figure copied map to map is how a judgement becomes a house standard nobody has read.
+- **Sourced and attributed are distinguishable on the prescription itself**, not only in a settings table.
+- **No fifth `status` value.** Attribution is recorded on the prescription; the band stays `decision_required` until somebody sources it.
+
+**Why the competitor study changed the answer.** Terra Oracle runs a working VRA product and does **not** validate rates against agronomic bands — three of its four zoning algorithms are pure statistics, the fourth is driven by a soil laboratory, and the rate column has no minimum, maximum or warning. The agronomist owns the number; the platform draws zones and writes the machine file. See `RESEARCH-vra-competitor-terra-oracle.md`. **Nobody in this market has solved the band problem, because nobody has had to own it.**
+
+**A remains the destination.** Every attributed rate is one an agronomist can later promote to `sourced` when MPOB Bulletin 72 or the DOA LCC lookup is in hand, and the audit trail will show which figures were judgement and which became citation.
+
+**Second decision, smaller — now answered by D.** `status` offers `sourced | decision_required | undefined | agronomy_reviewed`. A judgement rate is **not** a band and does not need a fifth value; it is recorded on the prescription instead.
+
+**Still open, and D depends on it:** which functional roles may set an attributed rate. The `prescription-maps` role matrix names Operator, Agronomist, Approver/Manager and Read-only, and **`Operator` is not one of the eight functional roles.** That mismatch must be resolved before attribution can be enforced, because the entitlement is the whole of the guardrail.
 
 ---
 

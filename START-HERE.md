@@ -11,7 +11,7 @@ Read this first. It tells you what state the project is in, what to paste next, 
 | Track | What it is | State |
 | --- | --- | --- |
 | **A** | The diagnostic surface | Built through Phase 10 |
-| **B** | Operational — findings, fields, blocks, VRA | B1–B3 built. **B4 unbuildable.** B5 not written. |
+| **B** | Operational — findings, fields, blocks, VRA | B1–B3, B5, B6, B7 built. **B4 stale** — written around validation only, needs rewriting around attribution. |
 | **C** | Executive and agency — the rollup surfaces | C1–C3 built and tested. **C4 written, not built.** C5 not written. |
 
 ---
@@ -42,7 +42,7 @@ The file carries the sourced point recommendations that did come back — rice f
 
 **Track C brief 5, assistance impact.** Last by design. Without a price basis it ships as mostly refusals, and the price basis runs through `farm_calibrated`, which runs through corroboration history.
 
-**Track B5, the board view.** A design brief rather than a discovery one — the task lifecycle already has all seven states and the only real question is which collapse into columns. My instinct: To do (draft plus scheduled), Assigned, In progress, Done, with overdue as a flag rather than a column, since an overdue task is still in one of the other states. Good filler phase when you need one.
+**Track B5, the board view.** Written, read-only, ready to paste. **Correcting what this file used to say:** it claimed the task lifecycle "already has all seven states". It does not — the docs never enumerate them. See `TRACK-B-5-board-view.md` §3, which cites what the docs do evidence and records the gap.
 
 **Phase 11, the final sweep.** Dark and light parity, three widths, no dead controls, across every screen. Hold it until Track C stops moving and do one pass over everything.
 

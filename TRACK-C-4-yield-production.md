@@ -1,6 +1,6 @@
 # Track C, Brief 4 — Yield production
 
-**Status: written, not built.** This is the next thing to paste.
+**Status: built.** Tested at three widths and through the Phase 12 density pass.
 
 Self-contained. **Attach nothing.** Every fact you need is inline. If something here contradicts your memory of an earlier phase, this file wins.
 

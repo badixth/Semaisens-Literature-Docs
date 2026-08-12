@@ -1,6 +1,14 @@
 # Track B, Brief 4 — Variable-rate application
 
-**Status: written, unbuildable.** Blocked on the rate bands — see `DECISION-rate-bands-do-not-exist.md`. Do not start this one.
+**Status: written, stale. Do not build from this file as it stands. Corrected 13 August 2026.**
+
+It was written when every band was `decision_required` and validation was the only route to a permitted rate. Both premises have changed: three oil palm peat rows are now `sourced`, and **attribution** is a second route (PR #5, merged). Three sections are wrong as a result:
+
+- **§4.3** says a rate outside the band is a refusal, full stop. It needs the attributed route.
+- **§3** gives `scout` **Generate ✓** and `regional` **Review ✓**. The live docs give `scout` upload only and `regional` nothing, and `viewer` lost its review tick because attaching a comment is a write.
+- The **unit** case is missing entirely: the three sourced rows are **per palm**, so a per-hectare submission must refuse on the unit before the min/max check.
+
+Rewrite around attribution before building. `PHASE-17-prescription-creation.md` is the current authority on this surface.
 
 Self-contained. **Attach nothing.** Every fact you need is inline. If something here contradicts your memory of an earlier phase, this file wins.
 
