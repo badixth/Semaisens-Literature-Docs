@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Playwright MCP output — console logs and screenshots from prototype testing
+.playwright-mcp/
+
+# Prototype test evidence and accessibility-tree dumps, referenced by nothing
+aggregation-spine.png
+d7-retest.png
+hazard-picker-overlap.png
+role-menu-vs-map-canvas.png
+nat.yaml
+
+# Local working notes — consolidated PHASE/design briefs, superseded by the
+# TRACK-* and PHASE-* record. Local only.
+LOCAL-WORKING-NOTES.md
+
+# Superseded prompt and ontology-layer drafts, kept locally for provenance
+archive/
+semai-crop-health-reading-study.html
