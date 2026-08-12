@@ -1,209 +1,99 @@
 ---
-title: "Troubleshooting Common Issues in the Google Platform"
+title: "Troubleshooting Common Issues in SemaiSens"
 sidebarTitle: "Troubleshooting"
-description: "Step-by-step fixes for missing imagery, API errors, failed exports, sync problems, low NDVI values, and mobile app issues in Google."
+description: "Step-by-step fixes for missing imagery, API errors, failed exports, sync problems, low NDVI values, and mobile app issues in SemaiSens."
 ---
 
-Most issues in Google have a straightforward fix. Work through the relevant section below to resolve your problem. If you are still stuck after following these steps, contact the support team — details are at the bottom of this page.
+Most issues in SemaiSens have a straightforward fix. Work through the relevant section below to resolve your problem. If you are still stuck after following these steps, contact the support team — details are at the bottom of this page.
 
 <Accordion title="No imagery for my field">
-  If a field is showing no imagery or a long gap in its timeline, work through
-  the following checks in order:
+  If a field is showing no imagery or a long gap in its timeline, work through the following checks in order:
 
-  1. **Check the cloud cover filter.** Navigate to **Settings → Preferences →
-     Cloud Cover Filter** and confirm the threshold is not set too low. A
-     setting of 10% or lower can exclude a large number of otherwise usable
-     scenes. The default value of 20% is recommended for most use cases.
-
-  2. **Verify the field boundary.** Open the field in the map view and confirm
-     the boundary is correctly drawn. Fields with an area smaller than 1
-     hectare are not processed for analysis — if your field is below this
-     threshold, adjust the boundary or combine it with an adjacent field.
-
-  3. **Confirm the field status is "Active."** Inactive fields are excluded
-     from imagery ingestion. Open **Fields → [Field Name] → Settings** and
-     check that the **Status** toggle is set to **Active**.
-
-  4. **Allow time for new fields.** Newly created fields are queued for imagery
-     ingestion automatically, but the first image may take up to **24 hours**
-     to appear depending on the next satellite overpass and processing queue.
+  1. **Check the cloud cover filter.** Navigate to **Settings → Preferences → Cloud Cover Filter** and confirm the threshold is not set too low. A setting of 10% or lower can exclude a large number of otherwise usable scenes. The default value of 20% is recommended for most use cases.
+  2. **Verify the field boundary.** Open the field in the map view and confirm the boundary is correctly drawn. Fields with an area smaller than 1 hectare are not processed for analysis — if your field is below this threshold, adjust the boundary or combine it with an adjacent field.
+  3. **Confirm the field status is "Active."** Inactive fields are excluded from imagery ingestion. Open **Fields → \[Field Name\] → Settings** and check that the **Status** toggle is set to **Active**.
+  4. **Allow time for new fields.** Newly created fields are queued for imagery ingestion automatically, but the first image may take up to **24 hours** to appear depending on the next satellite overpass and processing queue.
 
   <Warning>
-    If a field has shown no imagery for more than 72 hours and all the above
-    checks pass, contact support — there may be an issue with the ingestion
-    pipeline for your region.
+    If a field has shown no imagery for more than 72 hours and all the above checks pass, contact support — there may be an issue with the ingestion pipeline for your region.
   </Warning>
 </Accordion>
 
 <Accordion title="API returning 401 Unauthorized">
-  A `401 Unauthorized` response means the request could not be authenticated.
-  Check each of the following:
+  A `401 Unauthorized` response means the request could not be authenticated. Check each of the following:
 
-  1. **Verify the API key is correctly copied.** API keys are long strings —
-     ensure there are no leading or trailing spaces and that the full key is
-     present. Copy the key directly from **Settings → API Keys** rather than
-     from a notes file.
-
+  1. **Verify the API key is correctly copied.** API keys are long strings — ensure there are no leading or trailing spaces and that the full key is present. Copy the key directly from **Settings → API Keys** rather than from a notes file.
   2. **Check the Authorization header format.** The correct format is:
-     ```
+     ```text
      Authorization: Bearer YOUR_API_KEY
      ```
-     The word `Bearer` must be present and followed by a single space before
-     the key. Using just the key without the `Bearer` prefix will result in a
-     `401`.
-
-  3. **Check whether the key has been regenerated.** Regenerating an API key
-     immediately invalidates the previous key. If you recently regenerated your
-     key, update it in every integration, script, or application that uses it.
-     Navigate to **Settings → API Keys** to see when each key was last
-     generated.
+     The word `Bearer` must be present and followed by a single space before the key. Using just the key without the `Bearer` prefix will result in a `401`.
+  3. **Check whether the key has been regenerated.** Regenerating an API key immediately invalidates the previous key. If you recently regenerated your key, update it in every integration, script, or application that uses it. Navigate to **Settings → API Keys** to see when each key was last generated.
 </Accordion>
 
 <Accordion title="API returning 429 Too Many Requests">
-  A `429 Too Many Requests` response means you have exceeded the rate limit
-  for your plan. The response body includes a `Retry-After` header indicating
-  how many seconds to wait before retrying.
+  A `429 Too Many Requests` response means you have exceeded the rate limit for your plan. The response body includes a `Retry-After` header indicating how many seconds to wait before retrying.
 
-  1. **Implement exponential backoff.** Rather than retrying immediately, wait
-     for the number of seconds in the `Retry-After` header, then retry. If the
-     request fails again, double the wait time before the next attempt. Most
-     API client libraries support automatic retry with backoff.
-
-  2. **Review your request volume.** Check whether a script or integration is
-     sending redundant requests — for example, polling a field for new imagery
-     every few seconds rather than using webhooks.
-
-  3. **Use webhooks instead of polling.** Subscribe to the `imagery.available`
-     webhook event to be notified when new imagery is ready, eliminating the
-     need to poll the API. See the [API reference](/api/overview) for webhook
-     setup instructions.
-
-  4. **Contact support for Enterprise rate limit increases.** If your use case
-     genuinely requires higher throughput, contact
-     [support@example.com](mailto:support@example.com) to discuss a custom rate
-     limit for Enterprise plans.
+  1. **Implement exponential backoff.** Rather than retrying immediately, wait for the number of seconds in the `Retry-After` header, then retry. If the request fails again, double the wait time before the next attempt. Most API client libraries support automatic retry with backoff.
+  2. **Review your request volume.** Check whether a script or integration is sending redundant requests — for example, polling a field for new imagery every few seconds rather than using webhooks.
+  3. **Use webhooks instead of polling.** Subscribe to the `imagery.available` webhook event to be notified when new imagery is ready, eliminating the need to poll the API. See the [API reference](/api/overview) for webhook setup instructions.
+  4. **Contact support for Enterprise rate limit increases.** If your use case genuinely requires higher throughput, contact [support@example.com](mailto:support@example.com) to discuss a custom rate limit for Enterprise plans.
 </Accordion>
 
 <Accordion title="Prescription map export fails">
-  If an ISO-XML or other prescription map export fails or produces an error
-  message, check the following:
+  If an ISO-XML or other prescription map export fails or produces an error message, check the following:
 
-  1. **Ensure at least 2 management zones are defined.** Prescription maps
-     require a minimum of two management zones within the field boundary. Open
-     the field, navigate to the **Zones** tab, and confirm that zones are
-     defined and saved.
-
-  2. **Verify your subscription includes prescription exports.** Prescription
-     map creation and ISO-XML export are available on **Pro and Enterprise
-     plans only**. Navigate to **Settings → Billing** to confirm your current
-     plan.
-
-  3. **Match the export format to your equipment brand.** Different terminal
-     brands require different ISO-XML profiles. Select the correct equipment
-     brand in the export settings panel before downloading. If your brand is
-     not listed, select **Generic ISO-XML** or contact support.
+  1. **Ensure at least 2 management zones are defined.** Prescription maps require a minimum of two management zones within the field boundary. Open the field, navigate to the **Zones** tab, and confirm that zones are defined and saved.
+  2. **Verify your subscription includes prescription exports.** Prescription map creation and ISO-XML export are available on **Pro and Enterprise plans only**. Navigate to **Settings → Billing** to confirm your current plan.
+  3. **Match the export format to your equipment brand.** Different terminal brands require different ISO-XML profiles. Select the correct equipment brand in the export settings panel before downloading. If your brand is not listed, select **Generic ISO-XML** or contact support.
 </Accordion>
 
 <Accordion title="Farm management sync not working">
-  If a connected farm management platform shows a warning badge or has stopped
-  syncing, work through these steps:
+  If a connected farm management platform shows a warning badge or has stopped syncing, work through these steps:
 
-  1. **Re-authorize the integration.** Navigate to **Settings → Integrations →
-     [Platform Name]** and click **Re-authorize**. This refreshes the
-     connection and resolves most sync failures caused by permission changes.
-
-  2. **Check for expired OAuth tokens.** John Deere Operations Center OAuth
-     tokens expire **annually**. Google sends a reminder email 14 days before
-     expiry, but if you missed it, simply re-authorize from the Integrations
-     settings to generate a new token.
-
-  3. **Verify admin rights in the connected system.** Some sync operations —
-     particularly pushing prescription maps back to Operations Center — require
-     admin-level permissions in the connected farm management account. Confirm
-     with the account owner that your user role has the necessary access.
-
-  4. **Trigger a manual sync.** From **Settings → Integrations → [Platform
-     Name]**, click **Sync Now** to force an immediate sync attempt and review
-     any error messages returned.
+  1. **Re-authorize the integration.** Navigate to **Settings → Integrations → \[Platform Name\]** and click **Re-authorize**. This refreshes the connection and resolves most sync failures caused by permission changes.
+  2. **Check for expired OAuth tokens.** John Deere Operations Center OAuth tokens expire **annually**. SemaiSens sends a reminder email 14 days before expiry, but if you missed it, simply re-authorize from the Integrations settings to generate a new token.
+  3. **Verify admin rights in the connected system.** Some sync operations — particularly pushing prescription maps back to Operations Center — require admin-level permissions in the connected farm management account. Confirm with the account owner that your user role has the necessary access.
+  4. **Trigger a manual sync.** From **Settings → Integrations → \[Platform Name\]**, click **Sync Now** to force an immediate sync attempt and review any error messages returned.
 
   For additional guidance, see the [Farm Management integration guide](/integrations/farm-management).
 </Accordion>
 
 <Accordion title="NDVI values seem unexpectedly low">
-  Low NDVI readings are not always a sign of a problem with the platform.
-  Consider these common explanations before assuming a data error:
+  Low NDVI readings are not always a sign of a problem with the platform. Consider these common explanations before assuming a data error:
 
-  1. **Check the imagery date.** NDVI values naturally drop to near zero (or
-     below zero for bare soil) during planting season, after harvest, and
-     during winter dormancy. Compare the image date with your crop's growth
-     stage calendar to determine whether the values are seasonally appropriate.
-
-  2. **Switch to MSAVI2 for early-season analysis.** The Modified Soil-Adjusted
-     Vegetation Index (MSAVI2) is designed for sparse canopy conditions and
-     produces more meaningful readings early in the growing season when plant
-     cover is less than ~30%. Select **MSAVI2** from the index dropdown in the
-     field view.
-
-  3. **Verify the field boundary is clean.** If the boundary includes roads,
-     farm buildings, water bodies, or bare ground buffer areas, these
-     non-vegetation pixels will lower the field's average NDVI. Edit the
-     boundary to exclude non-crop areas for more accurate zonal statistics.
+  1. **Check the imagery date.** NDVI values naturally drop to near zero (or below zero for bare soil) during planting season, after harvest, and during winter dormancy. Compare the image date with your crop's growth stage calendar to determine whether the values are seasonally appropriate.
+  2. **Switch to MSAVI2 for early-season analysis.** The Modified Soil-Adjusted Vegetation Index (MSAVI2) is designed for sparse canopy conditions and produces more meaningful readings early in the growing season when plant cover is less than ~30%. Select **MSAVI2** from the index dropdown in the field view.
+  3. **Verify the field boundary is clean.** If the boundary includes roads, farm buildings, water bodies, or bare ground buffer areas, these non-vegetation pixels will lower the field's average NDVI. Edit the boundary to exclude non-crop areas for more accurate zonal statistics.
 </Accordion>
 
 <Accordion title="Mobile app not syncing scouting observations">
-  If scouting notes, photos, or observations created in the mobile app are not
-  appearing in the web platform, try the following:
+  If scouting notes, photos, or observations created in the mobile app are not appearing in the web platform, try the following:
 
-  1. **Check network connectivity.** Scouting observations are saved locally
-     on the device and uploaded to Google when a network connection is
-     available. Ensure the device has Wi-Fi or cellular data access and that
-     the app has permission to use background data.
-
-  2. **Force a manual sync.** Open the app menu (≡ icon, top-left) and tap
-     **Sync Now**. The sync status indicator in the menu will show the number
-     of items pending upload and confirm when the sync is complete.
-
-  3. **Re-login if the session has expired.** Mobile app sessions expire after
-     **30 days** of inactivity for security reasons. If you see a "Session
-     expired" message, log in again with your Google credentials. All locally
-     saved observations are preserved and will upload automatically after
-     re-authentication.
+  1. **Check network connectivity.** Scouting observations are saved locally on the device and uploaded to SemaiSens when a network connection is available. Ensure the device has Wi-Fi or cellular data access and that the app has permission to use background data.
+  2. **Force a manual sync.** Open the app menu (≡ icon, top-left) and tap **Sync Now**. The sync status indicator in the menu will show the number of items pending upload and confirm when the sync is complete.
+  3. **Re-login if the session has expired.** Mobile app sessions expire after **30 days** of inactivity for security reasons. If you see a "Session expired" message, log in again with your SemaiSens credentials. All locally saved observations are preserved and will upload automatically after re-authentication.
 </Accordion>
 
 ## Contact Support
 
 <Note>
-  If the steps above do not resolve your issue, the support team is ready to
-  help. Reach out via:
+  If the steps above do not resolve your issue, the support team is ready to help. Reach out via:
 
-  - **Email:** [support@example.com](mailto:support@example.com) — responses
-    within 1 business day on Pro plans, 4 hours on Enterprise plans.
-  - **In-app chat:** Click the chat bubble icon in the bottom-right corner of
-    any page in the Google dashboard for real-time support during business
-    hours.
+  - **Email:** [support@example.com](mailto:support@example.com) — responses within 1 business day on Pro plans, 4 hours on Enterprise plans.
+  - **In-app chat:** Click the chat bubble icon in the bottom-right corner of any page in the SemaiSens dashboard for real-time support during business hours.
 
-  When contacting support, include your account email, the affected field name
-  or ID, and any error messages you have seen — this helps the team diagnose
-  issues faster.
+  When contacting support, include your account email, the affected field name or ID, and any error messages you have seen — this helps the team diagnose issues faster.
 </Note>
 
 ## Related Resources
 
 <CardGroup cols={2}>
-  <Card
-    title="FAQ"
-    icon="circle-question"
-    href="/help/faq"
-  >
-    Browse answers to common questions about imagery, supported crops, data
-    retention, privacy, and account management.
+  <Card title="FAQ" icon="circle-question" href="/help/faq">
+    Browse answers to common questions about imagery, supported crops, data retention, privacy, and account management.
   </Card>
-  <Card
-    title="API Reference"
-    icon="code"
-    href="/api/overview"
-  >
-    Full documentation for the Google REST API, including authentication,
-    endpoints, rate limits, and webhook event types.
+
+  <Card title="API Reference" icon="code" href="/api/overview">
+    Full documentation for the SemaiSens REST API, including authentication, endpoints, rate limits, and webhook event types.
   </Card>
 </CardGroup>

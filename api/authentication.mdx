@@ -1,16 +1,16 @@
 ---
-title: "Google API Authentication: API Keys and Bearer Tokens"
+title: "SemaiSens API Authentication: API Keys and Bearer Tokens"
 sidebarTitle: "Authentication"
-description: "Generate and manage API keys in your Google dashboard, then authenticate every API request using a Bearer token in the Authorization header."
+description: "Generate and manage API keys in your SemaiSens dashboard, then authenticate every API request using a Bearer token in the Authorization header."
 ---
 
-Every request to the Google API must be authenticated using an API key. You generate and manage API keys directly in your account dashboard — no OAuth flow or client credentials are required. Once you have a key, include it as a Bearer token in the `Authorization` header of every request.
+Every request to the SemaiSens API must be authenticated using an API key. You generate and manage API keys directly in your account dashboard — no OAuth flow or client credentials are required. Once you have a key, include it as a Bearer token in the `Authorization` header of every request.
 
 ## Getting Your API Key
 
 <Steps>
   <Step title="Log in to your dashboard">
-    Go to [app.example.com](https://app.example.com) and sign in with your Google account credentials.
+    Go to [app.example.com](https://app.example.com) and sign in with your SemaiSens account credentials.
   </Step>
   <Step title="Open API Key settings">
     Navigate to **Settings → API Keys** in the left-hand navigation menu.
@@ -28,6 +28,7 @@ Every request to the Google API must be authenticated using an API key. You gene
 Pass your API key in the `Authorization` header as a Bearer token on every request.
 
 <CodeGroup>
+
 ```bash curl
 curl https://api.example.com/v1/fields \
   -H "Authorization: Bearer YOUR_API_KEY"
@@ -47,10 +48,11 @@ const response = await fetch('https://api.example.com/v1/fields', {
 });
 const data = await response.json();
 ```
+
 </CodeGroup>
 
 <Warning>
-  Never hard-code your API key in source code or commit it to a version control repository. Use environment variables (e.g., `GOOGLE_API_KEY`) or a secrets manager to inject the key at runtime. Anyone who obtains your key can make requests on your behalf.
+  Never hard-code your API key in source code or commit it to a version control repository. Use environment variables (e.g., `SEMAISENS_API_KEY`) or a secrets manager to inject the key at runtime. Anyone who obtains your key can make requests on your behalf.
 </Warning>
 
 ## Key Scopes
@@ -58,7 +60,7 @@ const data = await response.json();
 When creating a key, you assign it one of two scopes. Choose the most restrictive scope that satisfies your use case.
 
 | Scope | Permitted Operations | Recommended For |
-|---|---|---|
+| --- | --- | --- |
 | **Read Only** | `GET` requests only — list and retrieve resources | Dashboards, read-only reporting tools, third-party integrations that only need to display data |
 | **Read/Write** | All operations — `GET`, `POST`, `PATCH`, `DELETE` | Backend services that create fields, upload imagery, trigger reports, or manage webhooks |
 
@@ -77,6 +79,6 @@ To rotate a key, click **Regenerate** next to it in **Settings → API Keys**. T
 ## Authentication Error Responses
 
 | Status | Cause | Resolution |
-|---|---|---|
+| --- | --- | --- |
 | `401 Unauthorized` | The `Authorization` header is missing, malformed, or the key is invalid or deleted. | Verify the header format is `Bearer YOUR_API_KEY` and that the key exists in your dashboard. |
 | `403 Forbidden` | The key is valid but its scope does not permit the requested operation (e.g., a Read Only key attempting a `POST`). | Generate a Read/Write key or adjust the scope of the existing key. |

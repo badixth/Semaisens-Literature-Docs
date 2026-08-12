@@ -1,76 +1,45 @@
 ---
-title: "Connect Google to Your Precision Agriculture Stack"
+title: "Connect SemaiSens to Your Precision Agriculture Stack"
 sidebarTitle: "Overview"
-description: "Connect Google to farm management systems, precision ag equipment, and custom workflows through ready-made connectors, a REST API, and webhooks."
+description: "Connect SemaiSens to farm management systems, precision ag equipment, and custom workflows through ready-made connectors, a REST API, and webhooks."
 ---
 
-Google connects seamlessly to the tools you already rely on — from farm management software and equipment telematics to weather data providers and custom-built workflows. Whether you want a one-click sync with John Deere Operations Center or a fully custom integration via the REST API, Google fits into your existing precision agriculture stack without requiring you to change how you work.
+SemaiSens connects seamlessly to the tools you already rely on — from farm management software and equipment telematics to weather data providers and custom-built workflows. Whether you want a one-click sync with John Deere Operations Center or a fully custom integration via the REST API, SemaiSens fits into your existing precision agriculture stack without requiring you to change how you work.
 
 ## Integration Categories
 
 <CardGroup cols={2}>
-  <Card
-    title="Farm Management Systems"
-    icon="tractor"
-    href="/integrations/farm-management"
-  >
-    Sync field boundaries, crop plans, prescription maps, and as-applied data
-    with John Deere Operations Center, Climate FieldView, Granular, and SST.
+  <Card title="Farm Management Systems" icon="tractor" href="/integrations/farm-management">
+    Sync field boundaries, crop plans, prescription maps, and as-applied data with John Deere Operations Center, Climate FieldView, Granular, and SST.
   </Card>
-  <Card
-    title="Equipment Telematics"
-    icon="satellite-dish"
-  >
-    Pull live and historical machine data from John Deere, AGCO, and CNH
-    equipment to correlate field health trends with actual machine passes and
-    application events.
+
+  <Card title="Equipment Telematics" icon="satellite-dish">
+    Pull live and historical machine data from John Deere, AGCO, and CNH equipment to correlate field health trends with actual machine passes and application events.
   </Card>
-  <Card
-    title="Weather Data"
-    icon="cloud-sun"
-  >
-    ERA5 reanalysis weather data is ingested automatically for every field you
-    manage. Optionally connect a personal weather station (PWS) to supplement
-    satellite-derived estimates with hyper-local observations.
+
+  <Card title="Weather Data" icon="cloud-sun">
+    ERA5 reanalysis weather data is ingested automatically for every field you manage. Optionally connect a personal weather station (PWS) to supplement satellite-derived estimates with hyper-local observations.
   </Card>
-  <Card
-    title="Custom Integrations"
-    icon="code"
-    href="/api/overview"
-  >
-    Build your own integrations using the Google REST API and webhook system.
-    Trigger workflows on new imagery, export analysis results, or push
-    prescription maps to any downstream system.
+
+  <Card title="Custom Integrations" icon="code" href="/api/overview">
+    Build your own integrations using the SemaiSens REST API and webhook system. Trigger workflows on new imagery, export analysis results, or push prescription maps to any downstream system.
   </Card>
-  <Card
-    title="Data Export"
-    icon="file-export"
-    href="/integrations/data-export"
-  >
-    Download your field data and imagery in GeoJSON, Shapefile, GeoTIFF, CSV,
-    ISO-XML, or PDF formats for use in external GIS tools, reports, and
-    equipment controllers.
+
+  <Card title="Data Export" icon="file-export" href="/integrations/data-export">
+    Download your field data and imagery in GeoJSON, Shapefile, GeoTIFF, CSV, ISO-XML, or PDF formats for use in external GIS tools, reports, and equipment controllers.
   </Card>
 </CardGroup>
 
 ## Subscription Requirements
 
 <Note>
-  Some integrations are available on all plans, while others require a Pro or
-  Enterprise subscription. Equipment telematics connectors (John Deere, AGCO,
-  CNH), personal weather station connections, and ISO-XML prescription exports
-  are available on **Pro and Enterprise plans only**. Visit
-  **Settings → Billing** for a full breakdown of what is included at each
-  tier.
+  Some integrations are available on all plans, while others require a Pro or Enterprise subscription. Equipment telematics connectors (John Deere, AGCO, CNH), personal weather station connections, and ISO-XML prescription exports are available on **Pro and Enterprise plans only**. Visit **Settings → Billing** for a full breakdown of what is included at each tier.
 </Note>
 
 ## Setting Up an Integration
 
-To browse and activate available connectors, navigate to **Settings → Integrations** in the Google dashboard. Each connector card shows its current status, the data it exchanges, and any authentication steps required. Select a connector to begin the setup flow — most take fewer than five minutes to configure.
+To browse and activate available connectors, navigate to **Settings → Integrations** in the SemaiSens dashboard. Each connector card shows its current status, the data it exchanges, and any authentication steps required. Select a connector to begin the setup flow — most take fewer than five minutes to configure.
 
 <Tip>
-  If you manage multiple farm operations or organizations, you can activate the
-  same integration separately for each organization. Navigate to the
-  organization selector in the top navigation bar before opening
-  **Settings → Integrations** to ensure you are configuring the correct account.
+  If you manage multiple farm operations or organizations, you can activate the same integration separately for each organization. Navigate to the organization selector in the top navigation bar before opening **Settings → Integrations** to ensure you are configuring the correct account.
 </Tip>

@@ -1,102 +1,71 @@
 ---
-title: "Sync Google with Farm Management Software Platforms"
+title: "Sync SemaiSens with Farm Management Software Platforms"
 sidebarTitle: "Farm Management"
-description: "Connect Google to John Deere Operations Center, Climate FieldView, and Granular to keep field boundaries, plans, and prescription maps in sync."
+description: "Connect SemaiSens to John Deere Operations Center, Climate FieldView, and Granular to keep field boundaries, plans, and prescription maps in sync."
 ---
 
-Google integrates directly with the most widely used farm management software platforms, eliminating the need to manually export and re-import data between systems. Once connected, field boundaries, crop plans, as-applied records, and prescription maps stay in sync automatically — so you can act on satellite and drone insights without leaving the tools your team already uses.
+SemaiSens integrates directly with the most widely used farm management software platforms, eliminating the need to manually export and re-import data between systems. Once connected, field boundaries, crop plans, as-applied records, and prescription maps stay in sync automatically — so you can act on satellite and drone insights without leaving the tools your team already uses.
 
 ## Connecting a Platform
 
 <Tabs>
   <Tab title="John Deere">
-    Connecting Google to John Deere Operations Center lets you pull field
-    boundaries and machine data directly from your MyJohnDeere account and push
-    prescription maps back to the Operations Center for equipment delivery.
+    Connecting SemaiSens to John Deere Operations Center lets you pull field boundaries and machine data directly from your MyJohnDeere account and push prescription maps back to the Operations Center for equipment delivery.
 
     <Steps>
       <Step title="Open the Integrations settings">
-        In Google, navigate to **Settings → Integrations → John Deere** and
-        click **Connect**.
+        In SemaiSens, navigate to **Settings → Integrations → John Deere** and click **Connect**.
       </Step>
       <Step title="Authorize with MyJohnDeere">
-        You are redirected to the John Deere authorization portal. Sign in with
-        your MyJohnDeere credentials and grant Google the requested permissions.
-        Then click **Allow** to return to Google.
+        You are redirected to the John Deere authorization portal. Sign in with your MyJohnDeere credentials and grant SemaiSens the requested permissions. Then click **Allow** to return to SemaiSens.
       </Step>
       <Step title="Select organizations to sync">
-        After authorization, Google displays all organizations associated with
-        your MyJohnDeere account. Select the organizations whose fields you want
-        to sync and click **Save Selection**.
+        After authorization, SemaiSens displays all organizations associated with your MyJohnDeere account. Select the organizations whose fields you want to sync and click **Save Selection**.
       </Step>
       <Step title="Confirm the sync">
-        Field boundaries and available machine data begin syncing immediately.
-        You will see imported fields appear in your Fields list within a few
-        minutes. Imagery analysis runs automatically for all newly imported
-        active fields.
+        Field boundaries and available machine data begin syncing immediately. You will see imported fields appear in your Fields list within a few minutes. Imagery analysis runs automatically for all newly imported active fields.
       </Step>
     </Steps>
 
     <Note>
-      John Deere OAuth tokens expire annually. Google will notify you 14 days
-      before expiry so you can re-authorize without interruption. See
-      [Troubleshooting](/help/troubleshooting) if your sync stops unexpectedly.
+      John Deere OAuth tokens expire annually. SemaiSens will notify you 14 days before expiry so you can re-authorize without interruption. See [Troubleshooting](/help/troubleshooting) if your sync stops unexpectedly.
     </Note>
   </Tab>
   <Tab title="Climate FieldView">
-    The Climate FieldView integration uses FieldView's OAuth API to push Google
-    imagery and analysis results directly into your FieldView account, where
-    your agronomist or advisor can view them alongside other field data.
+    The Climate FieldView integration uses FieldView's OAuth API to push SemaiSens imagery and analysis results directly into your FieldView account, where your agronomist or advisor can view them alongside other field data.
 
     <Steps>
       <Step title="Open the Integrations settings">
-        In Google, navigate to **Settings → Integrations → Climate FieldView**
-        and click **Connect**.
+        In SemaiSens, navigate to **Settings → Integrations → Climate FieldView** and click **Connect**.
       </Step>
       <Step title="Authorize with FieldView">
-        You are redirected to the Climate FieldView login page. Sign in and
-        click **Authorize** to grant Google permission to read and write field
-        data on your behalf.
+        You are redirected to the Climate FieldView login page. Sign in and click **Authorize** to grant SemaiSens permission to read and write field data on your behalf.
       </Step>
       <Step title="Select fields to sync">
-        Google displays all fields found in your FieldView account. Choose which
-        fields you want to link and click **Confirm Selection**. You can update
-        this selection at any time from **Settings → Integrations → Climate
-        FieldView → Manage Fields**.
+        SemaiSens displays all fields found in your FieldView account. Choose which fields you want to link and click **Confirm Selection**. You can update this selection at any time from **Settings → Integrations → Climate FieldView → Manage Fields**.
       </Step>
       <Step title="View imagery in FieldView">
-        Google automatically pushes processed NDVI and crop health imagery to
-        FieldView on a daily basis. Open FieldView and navigate to a synced
-        field to see the latest analysis layers.
+        SemaiSens automatically pushes processed NDVI and crop health imagery to FieldView on a daily basis. Open FieldView and navigate to a synced field to see the latest analysis layers.
       </Step>
     </Steps>
   </Tab>
   <Tab title="Granular">
-    The Granular integration uses an API key to read field and crop plan data
-    from your Granular account and keep it synchronized with Google.
+    The Granular integration uses an API key to read field and crop plan data from your Granular account and keep it synchronized with SemaiSens.
 
     <Steps>
       <Step title="Generate an API key in Granular">
-        Log in to Granular, navigate to **Settings → Integrations**, and
-        generate a new API key for Google. Copy the key — you will not be able
-        to view it again after leaving the page.
+        Log in to Granular, navigate to **Settings → Integrations**, and generate a new API key for SemaiSens. Copy the key — you will not be able to view it again after leaving the page.
       </Step>
-      <Step title="Paste the key into Google">
-        In Google, navigate to **Settings → Integrations → Granular**. Paste
-        your Granular API key into the **API Key** field and click **Save &
-        Connect**.
+      <Step title="Paste the key into SemaiSens">
+        In SemaiSens, navigate to **Settings → Integrations → Granular**. Paste your Granular API key into the **API Key** field and click **Save & Connect**.
       </Step>
       <Step title="Verify the connection">
-        Google validates your key and displays a confirmation message along with
-        the number of fields and farm operations found in your Granular account.
-        Field boundaries begin syncing immediately.
+        SemaiSens validates your key and displays a confirmation message along with the number of fields and farm operations found in your Granular account. Field boundaries begin syncing immediately.
       </Step>
     </Steps>
 
     <Tip>
-      If you use Granular across multiple farming operations, generate a
-      separate API key for each operation in Granular and add each key as its
-      own connection in Google to keep data correctly partitioned.
+      If you use Granular across multiple farming operations, generate a separate API key for each operation in Granular and add each key as its own connection in SemaiSens to keep data correctly partitioned.
     </Tip>
   </Tab>
 </Tabs>
@@ -105,20 +74,16 @@ Google integrates directly with the most widely used farm management software pl
 
 The table below shows which data types are exchanged with each supported platform. A ✓ indicates the data type syncs automatically once the integration is active.
 
-| Data Type            | John Deere | Climate FieldView | Granular |
-|----------------------|:----------:|:-----------------:|:--------:|
-| Field Boundaries     | ✓          | ✓                 | ✓        |
-| Crop Plans           | ✓          | ✓                 | ✓        |
-| As-Applied Data      | ✓          |                   | ✓        |
-| Prescription Maps    | ✓          |                   |          |
-| Yield Maps           | ✓          | ✓                 | ✓        |
+| Data Type | John Deere | Climate FieldView | Granular |
+| --- | :-: | :-: | :-: |
+| Field Boundaries | ✓ | ✓ | ✓ |
+| Crop Plans | ✓ | ✓ | ✓ |
+| As-Applied Data | ✓ |  | ✓ |
+| Prescription Maps | ✓ |  |  |
+| Yield Maps | ✓ | ✓ | ✓ |
 
 <Note>
-  **Sync frequency:** Field boundary changes sync immediately after they are
-  detected. Imagery layers and analysis results sync once per day, typically
-  between midnight and 4:00 AM in your account's configured timezone. Manual
-  syncs can be triggered at any time from **Settings → Integrations → [Platform
-  Name] → Sync Now**.
+  **Sync frequency:** Field boundary changes sync immediately after they are detected. Imagery layers and analysis results sync once per day, typically between midnight and 4:00 AM in your account's configured timezone. Manual syncs can be triggered at any time from **Settings → Integrations → \[Platform Name\] → Sync Now**.
 </Note>
 
 ## Troubleshooting Sync Issues
