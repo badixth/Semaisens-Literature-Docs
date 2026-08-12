@@ -83,7 +83,7 @@ Field Alerts are the data-driven category inside [Activity & Alerts](/guides/act
     </Warning>
   </Tab>
   <Tab title="Webhook">
-    Enter your endpoint URL. Google sends a `POST` request to that URL with a JSON payload every time the alert fires. Webhook delivery is ideal for integrating alerts into farm management software, Slack channels, or custom dashboards.
+    Enter your endpoint URL. SemaiSens sends a `POST` request to that URL with a JSON payload every time the alert fires. Webhook delivery is ideal for integrating alerts into farm management software, Slack channels, or custom dashboards.
 
     Your endpoint must respond with HTTP `200` within 10 seconds. Failed deliveries follow the platform-wide webhook retry policy documented in [API Webhooks](/api/webhooks#retry-policy); on terminal failure the alert transitions to `delivery_failed` and escalates per the Guardrails section below. Review delivery logs under **Settings \> Alerts \> Webhook Logs**.
 
@@ -93,7 +93,7 @@ Field Alerts are the data-driven category inside [Activity & Alerts](/guides/act
 
 ## Webhook Payload Example
 
-When an NDVI Drop alert fires, Google sends a payload structured like this:
+When an NDVI Drop alert fires, SemaiSens sends a payload structured like this:
 
 ```json
 {

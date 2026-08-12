@@ -4,7 +4,7 @@ sidebarTitle: "Webhooks"
 description: "Register HTTPS endpoints to receive real-time POST notifications for imagery availability, triggered alerts, completed reports, and field change events."
 ---
 
-Webhooks let you receive real-time HTTP POST notifications when events occur in the Google platform. Instead of repeatedly polling the API to check whether new imagery has been ingested or a report has finished generating, you register an HTTPS endpoint and the platform delivers a JSON payload to that URL the moment the event occurs. Use webhooks to build reactive, event-driven integrations — triggering downstream analysis, sending farm notifications, or syncing data to external systems with minimal latency.
+Webhooks let you receive real-time HTTP POST notifications when events occur in the SemaiSens platform. Instead of repeatedly polling the API to check whether new imagery has been ingested or a report has finished generating, you register an HTTPS endpoint and the platform delivers a JSON payload to that URL the moment the event occurs. Use webhooks to build reactive, event-driven integrations — triggering downstream analysis, sending farm notifications, or syncing data to external systems with minimal latency.
 
 ## Supported Events
 
@@ -50,7 +50,7 @@ Register a new webhook endpoint.
 </ParamField>
 
 <ParamField body="secret" type="string">
-  A secret string used to generate an HMAC-SHA256 signature for each delivery. The signature is sent in the `X-Google-Signature` header so you can verify the payload originated from the platform. Strongly recommended — see [Signature Verification](#verifying-webhook-signatures) below.
+  A secret string used to generate an HMAC-SHA256 signature for each delivery. The signature is sent in the `X-Semai-Signature` header so you can verify the payload originated from the platform. Strongly recommended — see [Signature Verification](#verifying-webhook-signatures) below.
 </ParamField>
 
 ### Example Request
@@ -122,9 +122,9 @@ Every event delivery is an HTTP POST to your registered URL with the following h
 
 | Header | Description |
 | --- | --- |
-| `X-Google-Event` | The event type string (e.g., `imagery.available`). |
-| `X-Google-Signature` | An HMAC-SHA256 hex digest of the raw request body, signed using your webhook secret. Use this to verify the payload is authentic. |
-| `X-Google-Timestamp` | The Unix timestamp (seconds) at which the event was dispatched. |
+| `X-Semai-Event` | The event type string (e.g., `imagery.available`). |
+| `X-Semai-Signature` | An HMAC-SHA256 hex digest of the raw request body, signed using your webhook secret. Use this to verify the payload is authentic. |
+| `X-Semai-Timestamp` | The Unix timestamp (seconds) at which the event was dispatched. |
 | `Content-Type` | Always `application/json`. |
 
 ### Example Payload
@@ -147,7 +147,7 @@ Every event delivery is an HTTP POST to your registered URL with the following h
 
 ## Verifying Webhook Signatures
 
-Verify the `X-Google-Signature` header on every inbound delivery to confirm that the payload was sent by the Google platform and has not been tampered with. Use the secret you provided when registering the webhook.
+Verify the `X-Semai-Signature` header on every inbound delivery to confirm that the payload was sent by the SemaiSens platform and has not been tampered with. Use the secret you provided when registering the webhook.
 
 ```python
 import hmac
@@ -162,7 +162,7 @@ def verify_signature(payload_bytes, signature_header, secret):
     return hmac.compare_digest(expected, signature_header)
 ```
 
-Call this function with the raw request body bytes, the value of the `X-Google-Signature` header, and your webhook secret. Return `403 Forbidden` to the sender if verification fails.
+Call this function with the raw request body bytes, the value of the `X-Semai-Signature` header, and your webhook secret. Return `403 Forbidden` to the sender if verification fails.
 
 <Note>
   Always use `hmac.compare_digest` (or your language's equivalent constant-time comparison) rather than `==` to prevent timing attacks when comparing the expected and actual signatures.

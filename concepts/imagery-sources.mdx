@@ -9,11 +9,11 @@ The platform aggregates imagery from multiple satellite constellations and drone
 ## Satellite Sources
 
 | Satellite | Provider | Resolution | Revisit Rate | Cost |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Sentinel-2 | ESA (European Space Agency) | 10 m | ~5 days | Free (included) |
 | Landsat 8 / 9 | USGS | 30 m | 16 days | Free (included) |
 | Planet PlanetScope | Planet Labs (commercial) | 3 m | Daily | Requires Planet subscription |
-| Maxar | Maxar Technologies (commercial) | < 0.5 m | On demand | Requires Maxar subscription |
+| Maxar | Maxar Technologies (commercial) | \< 0.5 m | On demand | Requires Maxar subscription |
 
 ## Automatic vs. Manual Imagery
 
@@ -23,10 +23,10 @@ Sentinel-2 and Landsat 8/9 imagery is ingested automatically for all registered 
 
 **Commercial imagery (subscription required)**
 
-Planet and Maxar imagery requires a separate commercial subscription with those providers. Once you have a subscription, connect it to the platform by navigating to **Settings > Imagery Sources** and entering your API credentials. After connecting, high-resolution imagery will be automatically ingested alongside free sources for all active fields.
+Planet and Maxar imagery requires a separate commercial subscription with those providers. Once you have a subscription, connect it to the platform by navigating to **Settings \> Imagery Sources** and entering your API credentials. After connecting, high-resolution imagery will be automatically ingested alongside free sources for all active fields.
 
 <Warning>
-  Commercial imagery costs are governed by your agreement with Planet or Maxar and are billed directly by those providers — not through the Google Agriculture Platform. Connecting a commercial account will cause the platform to make imagery requests on your behalf, which may count against your subscription quota. Review your provider's pricing before enabling automatic high-resolution ingestion.
+  Commercial imagery costs are governed by your agreement with Planet or Maxar and are billed directly by those providers — not through SemaiSens. Connecting a commercial account will cause the platform to make imagery requests on your behalf, which may count against your subscription quota. Review your provider's pricing before enabling automatic high-resolution ingestion.
 </Warning>
 
 ## Drone Imagery
@@ -36,7 +36,7 @@ When satellite resolution is not sufficient for the detail level your scouting r
 **Supported formats and specifications**
 
 | Attribute | Supported Values |
-|---|---|
+| --- | --- |
 | File format | GeoTIFF (`.tif`, `.tiff`) |
 | Band configurations | RGB, NDVI single-band, multispectral (5-band) |
 | Maximum file size | 2 GB per upload |
@@ -72,7 +72,7 @@ Optical satellite imagery is only useful when the sky above your field is clear.
 
 If you work in a persistently cloudy region or need to capture data during a cloudy period, you can adjust the cloud cover threshold:
 
-1. Go to **Settings > Preferences > Cloud Cover Filter**.
+1. Go to **Settings \> Preferences \> Cloud Cover Filter**.
 2. Move the slider to your desired maximum cloud cover percentage (0–100%).
 3. Save your preferences. The new threshold applies to all future image ingestion for your organization.
 

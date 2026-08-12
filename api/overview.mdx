@@ -1,16 +1,16 @@
 ---
-title: "Google REST API: Complete Developer Reference Guide"
+title: "SemaiSens REST API: Complete Developer Reference Guide"
 sidebarTitle: "Overview"
-description: "Explore the Google REST API to programmatically manage fields, retrieve satellite imagery, calculate vegetation indices, and receive real-time webhooks."
+description: "Explore the SemaiSens REST API to programmatically manage fields, retrieve satellite imagery, calculate vegetation indices, and receive real-time webhooks."
 ---
 
-The Google REST API gives you programmatic access to every feature on the platform. Use it to register and manage field boundaries, retrieve satellite and aerial imagery, calculate vegetation indices like NDVI and NDRE, generate agronomic reports, and receive real-time notifications via webhooks — all from your own applications and workflows.
+The SemaiSens REST API gives you programmatic access to every feature on the platform. Use it to register and manage field boundaries, retrieve satellite and aerial imagery, calculate vegetation indices like NDVI and NDRE, generate agronomic reports, and receive real-time notifications via webhooks — all from your own applications and workflows.
 
 ## Base URL
 
 All API requests are made to the following base URL. Include `/v1/` in every request path.
 
-```
+```text
 https://api.example.com/v1
 ```
 
@@ -20,21 +20,27 @@ https://api.example.com/v1
   <Card title="Authentication" icon="key" href="/api/authentication">
     Learn how to generate API keys and authenticate every request with a Bearer token.
   </Card>
+
   <Card title="Rate Limits" icon="gauge" href="/api/rate-limits">
     Understand request quotas by plan and how to implement exponential backoff.
   </Card>
+
   <Card title="Fields" icon="map" href="/api/fields">
     Register field boundaries, set crop metadata, and manage your field portfolio.
   </Card>
+
   <Card title="Imagery" icon="satellite-dish" href="/api/imagery">
     Browse satellite passes, filter by cloud cover, and upload drone orthomosaics.
   </Card>
+
   <Card title="Indices" icon="leaf" href="/api/indices">
     Calculate NDVI, NDRE, NDWI, EVI, and custom band-math indices for your fields.
   </Card>
+
   <Card title="Reports" icon="file-chart-line" href="/api/reports">
     Generate scouting summaries, seasonal analyses, and prescription maps.
   </Card>
+
   <Card title="Webhooks" icon="bell" href="/api/webhooks">
     Subscribe to real-time events for new imagery, triggered alerts, and ready reports.
   </Card>
@@ -55,7 +61,7 @@ All responses are returned as JSON. The API uses standard HTTP status codes to i
 **Successful responses**
 
 | Status Code | Meaning |
-|---|---|
+| --- | --- |
 | `200 OK` | The request succeeded and a response body is returned. |
 | `201 Created` | A new resource was created. The response body contains the created object. |
 | `204 No Content` | The request succeeded and there is no response body (e.g., DELETE). |
@@ -77,7 +83,7 @@ When a request fails, the API returns an error object with a machine-readable `c
 ## Standard Error Codes
 
 | Status | Code | Description |
-|---|---|---|
+| --- | --- | --- |
 | `400` | Bad Request | The request body or query parameters are malformed or missing required fields. |
 | `401` | Unauthorized | The API key is missing, expired, or invalid. |
 | `403` | Forbidden | The API key does not have permission to perform the requested action. |
