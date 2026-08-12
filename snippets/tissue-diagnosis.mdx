@@ -1,0 +1,63 @@
+---
+title: "Reading a Tissue Analysis"
+sidebarTitle: "Tissue Diagnosis"
+description: "How the platform reads a leaf tissue result against a generic band, why only one nutrient verdict is valid at a time, and where it refuses to grade."
+hidden: true
+---
+
+A **tissue band** is a range on a laboratory measurement of the plant — % N in a rubber Whorl 2 leaf, % K in a pineapple D-leaf. It is not an index band and not a rate band. It fires when a _laboratory_ reports a number.
+
+## Only one nutrient verdict is valid at a time
+
+A lab report returns every nutrient it was asked for. **That is not a set of independent verdicts.**
+
+Critical-level foliar diagnosis is calibrated near the optimum. Once a plant is short of more than one nutrient the nutrients interact, and the individual ratings stop meaning what they mean in isolation. Established for oil palm by Foster (2003, via Goh / AAR):
+
+> "if any nutrient is found to be very deficient, or more than one nutrient is deficient, then the deficiency rating of **only the most deficient nutrient is considered to be valid**… This implies that the system only works if the nutritional state of the palm is near the optimum."
+
+The reasoning is a property of critical-level systems generally rather than of oil palm, so it applies to the rubber Whorl 2 and pineapple D-leaf tables on the same terms.
+
+<Warning>
+  The platform names the **single most deficient nutrient** and refuses the rest, with the reason. It does not render five verdicts side by side.
+
+  A refused verdict is stated, not hidden. The measured value is still shown, and the reason for withholding the rating is shown with it.
+</Warning>
+
+## These bands are generic, and are not site-calibrated
+
+Every tissue band in this documentation is a **generic range for the crop**. None carries a site, soil group, clone, cultivar, stand age, season or sampling-method qualifier, because no published Malaysian source supplies one.
+
+That is a real limit, not a formality. Optimum concentration varies with all of those things. Foster's site-computed oil palm K band is **0.77 – 0.86%** where the generic mature band is **0.90 – 1.20%** — a leaf at 0.88% reads _deficient_ on one and _high_ on the other. The two disagree by design.
+
+## So the platform refuses to grade the middle
+
+The obvious way to handle this would be a margin — refuse within some percentage of a tier edge. It does not survive the evidence above: those two K bands disagree by roughly **43% of the tier width**, so any margin small enough to be useful is far too small to catch the case that motivates the rule.
+
+Instead the rule uses the structure the tables already have.
+
+**On rubber**, the four tiers do not all carry a verdict:
+
+| Tier | Resolves? | Why |
+| --- | :-: | --- |
+| Deficient | Yes | Well below any plausible site-calibrated floor. |
+| Marginal | **No** | This tier exists _because_ the transition is not sharp. It is the table's own admission of uncertainty, and on a generic band it cannot be read as a rating. |
+| Optimal | Yes |  |
+| High | **No** | Not because of scope — because **no page states what High means or what to do about it.** A rating with no consequence is not a verdict. |
+
+**On pineapple**, the targets are single ranges with no tiers. A range without tiers supports _inside_ or _outside_ and nothing finer. The platform states whether the value falls in the generic target and **does not grade how far outside** it sits.
+
+Where a rating is refused, the measured value and the band are both shown. **The refusal is a statement about the band, not about the sample.**
+
+## What would lift these limits
+
+A tissue band carries its scope or it is not a band. Scoping these would need the source tables they descend from — for rubber, most likely the RRIM clone-group tables, which key the band to clone group. Until those are in hand, the generic ranges stay and are marked as generic.
+
+<Note>
+  **Oil palm and rice have no tissue bands at all.** Oil palm instructs frond 17 sampling on seven pages and states no concentration anywhere. Rice mandates recording a leaf colour chart or SPAD reading at every scout stop with no threshold published to read it against. Both are gaps, not refusals.
+</Note>
+
+## Related
+
+- [How a band resolves](/snippets/band-resolution)
+- [Rubber Diagnosis](/guides/Crop/Rubber/rubber-diagnosis)
+- [Pineapple Diagnosis](/guides/Crop/Pineapple/pineapple-diagnosis)
