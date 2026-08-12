@@ -299,10 +299,13 @@ A band is one row keyed on **crop × product** with a **minimum**, a **maximum**
 
 Every band on this page is stated in **kg of product per hectare** (`kg product/ha`), never kg of nutrient. The two differ by the product's nutrient fraction (urea is ~46% N, MOP is ~60% K₂O, kieserite is ~27% MgO), and a validator that silently accepts one for the other corrupts every rate it passes. Where a Malaysian source publishes a recommendation in kg nutrient/ha, the conversion to the specified product form is applied and the source figure is preserved in the citation.
 
-Two exceptions, both explicit:
+Three exceptions, all explicit:
 
 - **Ethephon (pineapple forcing)** is stated in **mL of formulated product per plant** at the labelled active-ingredient concentration, because that is how the Malaysian label directs it and how it is applied. It is not a hectare rate.
 - **Foliar borate on oil palm** is stated in **g product per palm**, because MPOB extension publishes it per palm and per-hectare conversion depends on stand density.
+- **The three sourced oil palm peat rows** are stated in **kg product per palm per year**, because MPOB publishes them that way. **Added 13 August 2026** — this paragraph said "two exceptions" after those rows had already landed.
+
+**A unit mismatch is refused, never converted.** Per-hectare against a per-palm band needs a stand density the platform does not hold as a field, so the conversion would be an invented figure. The refusal names the unit the band expects.
 
 The unit is part of the band. A prescription submitted in a different unit is rejected before the min/max check even runs.
 
@@ -438,9 +441,14 @@ Surfaced explicitly so they are not lost in the table:
 
 Concretely:
 
-- The VRA Maps **Input validation** guardrail rejects a prescription whose `(crop, product)` pair has no `product_bands` entry, or has an entry with `status: decision_required` or `status: undefined`. The rejection cites the missing band by id and links here.
-- The Semai Advisor treats the same missing band as a **hard refusal**, not a confirmation prompt. Confirmation only applies where a band exists and the requested rate is outside it. Where no band exists at all, the advisor refuses and states which band is missing.
-- The Failure Modes trigger _"requests an action that would exceed agronomic min/max rates"_ extends to _"requests an action for a crop-product pair with no defined band."_ Both fire the same degradation.
+<Note>
+  **Amended 13 August 2026.** The three bullets below were written before [Attribution](#attribution-the-second-route-to-a-permitted-rate) existed, and said flatly that a missing band rejects. **A missing band alone no longer rejects — a missing band _and_ no named author does.** They are corrected here so this section and the next agree.
+</Note>
+
+- The VRA Maps **Input validation** guardrail rejects a prescription whose `(crop, product)` pair has no `product_bands` entry, or has an entry with `status: decision_required` or `status: undefined`, **and whose rate carries no named entitled author**. The rejection cites the missing band by id and links here. Where an entitled author has set the rate, it passes as **attributed** and is labelled as such on the prescription.
+- The Semai Advisor treats a missing band with no author as a **hard refusal**, not a confirmation prompt. Confirmation only applies where a band exists and the requested rate is outside it. **The advisor may never supply the author itself** — a pre-filled rate is unattributed until a person sets or accepts it, so the advisor's own drafts refuse until someone signs them.
+- The Failure Modes trigger _"requests an action that would exceed agronomic min/max rates"_ extends to _"requests an action for a crop-product pair with no defined band and no named author."_ Both fire the same degradation.
+- **The unit is checked before the value.** A rate whose unit does not match its band — a per-hectare figure against a per-palm band — is refused on the unit, and no min/max comparison is attempted. Converting silently would fabricate a figure.
 
 A missing guardrail fails closed. That is the difference between _we have not sourced this yet_ and _any rate is acceptable here_, and the second one puts fertiliser on the ground.
 

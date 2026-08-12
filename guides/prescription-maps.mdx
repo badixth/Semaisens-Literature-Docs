@@ -16,6 +16,22 @@ Variable-Rate Application (VRA) divides a field into **management zones** - grou
 
 Semai automates zone delineation using the vegetation index of your choice, then lets you assign and fine-tune rates per zone before exporting a file your equipment can execute directly.
 
+## What actually validates today
+
+**Read this before the walkthrough below.** Zoning works for every crop. **Rates are the constrained part**, and most of them do not validate against a published band, because for most crop-product pairs no published band exists.
+
+|  |  |
+| --- | --- |
+| **Validated against a sourced band** | Oil palm on **peat** only, and only three products: MOP 4.0 – 6.0, urea 0.5 – 0.6, rock phosphate ceiling 1.0 — all **kg per palm per year** (MPOB–SOPPOA 2016). |
+| **Permitted by attribution** | Everything else, **provided a named entitled person sets the rate.** `agronomist`, `approver` and `estate_manager` may; `scout` may not. The prescription then shows the rate as attributed, with who set it and when. |
+| **Refused** | A rate with **neither** a sourced band nor a named author. Restricted products regardless of who signs. Any rate whose unit does not match its band. |
+
+<Warning>
+  **The three sourced rows are per palm, not per hectare.** A per-hectare rate submitted against them is refused **on the unit**, before any min/max comparison — the numbers are not comparable and converting them silently would be a fabricated figure.
+</Warning>
+
+Eleven other crop-product rows are `decision_required` and will stay that way until an agronomist fills them from primary documents. See the [Risk Model](/concepts/risk-model) for the table and the open sourcing questions.
+
 <Info>
   Management zones derived from multi-date imagery composites are more reliable than zones from a single image. Semai automatically uses a seasonal composite when more than three imagery dates are available for the selected season.
 </Info>
@@ -40,13 +56,19 @@ Semai automates zone delineation using the vegetation index of your choice, then
     Choose between **2 and 5 management zones**. For most fields, 3 zones (low, medium, high) provide the right balance of spatial detail and practical manageability. The platform auto-clusters pixels using k-means and displays the resulting zone map immediately.
   </Step>
   <Step title="Review and adjust rates per zone">
-    The system assigns default relative rates scaled to your base application rate. Edit the rate for each zone to match your agronomic targets. For example:
+    The system assigns default relative rates scaled to your base application rate. Edit the rate for each zone to match your agronomic targets. The shape of the table looks like this:
 
-    | Zone | Index range | Suggested use case | Example rate |
-    | --- | --- | --- | --- |
-    | Zone 1 (low) | NDRE \< 0.2 | Corrective high nitrogen | 150 kg/ha |
-    | Zone 2 (medium) | NDRE 0.2–0.35 | Maintenance rate | 120 kg/ha |
-    | Zone 3 (high) | NDRE \> 0.35 | Reduced maintenance | 90 kg/ha |
+    | Zone | Index range | Suggested use case |
+    | --- | --- | --- |
+    | Zone 1 (low) | NDRE \< 0.2 | Corrective high nitrogen |
+    | Zone 2 (medium) | NDRE 0.2–0.35 | Maintenance rate |
+    | Zone 3 (high) | NDRE \> 0.35 | Reduced maintenance |
+
+    <Warning>
+      **No example rates are printed here, deliberately.** An earlier version of this page showed 150 / 120 / 90 kg/ha with no crop and no product attached. Under the rules above every one of those would be refused — there is no `sourced` band in kg/ha for any crop-product pair — so printing them taught the reader the opposite of how the feature behaves.
+
+      What you enter is validated or attributed per the [table above](#what-actually-validates-today). Rates are authored, never illustrated.
+    </Warning>
   </Step>
   <Step title="Submit for review or export">
     A VRA map moves through a review lifecycle before it is applied. Click **Submit for Review** to hand it to an approver, or **Export** directly if you have export permission. See [VRA lifecycle](#vra-lifecycle) below.
@@ -138,9 +160,9 @@ This module follows the shared [guardrails template](/snippets/guardrails-templa
 
 | Category | Rule |
 | --- | --- |
-| **Input validation** | Prescription requires: `field_id`, active crop cycle, `index_basis` (NDVI, NDRE, etc.), product, per-zone rates, and unit. Rates must fall within the crop-specific agronomic min/max declared in the [Risk Model](/concepts/risk-model). Zones must cover the target field with no unintentional gaps or overlaps. The advisor pre-fills the draft from the latest calibration; the user reviews rather than authors. |
+| **Input validation** | Prescription requires: `field_id`, active crop cycle, `index_basis` (NDVI, NDRE, etc.), product, per-zone rates, and unit. Each rate must be **validated** against a `sourced` band **or attributed** to a named entitled author — see [Attribution](/concepts/risk-model#attribution-the-second-route-to-a-permitted-rate). **The unit is checked before the value:** a rate submitted per hectare against a band expressed per palm is refused on the unit, and no min/max comparison is attempted. Zones must cover the target field with no unintentional gaps or overlaps. The advisor may pre-fill a draft from the latest calibration, but **a pre-filled rate has no author** — a person must set or accept it before it can be attributed. |
 | **Preconditions** | Field must have a recent calibration (satellite pass within the cadence declared in the [Crop Cycle Model](/concepts/crop-cycle-models)). Buffer zones near waterways and regulated boundaries must be defined and honored. |
-| **Refusals** | Rates outside agronomic min/max. **A rate with neither a sourced band nor a named author** — see [Attribution](/concepts/risk-model#attribution-the-second-route-to-a-permitted-rate). Missing or expired calibration imagery. Prescriptions on closed cycles. Application inside a regulatory buffer. Agent cannot write prescriptions above the safety floor for restricted products (pesticides, high-nitrogen formulations). **Approval by the author.** |
+| **Refusals** | Rates outside agronomic min/max. **A rate with neither a sourced band nor a named author** — see [Attribution](/concepts/risk-model#attribution-the-second-route-to-a-permitted-rate). **A rate whose unit does not match its band** — per hectare against a per-palm band is refused on the unit, before any min/max check. **Zoning on a saturated index** — where the base index has saturated it does not discriminate, so the clusters are noise; the refusal names the alternative index rather than producing zones. Missing or expired calibration imagery. Prescriptions on closed cycles. Application inside a regulatory buffer. Agent cannot write prescriptions above the safety floor for restricted products (pesticides, high-nitrogen formulations). **Approval by the author.** |
 | **Confirmations** | Export to machine format (leaves the platform; effectively irreversible). Apply-to-fleet across multiple fields (cross-scope). Edit-after-export. Deletion of a prescription with downstream verification records. Override of the "deviation \> 10%" warning on as-applied upload. Drafting, editing, and deleting a pre-export prescription commit optimistically with undo. |
 | **Soft warnings** | Rates near the top of the agronomic band (not over). Draft on a field that already has a recent active prescription for the same product. Draft during a busy application window for the estate. As-applied deviation between 10-20% (informational; over 20% escalates). |
 | **Rate and scope limits** | Fleet-apply capped at N fields per action (org-configurable) because of external cost and blast radius. Agency-facing exports capped per org tier. No hard cap on drafts or in-platform edits. |
