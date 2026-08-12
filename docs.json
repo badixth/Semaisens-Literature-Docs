@@ -351,7 +351,8 @@
           "snippets/guardrails-template",
           "snippets/audit-envelope",
           "snippets/role-model",
-          "snippets/pesticide-registration"
+          "snippets/pesticide-registration",
+          "snippets/band-resolution"
         ]
       },
       {

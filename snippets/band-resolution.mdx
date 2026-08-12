@@ -1,0 +1,54 @@
+---
+title: "How a Band Resolves"
+sidebarTitle: "Band Resolution"
+description: "Why the ecosystem pages carry no single peak NDVI per environment and no environment-independent phase band, and which keys a healthy-NDVI band actually resolves against."
+hidden: true
+---
+
+A **healthy NDVI band** is a definition, not a measurement. It resolves against a fixed set of keys, and every key must be supplied. Drop one and the result is not a wider band - it is no band at all.
+
+## The keys
+
+| Crop | A band resolves against |
+| --- | --- |
+| Paddy | crop × **ecosystem** × **phase** (days after establishment) |
+| Oil palm | crop × **planting environment** × **stand age** |
+| Rubber | crop × **planting environment** × **stand age** |
+| Pineapple | crop × **planting environment** × **phase** (months after planting) × ratoon cycle |
+
+## Why there is no summary band
+
+Earlier revisions of the ecosystem pages carried two shortcuts: a _typical peak NDVI_ figure per environment, and an environment-independent table of bands by phase or stand age. Both have been removed, because **neither resolves to a block.**
+
+A _typical peak_ collapses the phase axis: it answers "what does this environment reach at its best", which is not a question any block asks on any given day. An environment-independent phase table collapses the environment axis, and that one is worse - the numbers have to come from somewhere, and in practice they came from the best-drained environment. Every other environment then reads as underperforming.
+
+A worked example. A 10-year-old oil palm block on inland peat, reading **0.71**:
+
+| Read against | Band | Verdict |
+| --- | --- | --- |
+| Inland peat, 6 - 15 years | 0.68 - 0.82 | In band. Normal. |
+| Environment-independent, 6 - 15 years | 0.75 - 0.88 | Below band. Looks deficient. |
+| "Typical peak", inland peat | 0.65 - 0.82 | In band. Normal. |
+
+One block, one reading, three answers - and the middle one was the table the page told you to use first. The block was never underperforming; it was being read against a mineral-upland expectation.
+
+<Warning>
+  This is the same error as reading a young stand against a prime-mature band, one axis over. A stand that has not closed canopy is not deficient, it is young. A block on peat is not deficient, it is on peat.
+</Warning>
+
+## What to do instead
+
+Set the block's **planting environment** and its **planting or establishment date** in block settings. The platform derives the phase or stand age and resolves the one band that applies. The Health tab legend switches to match.
+
+Where a key cannot be resolved - no environment set, no date, or a scope spanning several environments or age classes - the platform says which key is missing. It does not fall back to a wider band, and it does not average the bands that would have applied.
+
+<Note>
+  A scope that spans several bands has a **distribution**, not a band. Where several resolve, each is named with the ground it covers rather than merged into one range.
+</Note>
+
+## Related
+
+- [Rice Ecosystems](/guides/Crop/Rice/rice-ecosystems)
+- [Oil Palm Ecosystems](/guides/Crop/Oil-Palm/oil-palm-ecosystems)
+- [Rubber Ecosystems](/guides/Crop/Rubber/rubber-ecosystems)
+- [Pineapple Ecosystems](/guides/Crop/Pineapple/pineapple-ecosystems)

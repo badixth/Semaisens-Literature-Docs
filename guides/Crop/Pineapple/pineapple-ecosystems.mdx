@@ -12,12 +12,16 @@ For the generic Health tab workflow, see [Crop Health](/guides/crop-health-monit
 
 ## Pineapple planting environments at a glance
 
-| Environment | Soil / terrain | Typical peak NDVI | Interpretation risk |
-| --- | --- | --- | --- |
-| Mineral upland | Well-drained inland mineral soils, gentle slopes | 0.55 – 0.75 | Baseline. Most stable NDVI signal. |
-| Sandy coastal / BRIS | Coastal sand or BRIS soils, low water retention | 0.45 – 0.68 | Bright soil background inflates apparent NDVI in young stands. |
-| Peat / organic | Drained peat, common for MD2 and Josapine | 0.50 – 0.72 | Dark soil background depresses NDVI early; also subsidence risk. |
-| Highland | Cooler climate, \> 700 m elevation | 0.55 – 0.75 | Slower growth cycle (18 – 24 months); phase windows extend. |
+| Environment | Soil / terrain | Interpretation risk |
+| --- | --- | --- |
+| Mineral upland | Well-drained inland mineral soils, gentle slopes | Baseline. Most stable NDVI signal. |
+| Sandy coastal / BRIS | Coastal sand or BRIS soils, low water retention | Bright soil background inflates apparent NDVI in young stands. |
+| Peat / organic | Drained peat, common for MD2 and Josapine | Dark soil background depresses NDVI early; also subsidence risk. |
+| Highland | Cooler climate, \> 700 m elevation | Slower growth cycle (18 – 24 months); phase windows extend. |
+
+<Note>
+  There is no single peak NDVI for an environment. A band resolves against environment **and** growth phase together, in the per-environment tables below. See [How a band resolves](/snippets/band-resolution).
+</Note>
 
 <Info>
   Ranges on this page are indicative bands drawn from published Sentinel-2 pineapple studies and MPIB / Del Monte agronomy references. The platform refines them automatically once it has one or more cycles of block history.
@@ -35,17 +39,22 @@ Do not compare pineapple NDVI directly against paddy or oil palm. Interpret only
 
 ## Growth phase drives the NDVI curve
 
-Pineapple runs on a 14 – 24 month cycle depending on variety and environment. Use the phase bands below as the primary lens, then adjust for planting environment.
+Pineapple runs on a 14 – 24 month cycle depending on variety and environment. The table below names the phases and what the crop is doing in each. **It carries no NDVI numbers**: a band resolves from phase _and_ planting environment together, so the numbers live in the per-environment tables below. See [How a band resolves](/snippets/band-resolution).
 
-| Phase | Months after planting | Healthy NDVI | Notes |
-| --- | --- | --- | --- |
-| Establishment | 0 – 3 | 0.10 – 0.25 | Mostly bare soil / mulch; small suckers or crowns. |
-| Early vegetative | 3 – 8 | 0.20 – 0.40 | Leaf rosette expanding; inter-row still dominates the pixel. |
-| Late vegetative | 8 – 12 | 0.40 – 0.60 | Rosette closing over the row; peak leaf mass building. |
-| Forcing / floral induction | 12 – 14 | 0.50 – 0.70 | Ethylene / calcium carbide application; NDVI plateau begins. |
-| Fruit development | 14 – 18 | 0.55 – 0.75 | Peak NDVI. Fruit sits atop the plant; canopy stays green. |
-| Ripening / harvest | 18 – 22 | 0.45 – 0.65 | Gradual decline as older leaves senesce. |
-| First ratoon (if kept) | \+ 8 – 14 months | 0.40 – 0.65 | Lower peak than plant crop; more block-to-block variance. |
+| Phase | Months after planting | Notes |
+| --- | --- | --- |
+| Establishment | 0 – 3 | Mostly bare soil / mulch; small suckers or crowns. |
+| Early vegetative | 3 – 8 | Leaf rosette expanding; inter-row still dominates the pixel. |
+| Late vegetative | 8 – 12 | Rosette closing over the row; peak leaf mass building. |
+| Forcing / floral induction | 12 – 14 | Ethylene / calcium carbide application; NDVI plateau begins. |
+| Fruit development | 14 – 18 | Peak NDVI. Fruit sits atop the plant; canopy stays green. |
+| Ripening / harvest | 18 – 22 | Gradual decline as older leaves senesce. |
+
+<Warning>
+  The month windows above are the lowland cycle. **Highland blocks run to a different calendar** — see the Highland table below, where the same six phases sit at 0 – 4, 4 – 10, 10 – 15, 15 – 17, 17 – 22 and 22 – 26 months. A highland block at month 16 is forcing, not fruit development.
+</Warning>
+
+Ratoon crops are handled separately, as an offset applied to the resolved plant-crop band rather than as a phase of their own. See **Ratoon crops** below.
 
 <Info>
   Cycles depend heavily on variety. **MD2** and **Josapine** typically run 14 – 18 months to harvest; **Sarawak / Moris** run 18 – 24 months. Set the variety in block settings so phase windows scale correctly.
@@ -74,7 +83,7 @@ Coastal sand or BRIS (Beach Ridges Interspersed with Swales) soils with low wate
 | Early vegetative | 3 – 8 | 0.18 – 0.38 | Watch for patchy establishment where sand is deepest. |
 | Late vegetative | 8 – 12 | 0.35 – 0.55 | Slower canopy build than mineral upland. |
 | Forcing | 12 – 14 | 0.45 – 0.62 | Drought-driven dips common if irrigation is not applied. |
-| Fruit development | 14 – 18 | 0.50 – 0.68 | Peak plateau ~0.05 – 0.07 lower than mineral upland. |
+| Fruit development | 14 – 18 | 0.50 – 0.68 | Peak plateau. Read against this row, not against the mineral-upland one. |
 | Ripening | 18 – 22 | 0.40 – 0.58 | Earlier decline if terminal drought hits. |
 
 <Tip>
