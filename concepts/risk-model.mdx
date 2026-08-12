@@ -356,9 +356,13 @@ product_bands:
 ### Bands
 
 <Warning>
-  **Every band below is `status: decision_required`.** No Malaysian primary sources (MPOB, MARDI, DOA, RRIM / Malaysian Rubber Board) were available in this drafting session to attribute a defensible min/max per figure. This section establishes the schema, unit policy, and fail-closed rule so the three consuming pages have a live target. **The numeric bands themselves must be filled by an agronomist with the primary documents in hand, one row at a time, and marked `sourced` with an exact citation before validation is enabled in production.**
+  **Almost every band below is `status: decision_required`**, and must be filled by an agronomist with the primary documents in hand, one row at a time, and marked `sourced` with an exact citation before validation is enabled in production. Until a row is marked `sourced`, the platform treats it as undefined and applies the fail-closed rule below.
 
-  Until each row is marked `sourced`, the platform treats it as undefined and applies the fail-closed rule below.
+  **Amended 11 August 2026.** An earlier draft of this warning said no Malaysian primary source publishes a min/max for any crop-product pair. **That is now known to be too strong**, and the exceptions are recorded on the three peat rows below.
+
+  The general finding still holds for **mineral soils**, where every schedule retrieved — including the nine-soil-group replant schedules — is a table of **single point values**. What changed is that MPOB publishes ranges and ceilings for **oil palm on peat**, with stated agronomic reasons.
+
+  **A second correction, on rice.** It was previously recorded that the Department of Agriculture's Leaf Colour Chart nitrogen lookup is unpublished. **It was published**, in _Pakej Teknologi Padi_ (2008), and **removed from the 2022 successor**, which mentions the LCC five times without a number and defers to a mobile application. See the rice note under the table.
 </Warning>
 
 | Crop | Product | Unit | Basis | Min | Max | Source | Status |
@@ -378,10 +382,52 @@ product_bands:
 | Pineapple | MOP | kg product/ha/cycle | season | — | — | MARDI | Decision required |
 | Pineapple | Ethephon (forcing) | mL product/plant | per\_pass | — | — | Malaysian label rate and MARDI forcing protocol; note active-ingredient concentration | Decision required |
 
-**Decision required** (surfaced explicitly so they are not lost in the table):
+### The three rows that are sourced — oil palm on peat
 
-- _Decision required: For rice, does MARDI/DOA publish stage-specific N min/max (tillering, panicle initiation), or only a season total?_ This determines whether the band uses `by_stage` or `basis: season` with per-pass derivation.
-- _Decision required: For oil palm N, K, and Mg, does MPOB publish bands by soil group (inland mineral, coastal clay, peat), or a single band?_ This determines whether the row uses `by_ecosystem` / `by_soil_group` or a flat band.
+**These carry a different unit and a different key from the rows above**, and that is the point rather than an inconsistency: the unit is per palm, not per hectare, and the row is keyed by **soil group**. Per the units policy, a prescription submitted per hectare is rejected before the min/max check runs.
+
+| Crop | Soil group | Product | Unit | Basis | Min | Max | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Oil palm | Peat | MOP (60% K₂O) | kg product/palm/yr | year | **4.0** | **6.0** | **Sourced** |
+| Oil palm | Peat | Urea | kg product/palm/yr | year | **0.5** | **0.6** | **Sourced** |
+| Oil palm | Peat | Rock phosphate | kg product/palm/yr | year | — | **1.0** | **Sourced**, ceiling only |
+
+**Source for all three:** Hasnol Othman, Agronomy & Geospatial Unit, MPOB, _Fertilizer Recommendation and Best Management of Oil Palm on Peat Soil_, Workshop of MPOB–SOPPOA 2016, Sibu, Sarawak, 10 March 2016, section 8.
+
+Verbatim: _"The optimum rate of K fertilizer for oil palm on peat recommended at **4.0 - 6.0 kg MOP palm⁻¹ yr⁻¹**."_ · _"The optimum rate of N fertilizer application is **less than 1.0 kg palm⁻¹ yr⁻¹ of urea (0.5 to 0.6 kg)**."_ · _"The optimum rate of P fertilizer for oil palm on peat **should not exceed 1.0 kg RP palm⁻¹ yr⁻¹**."_
+
+**Both ceilings carry a stated reason**, which is what makes them defensible rather than conventional. The N ceiling is an emissions limit — _"Excessively high N inputs will lead to high nitrous oxide and methane emissions"_. The P ceiling is pathological — _"Excessive P fertilizer application should be avoided to ensure lower Ganoderma basal stem rot incidence"_.
+
+**Two limits on how far these travel.** They are **peat only**, and applying them to a mineral-soil field would be the same class of error as reading a young stand against a prime band. And the same source defers magnesium and mature-palm micronutrients to leaf analysis rather than publishing a rate — _"Mg fertilizer requirement should be base on leaf analysis results"_ — so the absence of an Mg row here is MPOB's position, not a gap in our sourcing.
+
+### Rice — the LCC lookup was published in 2008 and withdrawn in 2022
+
+**This is a documented point recommendation with a trigger, not a band**, so it does not fill a row above. It is recorded because the previous note that no lookup exists was wrong, and because it is the nitrogen rule DOA's own method actually uses.
+
+**Jabatan Pertanian Malaysia, _Pakej Teknologi Padi_, Cetakan Pertama 2008, ISBN 978-983-047-139-6**, Jadual 11 (tabur terus, p. 29) and Jadual 12 (mengubah, p. 30):
+
+- Threshold — _"Tahap kritikal, Leaf Color Chart (LCC) No.3 atau bacaan SPAD kurang 32"_
+- Dose — _"Baja Urea (Tambahan) … **50 kg/ha (luar musim) atau 75 kg/ha (musim utama)**"_
+
+Applied at 35 HLT and again at 50 HLT (direct-seeded) or 55 HLT (transplanted).
+
+**Four caveats travel with those figures and none may be dropped:**
+
+- **The rate is kilograms of urea product, not kilograms of N.** The document never states urea's nitrogen content. Converting silently would be a fabricated figure.
+- **The chart's panel count is never stated.** Shade 3 on a four-panel chart is a different colour from shade 3 on a six-panel chart, and the two are not interchangeable.
+- **It is variety-blind.** No variety column, and MR263 and MR269 do not appear in the document.
+- **Two Malaysian sources disagree.** IADA Pulau Pinang (_Manual Tanaman Padi_, KPKM, 2019) uses **No. 3 for direct-seeded and No. 4 for transplanted**, and prints 76 rather than 75 kg/ha. **Decision required before either is used.**
+
+**The 2022 successor** — _Rice Check: Padi_, ISBN 978-983-047-315-4 — mentions the LCC five times, states no threshold and no dose, and defers to the _"aplikasi LCC Padi"_. Its own rate column is headed `Bantuan Pemberian Kerajaan`, a subsidy allocation rather than an agronomic optimum.
+
+**One behaviour that is safe to encode now.** Main season carries **more** nitrogen than off-season — MARDI \+15%, DOA \+50% on the LCC top-up — and the published reason is **leaching under higher main-season rainfall**, not the yield gap. Main season yields less and receives more. Any interface implying _more fertiliser, more yield_ reads backwards here.
+
+### Decision required
+
+Surfaced explicitly so they are not lost in the table:
+
+- _Decision required: For rice, does MARDI/DOA publish stage-specific N min/max (tillering, panicle initiation), or only a season total?_ This determines whether the band uses `by_stage` or `basis: season` with per-pass derivation. **Partly answered, 11 August 2026: stage-specific, and as points rather than a min/max.** DOA gives four discrete events with named stages and day windows; MARDI gives a season total of 120:70:80 kg N, P₂O₅, K₂O per hectare with N raised 15% for the main season. **Three mutually inconsistent national rates are now on record** — DOA 170:80:150, MARDI 120:70:80, and 90–120 N / 12–18 P / 90–120 K cited in the literature — and none is a function of a soil test. **Which one the platform treats as the reference is a decision, not a lookup.**
+- _Decision required: For oil palm N, K, and Mg, does MPOB publish bands by soil group (inland mineral, coastal clay, peat), or a single band?_ This determines whether the row uses `by_ecosystem` / `by_soil_group` or a flat band. **Partly answered, 11 August 2026.** Peat is handled as its own regime and does carry ranges — see the three sourced rows above. Mineral soils are keyed by **soil series**, not by the three-way inland / coastal / peat split assumed here, and every mineral-soil schedule retrieved is points. **The remaining question is narrower: what does MPOB Oil Palm Bulletin 72 contain?** It is reachable at `palmoilis.mpob.gov.my/publications/OPB/opb72-afandi.pdf` — **no longer a dead link** — but it is a scanned document with no text layer, as are the MPOB TT series. Index snippets show a table classifying nutrients **very low to very high** and a nutrient-balance table. **OCR of that one document is the highest-value outstanding action on this page.**
 - _Decision required: For rubber, do RRIM recommendations distinguish immature (pre-tapping) vs mature (tapped) stands within the min/max, or only in the recommended rate?_ Stands change the band, not just the recipe.
 - _Decision required: For pineapple ethephon, is there a Malaysian primary source (MARDI or the product label registered with Department of Agriculture) that publishes a maximum per-plant dose that can be defended, or should this product be left undefined and therefore refused?_ If no defensible source, leave undefined; the platform will refuse ethephon prescriptions rather than accept any rate.
 - _Decision required: For every row above, the exact citation (document title, year, page or section) that will be recorded on the band. Recommendations change across MARDI/DOA/MPOB revisions; the band must name the revision it comes from._
