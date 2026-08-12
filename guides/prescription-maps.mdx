@@ -14,10 +14,10 @@ VRA (Variable-Rate Application) maps, also called prescription maps, let you mov
 
 Variable-Rate Application (VRA) divides a field into **management zones** - groups of pixels with similar index values that represent areas of comparable agronomic status. Each zone receives a different application rate tailored to its needs. A high-biomass zone might receive a maintenance nitrogen rate, while a consistently low-performing zone gets a corrective higher rate to close the yield gap.
 
-Google automates zone delineation using the vegetation index of your choice, then lets you assign and fine-tune rates per zone before exporting a file your equipment can execute directly.
+Semai automates zone delineation using the vegetation index of your choice, then lets you assign and fine-tune rates per zone before exporting a file your equipment can execute directly.
 
 <Info>
-  Management zones derived from multi-date imagery composites are more reliable than zones from a single image. Google automatically uses a seasonal composite when more than three imagery dates are available for the selected season.
+  Management zones derived from multi-date imagery composites are more reliable than zones from a single image. Semai automatically uses a seasonal composite when more than three imagery dates are available for the selected season.
 </Info>
 
 ## Creating a VRA Map
@@ -62,11 +62,11 @@ Every VRA map moves through a defined lifecycle. Each step emits an event into [
 
 | Stage | Event | Who acts | Effect |
 | --- | --- | --- | --- |
-| **Generated** | `map.generated` | System or agronomist | New map appears in the field's VRA tab. Info-level entry in the feed. |
-| **Reviewed** | `map.reviewed` | Agronomist / supervisor | Map opened, zones and rates confirmed. Comments attached. |
-| **Approved** | `map.approved` | Approver role | Map is locked and export-enabled. |
-| **Exported** | `map.exported` | Operator | Machine-format file downloaded. Timestamp and target device recorded. |
-| **Applied** | `map.applied` | Operator (via as-applied upload) or machinery webhook | Actual application recorded. Triggers `activity_bindings.map.applied` on any rule card the map targets, which typically **resets severity** on that hazard. |
+| **Generated** | `map.generated` | System, `agronomist`, `approver` or `estate_manager` | New map appears in the field's VRA tab. Info-level entry in the feed. |
+| **Reviewed** | `map.reviewed` | `agronomist`, `approver` or `estate_manager` | Map opened, zones and rates confirmed. Comments attached. |
+| **Approved** | `map.approved` | `approver` or `estate_manager`, **and not the author** | Map is locked and export-enabled. Both names are recorded — see [Approval is a second person](#approval-is-a-second-person). |
+| **Exported** | `map.exported` | Anyone entitled to generate, post-approval | Machine-format file downloaded. Timestamp and target device recorded. |
+| **Applied** | `map.applied` | `scout` via as-applied upload, or machinery webhook | Actual application recorded. Triggers `activity_bindings.map.applied` on any rule card the map targets, which typically **resets severity** on that hazard. |
 | **Verified** | `map.verified` | System | Cross-checked against the satellite record for the field and date. Becomes an eligible event for [Verification](/guides/verification) submissions. |
 
 <Tip>
@@ -75,14 +75,35 @@ Every VRA map moves through a defined lifecycle. Each step emits an event into [
 
 ### Roles
 
+**Amended 11 August 2026.** An earlier version of this table named **Operator** and **Read-only**, neither of which is one of the eight functional roles in the [role model](/snippets/role-model). This page predates that model and was never reconciled with it. **The permissions were kept; only the role names changed.**
+
 | Role | Generate | Review | Approve | Export | Upload as-applied |
 | --- | :-: | :-: | :-: | :-: | :-: |
-| Operator | ✓ |  |  | ✓ (post-approval) | ✓ |
-| Agronomist | ✓ | ✓ |  | ✓ | ✓ |
-| Approver / Manager | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Read-only |  | ✓ |  |  |  |
+| `scout` |  |  |  |  | ✓ |
+| `agronomist` | ✓ | ✓ |  | ✓ (post-approval) | ✓ |
+| `approver` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `estate_manager` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `viewer` (org role) |  |  |  |  |  |
 
 Defaults above; role permissions are configurable at the org level.
+
+**Where the old names went, and why.**
+
+**`Operator` → distributed, not renamed.** Its three permissions do not belong to one actor. **Uploading as-applied data is `scout` work** — the role's documented function is _ground-truth work: visits, photos, observations_, and a record of what actually went on the ground is exactly that. **Generating** belongs to `agronomist` and above. **Exporting** is gated on approval and available to anyone in scope who may generate.
+
+**`Read-only` → `viewer`, and its Review tick is removed.** Review is defined in the lifecycle as _"Map opened, zones and rates confirmed. Comments attached."_ Attaching a comment is a write. A role that cannot write cannot review, and the old row was internally contradictory. A `viewer` reads every map on this screen and records nothing against it.
+
+**No ninth functional role was added.** The eight are closed by design, and this page inventing a role is the case that rule exists to prevent. **A role governs permission, not identity** — the audit already records `actor` on every write, so the person who exported or applied a map is named regardless of what their role is called.
+
+### Approval is a second person
+
+**The approver may not be the author.** A prescription that one person writes and the same person approves has had a single reader, and it puts fertiliser on the ground.
+
+This mirrors the acknowledgement rule on [findings](/concepts/finding-provenance), and it binds harder here: a finding is a claim, a prescription is an act. It also matters more since **attribution** became a route to a permitted rate — a rate resting on one person's judgement, approved by that same person, is a single unchecked point of decision on a physical operation.
+
+**The fallback, so a small estate is not deadlocked:** where no other entitled person has been active on the estate for 24 hours, approval falls to `estate_manager`, and the record shows it took the fallback route. Where the author _is_ the `estate_manager`, approval falls to an in-scope `approver`. **If neither exists, the prescription waits — it is not self-approved.**
+
+`map.approved` records both names: who wrote it and who approved it.
 
 ## Export Formats
 
@@ -105,7 +126,7 @@ To upload as-applied data:
 
 1. Go to the field's **VRA** tab and open the completed map.
 2. Click **Upload As-Applied Data** and select your file.
-3. Google overlays the target prescription and the as-applied data side by side, highlighting areas where applied rates deviated from the prescription by more than 10%.
+3. Semai overlays the target prescription and the as-applied data side by side, highlighting areas where applied rates deviated from the prescription by more than 10%.
 
 The upload emits `map.applied` into [Activity & Alerts](/guides/activity-and-alerts) with the deviation summary, and starts the cross-check against the next satellite pass. Once the cross-check passes, the entry becomes eligible for [Verification](/guides/verification).
 
@@ -119,7 +140,7 @@ This module follows the shared [guardrails template](/snippets/guardrails-templa
 | --- | --- |
 | **Input validation** | Prescription requires: `field_id`, active crop cycle, `index_basis` (NDVI, NDRE, etc.), product, per-zone rates, and unit. Rates must fall within the crop-specific agronomic min/max declared in the [Risk Model](/concepts/risk-model). Zones must cover the target field with no unintentional gaps or overlaps. The advisor pre-fills the draft from the latest calibration; the user reviews rather than authors. |
 | **Preconditions** | Field must have a recent calibration (satellite pass within the cadence declared in the [Crop Cycle Model](/concepts/crop-cycle-models)). Buffer zones near waterways and regulated boundaries must be defined and honored. |
-| **Refusals** | Rates outside agronomic min/max. Missing or expired calibration imagery. Prescriptions on closed cycles. Application inside a regulatory buffer. Agent cannot write prescriptions above the safety floor for restricted products (pesticides, high-nitrogen formulations). |
+| **Refusals** | Rates outside agronomic min/max. **A rate with neither a sourced band nor a named author** — see [Attribution](/concepts/risk-model#attribution-the-second-route-to-a-permitted-rate). Missing or expired calibration imagery. Prescriptions on closed cycles. Application inside a regulatory buffer. Agent cannot write prescriptions above the safety floor for restricted products (pesticides, high-nitrogen formulations). **Approval by the author.** |
 | **Confirmations** | Export to machine format (leaves the platform; effectively irreversible). Apply-to-fleet across multiple fields (cross-scope). Edit-after-export. Deletion of a prescription with downstream verification records. Override of the "deviation \> 10%" warning on as-applied upload. Drafting, editing, and deleting a pre-export prescription commit optimistically with undo. |
 | **Soft warnings** | Rates near the top of the agronomic band (not over). Draft on a field that already has a recent active prescription for the same product. Draft during a busy application window for the estate. As-applied deviation between 10-20% (informational; over 20% escalates). |
 | **Rate and scope limits** | Fleet-apply capped at N fields per action (org-configurable) because of external cost and blast radius. Agency-facing exports capped per org tier. No hard cap on drafts or in-platform edits. |
