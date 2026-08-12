@@ -25,6 +25,28 @@ For the base paddy preset and the generic Health tab workflow, see [Crop Health]
   Ranges on this page are indicative bands drawn from published Sentinel-2 and Landsat rice studies and IRRI agronomy references. The platform refines them automatically once it has one or more seasons of field history.
 </Info>
 
+## A reading above the band
+
+The band describes what healthy looks like at this phase in this ecosystem. It is not a floor. **A reading above the band is a finding, not the absence of one** — see [How a band resolves](/snippets/band-resolution).
+
+Paddy is the crop where this matters most, because paddy is the crop whose canopy is **supposed to fall**.
+
+**Through ripening and maturity, high means late, not healthy.** Every ecosystem table on this page drops sharply at the last phase — irrigated lowland goes from 0.75 – 0.90 at heading to 0.40 – 0.65 at ripening. That decline is the crop moving nitrogen and sugars out of the leaves and into the grain. A field still reading heading values at day 110 has **not** got a better canopy than its neighbours; it has delayed maturity. The usual causes are late or excess nitrogen, a variety longer than the one on record, or a late establishment date. All three matter, because all three move the harvest date and two of them raise lodging risk.
+
+**Through the first 30 days, high usually means weeds.** A field that reaches high NDVI too early is often weedy rather than vigorous — the weeds are contributing greenness while the rice stand underneath is poor. This is documented in more detail under [grass weeds](/guides/Crop/Rice/biotic/weeds/grasses).
+
+**Through heading and flowering, the question cannot be asked.**
+
+<Warning>
+  **Saturation carve-out.** NDVI saturates above ~0.8 in every rice ecosystem, which is inside the heading and flowering band on irrigated and rainfed lowland. The platform raises no above-band finding there, and says the reading has saturated before naming its band.
+
+  **Rainfed upland is the exception.** It rarely saturates, so an above-band reading stays readable across the whole season on upland fields.
+</Warning>
+
+<Info>
+  Ripening is the one phase in this documentation where an above-band reading is both readable and consequential on every ecosystem. If only one above-band rule is ever implemented, it should be this one.
+</Info>
+
 ## Irrigated lowland
 
 Controlled water depth, uniform stand, and dense transplanted canopy. This is the baseline used by the default paddy preset in [Crop Health](/guides/crop-health-monitoring).

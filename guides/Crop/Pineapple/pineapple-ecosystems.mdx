@@ -60,6 +60,24 @@ Ratoon crops are handled separately, as an offset applied to the resolved plant-
   Cycles depend heavily on variety. **MD2** and **Josapine** typically run 14 – 18 months to harvest; **Sarawak / Moris** run 18 – 24 months. Set the variety in block settings so phase windows scale correctly.
 </Info>
 
+## A reading above the band
+
+The band describes what healthy looks like at this phase in this environment. It is not a floor. **A reading above the band is a finding, not the absence of one** — see [How a band resolves](/snippets/band-resolution).
+
+Pineapple is the crop where this rule works best, because **pineapple NDVI does not saturate**. It rarely exceeds ~0.75 even at peak, so the whole range stays readable and there is no carve-out to apply.
+
+All three of the usual causes are already documented on this page, and none of them is vigour.
+
+| An above-band reading | Usually means |
+| --- | --- |
+| In the first months, especially before canopy closes over the row | **Weeds.** Weeds add greenness while the pineapple stand underneath may be poor — see [weeds](/guides/Crop/Pineapple/biotic/weeds). The drop comes later, when the weeds are killed or the crop falls behind. |
+| On sandy coastal / BRIS blocks in young stands | **Bright-sand inflation.** Quartz sand reflects strongly in the red, which inflates apparent NDVI even though healthy peak NDVI on BRIS is _lower_ than on mineral upland. |
+| In the first 3 months on mulched blocks | **Silver mulch**, which reads 0.03 – 0.06 higher than the bands assume. Black mulch reads lower. Set the mulch type in block settings so this is corrected automatically. |
+
+<Warning>
+  A pineapple block reading above ~0.75 is almost certainly one of the three above, not an unusually good crop. Treat it as a scouting prompt, not as a clean bill of health.
+</Warning>
+
 ## Mineral upland
 
 Well-drained inland mineral soils on gentle slopes. This is the baseline used by the default pineapple preset in [Crop Health](/guides/crop-health-monitoring). Uniform soil and stable moisture give the cleanest NDVI signal.

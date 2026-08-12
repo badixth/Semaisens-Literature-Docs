@@ -44,6 +44,22 @@ Unlike annual crops, oil palm NDVI climbs slowly for the first ~6 years then pla
   NDVI saturates on closed oil palm canopies. From year 6 onward, switch to **NDRE** or **EVI** for finer differentiation between healthy and mildly stressed blocks.
 </Info>
 
+## A reading above the band
+
+The band describes what healthy looks like at this stand age in this environment. It is not a floor. **A reading above the band is a finding, not the absence of one** — see [How a band resolves](/snippets/band-resolution).
+
+On oil palm the cause depends on where the stand sits in its life.
+
+**Newly planted, immature, or young mature.** The canopy is not closed, so a large part of the pixel is ground between the palms. A reading above the band here usually means the cover crop or interstitial weeds are contributing, or that the planting date on record is wrong and the stand is older than the platform thinks. Neither is vigour. Check the planting date before scouting.
+
+**Prime, late mature, and senescent.** The canopy is closed and NDVI has saturated. An above-band reading here is **not a finding** — it is an unreadable number.
+
+<Warning>
+  **Saturation carve-out.** On closed oil palm canopies NDVI stops discriminating, so a higher reading does not mean a healthier block. The platform raises no above-band finding on a saturated reading and says the reading has saturated before naming its band.
+
+  On oil palm this covers every class from year 6 on — most of the productive life of the stand. NDRE keeps discriminating past that point, but this documentation publishes **no NDRE band** to read against, so an above-band question on a closed canopy currently goes to a scout rather than to the index.
+</Warning>
+
 ## Mineral upland
 
 Well-drained inland mineral soils on rolling terrain. This is the baseline used by the default oil palm preset in [Crop Health](/guides/crop-health-monitoring). Stable water status and uniform soil give the cleanest NDVI signal across the block.
